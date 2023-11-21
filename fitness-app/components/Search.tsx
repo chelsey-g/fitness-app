@@ -1,8 +1,10 @@
 import React, { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function SearchBar() {
   const [searchValue, setSearchValue] = useState("")
   const [results, setResults] = useState([])
+  const router = useRouter()
 
   const handleSearch = () => {
     if (searchValue) {
@@ -32,6 +34,11 @@ export default function SearchBar() {
       })
   }
 
+  const handleSearchClick = (result) => {
+    debugger;
+    router.push(`/workouts/exercise/${result.name}`)
+  };
+
   return (
     <div className="p-4 border border-gray-300 rounded-lg shadow-md ">
       <div className="mb-4 text-center">
@@ -53,7 +60,9 @@ export default function SearchBar() {
         </button>
       <div className="container mx-auto">
         {results.map((result, index) => (
-  <div key={index} className="bg-white shadow-md p-4 mb-4 rounded-lg mt-5">
+  <div key={index} className="bg-white shadow-md p-4 mb-4 rounded-lg mt-5" onClick={() => {
+    handleSearchClick(result);
+  }}>
     <h2 className="text-2xl font-bold text-gray-800">{result.name}</h2>
     <div className="flex">
       <div className="w-1/2">
