@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
 @layer base {
   :root {
     --background: 200 20% 98%;
@@ -39,4 +41,12 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+button .ant-btn-default {
+  background-color: white;
+}
+
+.ant-btn-primary {
+  background-color: #1677ff
 }
