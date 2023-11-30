@@ -1,35 +1,25 @@
-"use client"
-
 import React, { useState } from "react"
-import { Modal, ConfigProvider } from "antd"
+import { Modal, Button } from "antd"
 import AddList from "@/components/AddList"
 
-const App: React.FC = () => {
-<ConfigProvider 
-theme={{
-  Button: {
-    color: '#fff',
-    backgroundColor: '#1890ff',
-    borderColor: '#1890ff',
-  },
-}}>
-}}
-/</ConfigProvider>
-
-
+const App: React.FC = ({ exerciseData }) => {
   const [open, setOpen] = useState(false)
   const [confirmLoading, setConfirmLoading] = useState(false)
+  const [formRef, setFormRef] = useState(null)
 
   const showModal = () => {
     setOpen(true)
   }
 
   const handleOk = () => {
+    if (formRef && formRef.current) {
+      formRef.current.submit()
+    }
     setConfirmLoading(true)
     setTimeout(() => {
       setOpen(false)
       setConfirmLoading(false)
-    }, 2000)
+    }, 50)
   }
 
   const handleCancel = () => {
@@ -45,16 +35,29 @@ theme={{
       >
         Add Workout
       </button>
+
       <Modal
         title="Add Workout To Workout List"
         open={open}
         onOk={handleOk}
-        confirmLoading={confirmLoading}
         onCancel={handleCancel}
+        footer={[
+          <Button key="back" onClick={handleCancel}>
+            Back
+          </Button>,
+          <Button
+            key="submit"
+            htmlType="submit"
+            type="primary"
+            onClick={handleOk}
+          >
+            OK
+          </Button>,
+        ]}
       >
-        <p>
-          <AddList />
-        </p>
+        <div>
+          <AddList exerciseData={exerciseData} setFormRef={setFormRef} />
+        </div>
       </Modal>
     </>
   )

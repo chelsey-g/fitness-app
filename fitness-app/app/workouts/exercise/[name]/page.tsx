@@ -2,14 +2,11 @@
 import Navigation from "@/components/Navigation"
 import WorkOutModal from "@/components/WorkOutModal"
 import React, { useState, useEffect } from "react"
-import { createClient } from "@supabase/supabase-js"
+import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 
 export default function ExercisePage(props) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  )
+  const supabase = createClient()
 
   const [exerciseData, setExerciseData] = useState([])
   const [workouts, setWorkouts] = useState([])
@@ -100,6 +97,7 @@ export default function ExercisePage(props) {
           isWorkOutModalVisible={isWorkOutModalVisible}
           handleOkButton={handleOkButton}
           handleAddWorkout={handleAddWorkout}
+          exerciseData={exerciseData}
         />
         <button
           className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none mt-5 text-center"
