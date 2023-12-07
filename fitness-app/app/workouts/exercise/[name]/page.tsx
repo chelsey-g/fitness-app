@@ -1,7 +1,10 @@
 "use client"
+
+import React, { useEffect, useState } from "react"
+
+import BackButton from "@/components/BackButton"
 import Navigation from "@/components/Navigation"
 import WorkOutModal from "@/components/WorkOutModal"
-import React, { useState, useEffect } from "react"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 
@@ -56,10 +59,6 @@ export default function ExercisePage(props) {
     }
   }
 
-  const handleBackButton = () => {
-    router.push("/workouts")
-  }
-
   const handleOkButton = () => {
     setIsWorkOutModalVisible(false)
   }
@@ -99,12 +98,7 @@ export default function ExercisePage(props) {
           handleAddWorkout={handleAddWorkout}
           exerciseData={exerciseData}
         />
-        <button
-          className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none mt-5 text-center"
-          onClick={handleBackButton}
-        >
-          Back
-        </button>
+        <BackButton />
       </div>
     </>
   )

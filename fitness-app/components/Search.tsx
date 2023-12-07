@@ -25,8 +25,8 @@ export default function SearchBar() {
     fetch(url, options)
       .then((response) => response.json())
       .then((data) => {
-        setResults(data|| [])
-        console.log(data, 'hi')
+        setResults(data || [])
+        console.log(data, "hi")
       })
       .catch((error) => {
         console.error("Error:", error)
@@ -35,9 +35,9 @@ export default function SearchBar() {
   }
 
   const handleSearchClick = (result) => {
-    debugger;
+    debugger
     router.push(`/workouts/exercise/${result.name}`)
-  };
+  }
 
   return (
     <div className="p-4 border border-gray-300 rounded-lg shadow-md ">
@@ -58,32 +58,38 @@ export default function SearchBar() {
         >
           Search
         </button>
-      <div className="container mx-auto">
-        {results.map((result, index) => (
-  <div key={index} className="bg-white shadow-md p-4 mb-4 rounded-lg mt-5" onClick={() => {
-    handleSearchClick(result);
-  }}>
-    <h2 className="text-2xl font-bold text-gray-800">{result.name}</h2>
-    <div className="flex">
-      <div className="w-1/2">
-        <h3 className="text-gray-600 font-bold">Type:</h3>
-      </div>
-      <div className="w-1/2">
-        <h3 className="text-gray-600 font-bold">Difficulty:</h3>
+        <div className="container mx-auto">
+          {results.map((result, index) => (
+            <div
+              key={index}
+              className="bg-white shadow-md p-4 mb-4 rounded-lg mt-5"
+              onClick={() => {
+                handleSearchClick(result)
+              }}
+            >
+              <h2 className="text-2xl font-bold text-gray-800">
+                {result.name}
+              </h2>
+              <div className="flex">
+                <div className="w-1/2">
+                  <h3 className="text-gray-600 font-bold">Type:</h3>
+                </div>
+                <div className="w-1/2">
+                  <h3 className="text-gray-600 font-bold">Difficulty:</h3>
+                </div>
+              </div>
+              <div className="flex">
+                <div className="w-1/2">
+                  <p className="text-gray-600">{result.type}</p>
+                </div>
+                <div className="w-1/2">
+                  <p className="text-gray-600">{result.difficulty}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
-    <div className="flex">
-      <div className="w-1/2">
-        <p className="text-gray-600">{result.type}</p>
-      </div>
-      <div className="w-1/2">
-       <p className="text-gray-600">{result.difficulty}</p>
-      </div>
-    </div>
-  </div>
-))}
-      </div>
-      </div>
-
-    </div>
-  )}
+  )
+}

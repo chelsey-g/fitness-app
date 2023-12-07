@@ -1,25 +1,70 @@
-import React, { useState } from "react"
-import { Modal, Button } from "antd"
+import { Button, Form, Modal } from "antd"
+import React, { use, useEffect, useState } from "react"
+
 import AddList from "@/components/AddList"
+import { createClient } from "@/utils/supabase/client"
+import { useRouter } from "next/navigation"
 
 const App: React.FC = ({ exerciseData }) => {
   const [open, setOpen] = useState(false)
-  const [confirmLoading, setConfirmLoading] = useState(false)
-  const [formRef, setFormRef] = useState(null)
+  const [workout, setWorkout] = useState("")
+  const [list, setList] = useState("")
+  const [listId, setListId] = useState("")
+
+  const supabase = createClient()
+  const router = useRouter()
+
+  useEffect(() => {
+    async function fetchLists() {
+      let { data: lists, error } = await supabase.from("lists").select("*")
+      setList(lists)
+    }
+    fetchLists()
+  }, [])
+
+  useEffect(() => {
+    async function fetchWorkouts() {
+      let { data: workouts, error } = await supabase
+        .from("workouts")
+        .select("*")
+      setWorkout(workouts)
+    }
+    fetchWorkouts()
+  }, [])
+
+  const handleAddExerciseToList = async (event) => {
+    const { data, error } = await supabase
+      .from("workouts")
+      .insert({ name: exerciseData[0].name, details: exerciseData[0] })
+      .select()
+      .single()
+    if (error) {
+      console.log("Error inserting data into Supabase:", error)
+    } else {
+      router.push("/workouts")
+      console.log("Data inserted successfully!!!!:", data)
+    }
+
+    const { data: data1, error: error1 } = await supabase
+      .from("workouts_lists")
+      .insert({ workout_id: data.id, list_id: event.list_id })
+      .select()
+      .single()
+    console.log("data1", data1)
+    if (error1) {
+      console.log("Error inserting data into Supabase:", error1)
+    } else {
+      console.log("Data inserted successfully$$$$$:", data1)
+    }
+    setOpen(false)
+  }
 
   const showModal = () => {
     setOpen(true)
   }
 
   const handleOk = () => {
-    if (formRef && formRef.current) {
-      formRef.current.submit()
-    }
-    setConfirmLoading(true)
-    setTimeout(() => {
-      setOpen(false)
-      setConfirmLoading(false)
-    }, 50)
+    setOpen(false)
   }
 
   const handleCancel = () => {
@@ -39,25 +84,43 @@ const App: React.FC = ({ exerciseData }) => {
       <Modal
         title="Add Workout To Workout List"
         open={open}
-        onOk={handleOk}
+        // onOk={handleAddExerciseToList}
         onCancel={handleCancel}
-        footer={[
-          <Button key="back" onClick={handleCancel}>
-            Back
-          </Button>,
-          <Button
-            key="submit"
-            htmlType="submit"
-            type="primary"
-            onClick={handleOk}
-          >
-            OK
-          </Button>,
-        ]}
+        footer={null}
+        // footer={[
+        //   <Button key="back" onClick={handleCancel}>
+        //     Back
+        //   </Button>,
+        //   <Button
+        //     key="submit"
+        //     htmlType="submit"
+        //     type="primary"
+        //     // onClick={handleAddExerciseToList}
+        //   >
+        //     OK
+        //   </Button>,
+        // ]}
       >
-        <div>
-          <AddList exerciseData={exerciseData} setFormRef={setFormRef} />
-        </div>
+        <Form
+          name="lists"
+          labelCol={{ flex: "110px" }}
+          labelAlign="left"
+          labelWrap
+          wrapperCol={{ flex: 1 }}
+          colon={false}
+          style={{ maxWidth: 600 }}
+          onFinish={handleAddExerciseToList}
+        >
+          <Form.Item name="list_id">
+            <AddList
+              exerciseData={exerciseData}
+              onChange={(val) => setListId(val)}
+            />
+          </Form.Item>
+          <Button htmlType="submit" type="primary">
+            Add Workout
+          </Button>
+        </Form>{" "}
       </Modal>
     </>
   )
