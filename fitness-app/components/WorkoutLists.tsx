@@ -7,12 +7,12 @@ import { createClient } from "@/utils/supabase/client"
 
 export default function WorkoutLists() {
   const [lists, setLists] = useState([])
-  const [workouts, setWorkouts] = useState([])
-
   const supabase = createClient()
 
   const fetchLists = async () => {
-    const { data, error } = await supabase.from("lists").select("id, name")
+    const { data, error } = await supabase
+      .from("lists")
+      .select(`id, name, workouts_lists(workouts(count))`)
 
     if (error) {
       console.log("Error fetching lists!", error)
@@ -22,30 +22,18 @@ export default function WorkoutLists() {
     setLists(data)
   }
 
+  console.log(lists, "lists")
+
   useEffect(() => {
     fetchLists()
   }, [])
 
-  const fetchWorkouts = async () => {
-    const { data: workoutData, error } = await supabase
-      .from("workouts_lists")
-      .select(`*, workouts ( * )`)
-      .eq("list_id", "workout_id")
-
-    if (error) {
-      console.log("Error fetching workouts!", error)
-      return
-    }
-
-    setWorkouts(workoutData)
+  const getTotalExerciseCount = (exercises) => {
+    return exercises.reduce(
+      (total, exercise) => total + exercise.workouts.count,
+      0
+    )
   }
-
-  useEffect(() => {
-    fetchWorkouts()
-  }, [])
-
-  console.log(lists, "lists")
-  console.log(workouts, "workouts")
 
   function getRandomColor() {
     const colors = [
@@ -96,7 +84,10 @@ export default function WorkoutLists() {
                   {list.name}
                 </Link>
               </div>
-              <div className="text-black font-bold">6 exercises</div>
+
+              <div className="text-black font-bold">
+                {getTotalExerciseCount(list.workouts_lists)} exercies
+              </div>
               {/* <button
       onClick={() => handleDeleteWorkout(list.id)}
       className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
