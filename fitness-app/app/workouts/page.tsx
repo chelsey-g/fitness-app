@@ -1,16 +1,13 @@
 "use client"
-import SearchComponent from "@/components/Search"
+
+import React, { useState } from "react"
+
 import Navigation from "@/components/Navigation"
+import SearchBar from "@/components/Search"
 import WorkoutLists from "@/components/WorkoutLists"
-import { useState, useEffect } from "react"
 
 export default function WorkoutsPage() {
   const [searchResults, setSearchResults] = useState([])
-  const [showWorkouts, setShowWorkouts] = useState(true)
-
-  useEffect(() => {
-    setShowWorkouts(searchResults.length === 0)
-  }, [searchResults])
 
   const handleSearchResults = (results) => {
     setSearchResults(results)
@@ -19,8 +16,8 @@ export default function WorkoutsPage() {
   return (
     <div className="p-space-x-0.5">
       <Navigation />
-      <SearchComponent handleSearchResults={handleSearchResults} />
-      <div>{showWorkouts && <WorkoutLists />}</div>
+      <SearchBar onResultsChange={handleSearchResults} />
+      {searchResults.length === 0 && <WorkoutLists />}
     </div>
   )
 }

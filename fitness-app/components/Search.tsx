@@ -1,9 +1,13 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
+
+import DifficultyFilter from "@/components/DifficultyFilter"
 import { useRouter } from "next/navigation"
 
-export default function SearchBar() {
+export default function SearchBar({ onResultsChange }) {
   const [searchValue, setSearchValue] = useState("")
   const [results, setResults] = useState([])
+  const [difficulty, setDifficulty] = useState("")
+  const [type, setType] = useState("")
   const router = useRouter()
 
   const handleSearch = () => {
@@ -13,7 +17,13 @@ export default function SearchBar() {
   }
 
   const searchExercise = (searchValue) => {
-    const url = `https://exercises-by-api-ninjas.p.rapidapi.com/v1/exercises?name=${searchValue}`
+    let url = `https://exercises-by-api-ninjas.p.rapidapi.com/v1/exercises?name=${searchValue}`
+    if (difficulty) {
+      url += `&difficulty=${difficulty}`
+    }
+    if (type) {
+      url += `&type=${type}`
+    }
     const options = {
       method: "GET",
       headers: {
@@ -34,9 +44,27 @@ export default function SearchBar() {
       })
   }
 
+  useEffect(() => {
+    if (searchValue) {
+      searchExercise(searchValue)
+    }
+  }, [difficulty, type])
+
+  useEffect(() => {
+    onResultsChange(results)
+  }, [results, onResultsChange])
+
   const handleSearchClick = (result) => {
     debugger
     router.push(`/workouts/exercise/${result.name}`)
+  }
+
+  const handleDifficultyChange = (difficulty) => {
+    setDifficulty(difficulty)
+  }
+
+  const handleTypeChange = (type) => {
+    setType(type)
   }
 
   return (
@@ -58,6 +86,12 @@ export default function SearchBar() {
         >
           Search
         </button>
+        {results.length > 0 && (
+          <DifficultyFilter
+            difficulty={difficulty}
+            onChange={handleDifficultyChange}
+          />
+        )}
         <div className="container mx-auto">
           {results.map((result, index) => (
             <div
