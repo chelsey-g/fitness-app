@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 
+import InfoDropdown from "@/components/InfoDropdown"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/client"
 
@@ -12,7 +13,7 @@ export default function WorkoutLists() {
   const fetchLists = async () => {
     const { data, error } = await supabase
       .from("lists")
-      .select(`id, name, workouts_lists(workouts(count))`)
+      .select(`id, name, created_at, workouts_lists(workouts(count))`)
 
     if (error) {
       console.log("Error fetching lists!", error)
@@ -47,17 +48,6 @@ export default function WorkoutLists() {
     return colors[Math.floor(Math.random() * colors.length)]
   }
 
-  // const handleDeleteWorkout = async (id) => {
-  //   const { error } = await supabase.from("lists").delete().eq("id", id)
-
-  //   if (error) {
-  //     console.log("Error deleting workout!", error)
-  //   } else {
-  //     fetchLists()
-  //     console.log("Workout deleted!")
-  //   }
-  // }
-
   return (
     <div className="space-x-0.5">
       <div>
@@ -84,16 +74,10 @@ export default function WorkoutLists() {
                   {list.name}
                 </Link>
               </div>
-
-              <div className="text-black font-bold">
-                {getTotalExerciseCount(list.workouts_lists)} exercies
+              <div className="flex items-center text-black font-bold">
+                {getTotalExerciseCount(list.workouts_lists)} exercises
+                <InfoDropdown listData={lists} />
               </div>
-              {/* <button
-      onClick={() => handleDeleteWorkout(list.id)}
-      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
-    >
-      Delete
-    </button>  */}
             </div>
           ))}
         </div>

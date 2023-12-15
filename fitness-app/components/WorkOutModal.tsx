@@ -84,22 +84,8 @@ const App: React.FC = ({ exerciseData }) => {
       <Modal
         title="Add Workout To Workout List"
         open={open}
-        // onOk={handleAddExerciseToList}
         onCancel={handleCancel}
         footer={null}
-        // footer={[
-        //   <Button key="back" onClick={handleCancel}>
-        //     Back
-        //   </Button>,
-        //   <Button
-        //     key="submit"
-        //     htmlType="submit"
-        //     type="primary"
-        //     // onClick={handleAddExerciseToList}
-        //   >
-        //     OK
-        //   </Button>,
-        // ]}
       >
         <Form
           name="lists"

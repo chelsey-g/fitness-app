@@ -68,7 +68,7 @@ export default function SearchBar({ onResultsChange }) {
   }
 
   return (
-    <div className="p-4 border border-gray-300 rounded-lg shadow-md ">
+    <div className="p-4 rounded-lg shadow-md ">
       <div className="mb-4 text-center">
         <input
           className="w-5/6
