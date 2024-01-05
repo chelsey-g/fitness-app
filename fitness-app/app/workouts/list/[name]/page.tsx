@@ -49,8 +49,8 @@ export default async function ListPage(props) {
                   {result.workouts.details.difficulty}
                 </p>
               </div>
+              <DeleteButton listData={listData} />
             </div>
-            <DeleteButton listData={listData} />
             {/* <BackButton /> */}
           </div>
         ))}
