@@ -5,7 +5,7 @@ export default function Navigation() {
     <nav className="bg-blue-500 p-4 mb-5 mt-8 rounded-lg">
       <div className="container mx-auto">
         <div className="flex justify-between items-center">
-          <a href="#" className="text-white text-2xl font-semibold mr-10">
+          <a href="/" className="text-white text-2xl font-semibold mr-10">
             Fitness App
           </a>
           <ul className="flex space-x-4">
@@ -28,10 +28,18 @@ export default function Navigation() {
               </a>
             </li>
             <li>
+              <a
+                href="/competitions"
+                className="text-white hover:text-gray-300"
+              >
+                Challenges
+              </a>
+            </li>
+            {/* <li>
               <Link href="/workouts" className="text-white hover:text-gray-300">
                 Workouts
               </Link>
-            </li>
+            </li> */}
             <li>
               <a href="/login" className="text-white hover:text-gray-300">
                 Login

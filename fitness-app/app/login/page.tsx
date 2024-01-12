@@ -3,10 +3,10 @@ import Messages from "./messages"
 
 export default function Login() {
   return (
-    <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2">
+    <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2 bg-prm-bkg">
       <Link
         href="/"
-        className="absolute left-8 top-8 py-2 px-4 rounded-md no-underline text-foreground bg-btn-background hover:bg-btn-background-hover flex items-center group text-sm"
+        className="absolute left-8 top-8 py-2 px-4 rounded-md no-underline text-foreground bg-trd-bkg hover:bg-trd-bkg flex items-center group text-sm "
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -18,7 +18,7 @@ export default function Login() {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1"
+          className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1 bg-snd-bkg group-hover:bg-snd-bkg-hover rounded-md"
         >
           <polyline points="15 18 9 12 15 6" />
         </svg>{" "}
@@ -30,6 +30,10 @@ export default function Login() {
         action="/auth/sign-in"
         method="post"
       >
+        <img src="/images/text-logo.png" className="w-25 self-center" />
+        <h2 className="text-1xl text-center italic mb-2">
+          Fitness at Your Fingertips
+        </h2>
         <label className="text-md" htmlFor="email">
           Email
         </label>
@@ -49,12 +53,12 @@ export default function Login() {
           placeholder="••••••••"
           required
         />
-        <button className="bg-blue-600 rounded-md px-4 py-2 text-foreground mb-2">
+        <button className="bg-snd-bkg rounded-md px-4 py-2 text-foreground mb-2">
           Sign In
         </button>
         <button
           formAction="/auth/sign-up"
-          className="border border-foreground/20 rounded-md px-4 py-2 text-foreground mb-2"
+          className="border border-foreground/20 rounded-md px-4 py-2 text-foreground mb-2 bg-trd-bkg hover:bg-trd-bkg-hover"
         >
           Sign Up
         </button>
