@@ -16,7 +16,7 @@ export default async function CompetitionsPage() {
         Current Competitions
       </h1>
       <div className="p-4">
-        <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded flex items-center">
+        <button className="bg-snd-bkg hover:bg-red-700 text-white font-bold py-2 px-4 rounded flex items-center">
           <IoIosAdd className="mr-2" />
           Create
         </button>

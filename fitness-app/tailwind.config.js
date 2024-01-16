@@ -12,6 +12,8 @@ module.exports = {
         "prm-bkg": "#62b77a",
         "snd-bkg": "#095840",
         "trd-bkg": "#34A283",
+        "nav-bkg": "#008BC8",
+        "blurb-bkg": "#f6e1f4",
         btn: {
           background: "hsl(var(--btn-background))",
           "background-hover": "hsl(var(--btn-background-hover))",

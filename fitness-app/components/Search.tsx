@@ -68,7 +68,7 @@ export default function SearchBar({ onResultsChange }) {
   }
 
   return (
-    <div className="p-4 rounded-lg shadow-md ">
+    <div className="p-4 rounded-lg ">
       <div className="mb-4 text-center">
         <input
           className="w-5/6
@@ -79,7 +79,7 @@ export default function SearchBar({ onResultsChange }) {
           onChange={(e) => setSearchValue(e.target.value)}
         />
         <button
-          className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none ml-2 "
+          className="py-2 px-4 bg-snd-bkg hover:bg-blue-600 text-white rounded-md focus:outline-none ml-2 "
           onClick={() => {
             handleSearch()
           }}
