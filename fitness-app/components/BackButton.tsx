@@ -1,18 +1,16 @@
 "use client"
 
+import { IoClose } from "react-icons/io5"
 import { useRouter } from "next/navigation"
 
 export default function BackButton() {
   const router = useRouter()
   return (
     <div>
-      <button
-        className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none mt-5 text-center"
-        type="button"
+      <IoClose
+        className="bg-prm-bkg hover:opacity-90 rounded flex ml-auto cursor-pointer"
         onClick={() => router.back()}
-      >
-        Back
-      </button>
+      ></IoClose>
     </div>
   )
 }
