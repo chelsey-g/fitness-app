@@ -29,18 +29,10 @@ export default function Navigation() {
               </a>
             </li>
             <li>
-              <a
-                href="/competitions"
-                className="text-white hover:text-gray-300"
-              >
-                Challenges
+              <a href="/workouts" className="text-white hover:text-gray-300">
+                Workouts
               </a>
             </li>
-            {/* <li>
-              <Link href="/workouts" className="text-white hover:text-gray-300">
-                Workouts
-              </Link>
-            </li> */}
             <li>
               <a href="/login" className="text-white hover:text-gray-300">
                 Login

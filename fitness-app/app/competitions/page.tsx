@@ -1,6 +1,8 @@
 "use client"
 
 import { IoIosAdd } from "react-icons/io"
+import { IoIosInformationCircleOutline } from "react-icons/io"
+import Link from "next/link"
 import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
@@ -36,9 +38,15 @@ export default async function CompetitionsPage() {
             key={index}
             className="p-4 mb-4 mt-4 bg-white shadow-md rounded-lg"
           >
-            <h2 className="text-2xl font-bold text-gray-800 cursor-pointer">
+            <Link
+              href={`/competitions/${result.name}`}
+              className="ml-3 text-black hover:text-blue-800 font-medium"
+            >
               {result.name}
-            </h2>
+            </Link>
+            <button className="float-right">
+              <IoIosInformationCircleOutline />
+            </button>
           </div>
         ))}
       </div>
