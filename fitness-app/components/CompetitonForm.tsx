@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 
+import AddPlayers from "@/components/AddPlayers"
 import BackButton from "@/components/BackButton"
 import Navigation from "./Navigation"
 import { createClient } from "@/utils/supabase/client"
@@ -10,13 +11,15 @@ import { useRouter } from "next/navigation"
 export default function CompetitionForm() {
   const supabase = createClient()
   const router = useRouter()
-  const [competitionData, setCompetitionData] = useState({
-    name: "",
-    date_started: "",
-    date_ending: "",
-  })
+
+  const [competitionData, setCompetitionData] = useState(null)
+
   const [addPlayers, setAddPlayers] = useState(false)
-  const [players, setPlayers] = useState([{ first_name: "", last_name: "" }])
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState([])
+
+  const handleSelectPlayers = (selectedPlayers) => {
+    setSelectedPlayerIds(selectedPlayers)
+  }
 
   const handleChange = (e) => {
     setCompetitionData({ ...competitionData, [e.target.name]: e.target.value })
@@ -25,48 +28,56 @@ export default function CompetitionForm() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    const { data: competitions, error: competitionError } = await supabase
+    const { data: competitionInfo, error } = await supabase
       .from("competitions")
-      .insert([competitionData])
+      .insert([
+        {
+          name: competitionData.name,
+          date_started: competitionData.date_started,
+          date_ending: competitionData.date_ending,
+        },
+      ])
 
-    console.log("Competition inserted successfully:", competitions)
-    const playersData = players.map((player) => ({
-      ...player,
-    }))
-    const { data: playersInfo, error: playersError } = await supabase
-      .from("players")
-      .insert(playersData)
+    if (error) {
+      console.error("Error inserting competition:", error)
+    }
 
-    console.log("Players inserted successfully:", playersInfo)
+    const { data: competitionIdData, error2 } = await supabase
+      .from("competitions")
+      .select("id")
+      .eq("name", competitionData.name)
 
+    if (error2) {
+      console.error("Error getting competition id:", error2)
+    }
+
+    const competitionId = competitionIdData[0].id
+
+    console.log(competitionId)
+
+    const { data, error1 } = await supabase.from("competitions_players").insert(
+      selectedPlayerIds.map((playerId) => ({
+        player_id: playerId,
+        competition_id: competitionId,
+      }))
+    )
+
+    if (error1) {
+      console.error("Error inserting competition players:", error1)
+      return
+    }
+
+    console.log("Competition and players inserted successfully!")
     router.push("/competitions")
   }
 
   const handleAddPlayers = (e) => {
     e.target.value === "yes" ? setAddPlayers(true) : setAddPlayers(false)
   }
-  const handlePlayersChange = (index, e) => {
-    const updatedPlayers = players.map((player, playerIndex) => {
-      if (index === playerIndex) {
-        return { ...player, [e.target.name]: e.target.value }
-      }
-      return player
-    })
-    setPlayers(updatedPlayers)
-  }
-
-  //remove and add player fields
-  const addPlayerFields = () => {
-    setPlayers([...players, { first_name: "", last_name: "" }])
-  }
-  const removePlayerFields = (index) => {
-    setPlayers(players.filter((_, playerIndex) => index !== playerIndex))
-  }
-
   return (
     <>
       <Navigation />
-      <div className="p-4 mb-5 mt-8 rounded-lg">
+      <div className="p-4 mb-5 mt-8 rounded-lg w-3/5">
         <form
           onSubmit={handleSubmit}
           className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
@@ -85,7 +96,7 @@ export default function CompetitionForm() {
               type="text"
               placeholder="Competition Name"
               name="name"
-              value={competitionData.name}
+              value={competitionData?.name}
               onChange={handleChange}
               required
             />
@@ -93,15 +104,15 @@ export default function CompetitionForm() {
           <div className="mb-4">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="players"
+              htmlFor="selectPlayers"
             >
-              Adding Players?
+              Select Players
             </label>
             <label className="block text-gray-700 text-sm font-bold mb-2">
               <input
                 className="mr-2"
                 type="radio"
-                name="players"
+                name="selectPlayers"
                 value="yes"
                 onChange={handleAddPlayers}
                 checked={addPlayers === true}
@@ -112,7 +123,7 @@ export default function CompetitionForm() {
               <input
                 className="mr-2"
                 type="radio"
-                name="players"
+                name="selectPlayers"
                 value="no"
                 onChange={handleAddPlayers}
                 checked={addPlayers === false}
@@ -120,48 +131,15 @@ export default function CompetitionForm() {
               No
             </label>
           </div>
-          {addPlayers &&
-            players.map((player, index) => (
-              <div key={index} className="mb-4">
-                <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  type="text"
-                  placeholder="First Name"
-                  name="first_name"
-                  value={player.first_name}
-                  onChange={(e) => handlePlayersChange(index, e)}
-                />
-                <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  type="text"
-                  placeholder="Last Name"
-                  name="last_name"
-                  value={player.last_name}
-                  onChange={(e) => handlePlayersChange(index, e)}
-                />
-                {players.length > 1 && (
-                  <button
-                    type="button"
-                    className="bg-snd-bkg hover:opacity-90 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                    onClick={() => removePlayerFields(index)}
-                  >
-                    Remove
-                  </button>
-                )}
-              </div>
-            ))}
+
           {addPlayers && (
-            <button
-              type="button"
-              onClick={addPlayerFields}
-              className="bg-snd-bkg hover:opacity-90 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mb-3"
-            >
-              Add More Players
-            </button>
+            <div className="mb-4">
+              <AddPlayers selectPlayers={handleSelectPlayers} />
+            </div>
           )}
           <div className="mb-4">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-gray-700 text-sm font-bold mb-2 mt-4"
               htmlFor="date_started"
             >
               Start Date
@@ -171,7 +149,7 @@ export default function CompetitionForm() {
               id="date_started"
               type="date"
               name="date_started"
-              value={competitionData.date_started}
+              value={competitionData?.date_started}
               onChange={handleChange}
             />
           </div>
@@ -187,7 +165,7 @@ export default function CompetitionForm() {
               id="date_ending"
               type="date"
               name="date_ending"
-              value={competitionData.date_ending}
+              value={competitionData?.date_ending}
               onChange={handleChange}
             />
           </div>

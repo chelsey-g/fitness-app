@@ -14,6 +14,7 @@ module.exports = {
         "trd-bkg": "#34A283",
         "nav-bkg": "#008BC8",
         "blurb-bkg": "#f6e1f4",
+        "head-clr": "#2F4858",
         btn: {
           background: "hsl(var(--btn-background))",
           "background-hover": "hsl(var(--btn-background-hover))",
