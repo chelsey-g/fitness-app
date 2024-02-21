@@ -2,7 +2,7 @@ import Link from "next/link"
 
 export default function Navigation() {
   return (
-    <nav className="bg-trd-bkg p-4 mb-5 mt-8 rounded-lg w-3/4">
+    <nav className="bg-trd-bkg p-4 mb-5 mt-8 rounded-lg ">
       <div className="container mx-auto">
         <div className="flex justify-between items-center">
           <img

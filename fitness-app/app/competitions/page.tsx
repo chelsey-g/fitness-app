@@ -15,6 +15,10 @@ export default async function CompetitionsPage() {
     .from("competitions")
     .select(`name`)
 
+  if (error) {
+    console.log("error", error)
+  }
+
   const handleCreateCompetition = () => {
     router.push("/competitions/create")
   }
