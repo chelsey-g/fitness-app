@@ -5,15 +5,14 @@ import { useEffect, useState } from "react"
 import DropdownMenu from "@/components/DropdownMenu"
 import Navigation from "@/components/Navigation"
 import WeightGraph from "@/components/WeightGraph"
-import { createClient } from "@supabase/supabase-js"
+import { createClient } from "@/utils/supabase/client"
 
 export default function WeightChartPage() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  )
+  const supabase = createClient()
 
   const [weightData, setWeightData] = useState(null)
+  const [selectedMonth, setSelectedMonth] = useState("")
+  const [showGraph, setShowGraph] = useState(false)
 
   useEffect(() => {
     const fetchWeightData = async () => {
@@ -43,37 +42,66 @@ export default function WeightChartPage() {
     fetchWeightData()
   }, [])
 
+  const handleMonthSelect = (month) => {
+    setSelectedMonth(month)
+  }
+
+  const filteredData = selectedMonth
+    ? weightData?.filter((month) => month.date.includes(selectedMonth))
+    : weightData
+
   return (
-    <div className="container mx-auto my-8 p-4">
+    <div className=" my-8 p-4 rounded">
       <Navigation />
 
-      <div className="bg-white shadow-md rounded my-6">
-        <p className="py-2 px-4 bg-blue-500 text-white font-semibold">
-          Weight Chart
-        </p>
-        <p>
-          <DropdownMenu />
-        </p>
-        <table className="min-w-full table-auto">
-          <thead>
-            <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-              <th className="py-3 px-6 text-left">Date</th>
-              <th className="py-3 px-6 text-left">Weight</th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-600 text-sm font-light">
-            {weightData?.map((data, index) => (
-              <tr
-                key={index}
-                className="border-b border-gray-200 hover:bg-gray-100"
-              >
-                <td className="py-2 px-6">{data.date}</td>
-                <td className="py-2 px-6">{data.weight}</td>
+      <div className="bg-white shadow-md rounded-lg my-6 p-4">
+        <h2 className="text-lg font-semibold mb-4 text-snd-bkg w-3/4">
+          Weight History
+        </h2>
+        <div className="flex justify-end mb-4">
+          <DropdownMenu selectMonth={handleMonthSelect} />
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full table-auto">
+            <thead>
+              <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                <th className="py-3 px-6 text-left">Date</th>
+                <th className="py-3 px-6 text-left">Weight</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        <WeightGraph data={weightData} />
+            </thead>
+            <tbody className="text-gray-600 text-sm font-light">
+              {filteredData && filteredData.length > 0 ? (
+                filteredData.map((data, index) => (
+                  <tr
+                    key={index}
+                    className="border-b border-gray-200 hover:bg-gray-100"
+                  >
+                    <td className="py-3 px-6">{data.date}</td>
+                    <td className="py-3 px-6">{data.weight}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="2"
+                    className="py-3 px-6 text-center text-gray-500"
+                  >
+                    No results found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex justify-center mt-4">
+          <button
+            className="bg-snd-bkg text-white py-2 px-4 rounded items-center"
+            onClick={() => setShowGraph(!showGraph)}
+          >
+            Show Graph
+          </button>
+          {showGraph && <WeightGraph data={weightData} />}
+        </div>
       </div>
     </div>
   )
