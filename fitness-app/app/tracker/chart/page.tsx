@@ -6,49 +6,41 @@ import DropdownMenu from "@/components/DropdownMenu"
 import Navigation from "@/components/Navigation"
 import WeightGraph from "@/components/WeightGraph"
 import { createClient } from "@/utils/supabase/client"
+import dayjs from "dayjs"
 
 export default function WeightChartPage() {
   const supabase = createClient()
 
   const [weightData, setWeightData] = useState(null)
-  const [selectedMonth, setSelectedMonth] = useState("")
   const [showGraph, setShowGraph] = useState(false)
+  const [startDate, setStartDate] = useState(null)
+  const [endDate, setEndDate] = useState(null)
 
   useEffect(() => {
     const fetchWeightData = async () => {
       try {
         const { data, error } = await supabase
           .from("weight_tracker")
-          .select("date_entry, weight")
+          .select("*")
+          .gte("date_entry", startDate)
+          .lte("date_entry", endDate)
 
         if (error) {
           throw error
         }
-
-        const formattedData = data.map((item) => ({
-          ...item,
-          date: new Date(item.date_entry).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
-        }))
-
-        setWeightData(formattedData)
+        console.log("Fetched weight data:", data)
+        setWeightData(data)
       } catch (error) {
-        console.error("Error fetching weight data!", error)
+        console.error("Error fetching weight data:", error)
       }
     }
+
     fetchWeightData()
-  }, [])
+  }, [startDate, endDate])
 
-  const handleMonthSelect = (month) => {
-    setSelectedMonth(month)
+  const handleFormattedDate = (date) => {
+    return dayjs(date).format("MMMM DD, YYYY")
   }
-
-  const filteredData = selectedMonth
-    ? weightData?.filter((month) => month.date.includes(selectedMonth))
-    : weightData
 
   return (
     <div className=" my-8 p-4 rounded">
@@ -59,7 +51,14 @@ export default function WeightChartPage() {
           Weight History
         </h2>
         <div className="flex justify-end mb-4">
-          <DropdownMenu selectMonth={handleMonthSelect} />
+          <DropdownMenu
+            initialStartDate={startDate}
+            initialEndDate={endDate}
+            handleDateChange={(dates) => {
+              setStartDate(dates[0])
+              setEndDate(dates[1])
+            }}
+          />
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto">
@@ -67,17 +66,20 @@ export default function WeightChartPage() {
               <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                 <th className="py-3 px-6 text-left">Date</th>
                 <th className="py-3 px-6 text-left">Weight</th>
+                <th className="py-3 px-6 text-left">Competitions</th>
               </tr>
             </thead>
             <tbody className="text-gray-600 text-sm font-light">
-              {filteredData && filteredData.length > 0 ? (
-                filteredData.map((data, index) => (
+              {weightData && weightData.length > 0 ? (
+                weightData.map((data, index) => (
                   <tr
                     key={index}
                     className="border-b border-gray-200 hover:bg-gray-100"
                   >
-                    <td className="py-3 px-6">{data.date}</td>
-                    <td className="py-3 px-6">{data.weight}</td>
+                    <td className="py-3 px-6 text-left">
+                      {handleFormattedDate(data.date_entry)}
+                    </td>
+                    <td className="py-3 px-6 text-left">{data.weight}</td>
                   </tr>
                 ))
               ) : (
@@ -100,7 +102,7 @@ export default function WeightChartPage() {
           >
             Show Graph
           </button>
-          {showGraph && <WeightGraph data={weightData} />}
+          {/* {showGraph && <WeightGraph data={weightData} />} */}
         </div>
       </div>
     </div>

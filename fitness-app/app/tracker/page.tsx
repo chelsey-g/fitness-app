@@ -30,24 +30,14 @@ export default function TrackerPage() {
       console.log("Data inserted successfully:", data)
       setSubmittedData(data)
       router.push("/tracker/chart")
-
-      const { data1, error1 } = await supabase.from("profiles_weight").insert([
-        {
-          date_entry: date,
-          profiles_weight: weight,
-        },
-      ])
-      if (error1) {
-        console.error("Error inserting data into profiles_weight:", error1)
-      } else {
-        console.log("Data inserted successfully into profiles_weight:", data1)
-      }
     }
   }
 
   const handleChartButton = () => {
     router.push("/tracker/chart")
   }
+
+  console.log("sup")
 
   return (
     <div className="container mx-auto p-4">
