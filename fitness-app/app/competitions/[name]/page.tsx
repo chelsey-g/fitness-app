@@ -10,7 +10,7 @@ export default async function CompetitionPage(props) {
 
   let { data: competitionData, error } = await supabase
     .from("competitions")
-    .select(`*, competitions_players (*, profiles:profiles (first_name))`)
+    .select(`*, competitions_players(profiles(first_name))`)
     .eq("name", props.params.name)
   if (error) {
     console.error("Error fetching data:", error)
@@ -18,14 +18,14 @@ export default async function CompetitionPage(props) {
     console.log("hello", competitionData)
   }
 
-  let { data: playerData, error: playerError } = await supabase
-    .from("players_weight")
-    .select("*")
-  if (playerError) {
-    console.error("Error fetching data:", playerError)
-  }
+  // let { data: playerData, error: playerError } = await supabase
+  //   .from("players_weight")
+  //   .select("*")
+  // if (playerError) {
+  //   console.error("Error fetching data:", playerError)
+  // }
 
-  console.log("playerData", playerData)
+  // console.log("playerData", playerData)
 
   const handleDate = (date) => {
     const newDate = new Date(date)

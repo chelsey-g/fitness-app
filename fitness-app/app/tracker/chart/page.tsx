@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react"
 
-import DropdownMenu from "@/components/DropdownMenu"
+import DropdownMenu from "@/components/DateRangePicker"
+import { FaEllipsisH } from "react-icons/fa"
+import Link from "next/link"
+import { MdDelete } from "react-icons/md"
 import Navigation from "@/components/Navigation"
 import WeightGraph from "@/components/WeightGraph"
 import { createClient } from "@/utils/supabase/client"
@@ -50,7 +53,7 @@ export default function WeightChartPage() {
         <h2 className="text-lg font-semibold mb-4 text-snd-bkg w-3/4">
           Weight History
         </h2>
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-center mb-4">
           <DropdownMenu
             initialStartDate={startDate}
             initialEndDate={endDate}
@@ -63,10 +66,9 @@ export default function WeightChartPage() {
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto">
             <thead>
-              <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+              <tr className="bg-white text-gray-600 uppercase text-sm leading-normal">
                 <th className="py-3 px-6 text-left">Date</th>
                 <th className="py-3 px-6 text-left">Weight</th>
-                <th className="py-3 px-6 text-left">Competitions</th>
               </tr>
             </thead>
             <tbody className="text-gray-600 text-sm font-light">
@@ -80,12 +82,17 @@ export default function WeightChartPage() {
                       {handleFormattedDate(data.date_entry)}
                     </td>
                     <td className="py-3 px-6 text-left">{data.weight}</td>
+                    <td className="py-3 px-6 text-center">
+                      <button className="text-snd-bkg hover:text-red-900">
+                        <FaEllipsisH />
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td
-                    colSpan="2"
+                    colSpan="3"
                     className="py-3 px-6 text-center text-gray-500"
                   >
                     No results found
@@ -96,12 +103,17 @@ export default function WeightChartPage() {
           </table>
         </div>
         <div className="flex justify-center mt-4">
-          <button
+          <Link href="/tracker">
+            <button className="bg-prm-bkg text-snd-bkg font-bold py-2 px-4 rounded items-center">
+              Add Weight
+            </button>
+          </Link>
+          {/* <button
             className="bg-snd-bkg text-white py-2 px-4 rounded items-center"
             onClick={() => setShowGraph(!showGraph)}
           >
             Show Graph
-          </button>
+          </button> */}
           {/* {showGraph && <WeightGraph data={weightData} />} */}
         </div>
       </div>

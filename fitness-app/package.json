@@ -9,8 +9,12 @@
     "@coreui/react-chartjs": "^2.1.3",
     "@coreui/utils": "^2.0.2",
     "@formspree/react": "^2.5.1",
+    "@headlessui/react": "^1.7.18",
+    "@headlessui/tailwindcss": "^0.2.0",
+    "@remixicon/react": "^4.2.0",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
+    "@tremor/react": "^3.14.1",
     "antd": "^5.10.3",
     "autoprefixer": "10.4.15",
     "dayjs": "^1.11.10",
@@ -26,6 +30,7 @@
     "typescript": "5.1.3"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
     "@types/node": "20.3.1",
     "@types/react": "18.2.8",
     "@types/react-dom": "18.2.5",
