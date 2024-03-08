@@ -43,7 +43,7 @@ export default function TrackerPage() {
   return (
     <div className=" p-4">
       <Navigation />
-      <div className="bg-white rounded-lg p-8 shadow-lg">
+      <div className="bg-white rounded-lg p-8 shadow-lg relative">
         <IoClose
           className="text-gray-600 hover:text-gray-800 cursor-pointer absolute top-0 right-0 mt-2 mr-2"
           onClick={handleChartButton}
