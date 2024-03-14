@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react"
 
 import DropdownMenu from "@/components/DateRangePicker"
-import { FaEllipsisH } from "react-icons/fa"
+// import Tracker from "@/components/ProgressTracker"
+import { DropdownMenuDemo } from "@/components/TrackerActions"
 import Link from "next/link"
-import { MdDelete } from "react-icons/md"
 import Navigation from "@/components/Navigation"
-import WeightGraph from "@/components/WeightGraph"
+// import WeightGraph from "@/components/WeightGraph"
 import { createClient } from "@/utils/supabase/client"
 import dayjs from "dayjs"
 
@@ -15,12 +15,50 @@ export default function WeightChartPage() {
   const supabase = createClient()
 
   const [weightData, setWeightData] = useState(null)
+  const [loadedDates, setLoadedDates] = useState(null)
   const [showGraph, setShowGraph] = useState(false)
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
 
   useEffect(() => {
+    const fetchLoadedDates = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("weight_tracker")
+          .select("date_entry")
+          .order("date_entry", { ascending: false })
+          .limit(1)
+
+        if (error) {
+          throw error
+        }
+
+        if (data.length > 0) {
+          const latestDate = data[0].date_entry
+          setLoadedDates(latestDate)
+          if (!startDate && !endDate) {
+            const start = dayjs(latestDate)
+              .subtract(6, "day")
+              .format("YYYY-MM-DD")
+            const end = latestDate
+            setStartDate(start)
+            setEndDate(end)
+          }
+        } else {
+          console.log("No data found")
+        }
+      } catch (error) {
+        console.error("Error fetching loaded dates:", error)
+      }
+    }
+
+    fetchLoadedDates()
+  }, [supabase])
+
+  useEffect(() => {
     const fetchWeightData = async () => {
+      if (!startDate || !endDate) return
+
       try {
         const { data, error } = await supabase
           .from("weight_tracker")
@@ -39,10 +77,29 @@ export default function WeightChartPage() {
     }
 
     fetchWeightData()
-  }, [startDate, endDate])
+  }, [startDate, endDate, supabase])
 
   const handleFormattedDate = (date) => {
     return dayjs(date).format("MMMM DD, YYYY")
+  }
+
+  const handleDeleteWeight = async (id) => {
+    try {
+      const { error } = await supabase
+        .from("weight_tracker")
+        .delete()
+        .eq("id", id)
+
+      if (error) {
+        throw error
+      }
+
+      console.log("Deleted weight entry:", id)
+      const updatedData = weightData?.filter((entry) => entry.id !== id)
+      setWeightData(updatedData)
+    } catch (error) {
+      console.error("Error deleting weight entry:", error)
+    }
   }
 
   return (
@@ -83,9 +140,9 @@ export default function WeightChartPage() {
                     </td>
                     <td className="py-3 px-6 text-left">{data.weight}</td>
                     <td className="py-3 px-6 text-center">
-                      <button className="text-snd-bkg hover:text-red-900">
-                        <FaEllipsisH />
-                      </button>
+                      <DropdownMenuDemo
+                        deleteWeight={() => handleDeleteWeight(data.id)}
+                      />
                     </td>
                   </tr>
                 ))
@@ -95,7 +152,7 @@ export default function WeightChartPage() {
                     colSpan="3"
                     className="py-3 px-6 text-center text-gray-500"
                   >
-                    No results found
+                    No data found
                   </td>
                 </tr>
               )}
@@ -115,6 +172,7 @@ export default function WeightChartPage() {
             Show Graph
           </button> */}
           {/* {showGraph && <WeightGraph data={weightData} />} */}
+          {/* <Tracker /> */}
         </div>
       </div>
     </div>
