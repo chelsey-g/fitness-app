@@ -9,8 +9,8 @@ export default async function CompetitionPage(props) {
   const supabase = createClient(cookieStore)
 
   let { data: competitionData, error } = await supabase
-    .from("competitions")
-    .select(`*, competitions_players(profiles(first_name))`)
+    .from("competition_players")
+    .select("*, profiles(*)")
     .eq("name", props.params.name)
   if (error) {
     console.error("Error fetching data:", error)
@@ -77,7 +77,7 @@ export default async function CompetitionPage(props) {
                   <p className="text-md text-gray-700">
                     Player Name:{" "}
                     <span className="font-semibold">
-                      {comp_players.profiles.first_name}
+                      {/* {comp_players.profiles.first_name} */}
                     </span>
                   </p>
                   {/* only an admin to the comp can see the weight */}

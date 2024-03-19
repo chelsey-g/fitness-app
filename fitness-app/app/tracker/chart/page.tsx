@@ -1,12 +1,14 @@
 "use client"
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useEffect, useState } from "react"
 
 import DropdownMenu from "@/components/DateRangePicker"
-// import Tracker from "@/components/ProgressTracker"
 import { DropdownMenuDemo } from "@/components/TrackerActions"
 import Link from "next/link"
+import { MdDelete } from "react-icons/md"
 import Navigation from "@/components/Navigation"
+// import ProgressTracker from "@/components/ProgressTracker"
 // import WeightGraph from "@/components/WeightGraph"
 import { createClient } from "@/utils/supabase/client"
 import dayjs from "dayjs"
@@ -16,9 +18,10 @@ export default function WeightChartPage() {
 
   const [weightData, setWeightData] = useState(null)
   const [loadedDates, setLoadedDates] = useState(null)
-  const [showGraph, setShowGraph] = useState(false)
+  // const [showGraph, setShowGraph] = useState(false)
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
+  const [showAlert, setShowAlert] = useState(false)
 
   useEffect(() => {
     const fetchLoadedDates = async () => {
@@ -69,6 +72,7 @@ export default function WeightChartPage() {
         if (error) {
           throw error
         }
+        setShowAlert(false)
         console.log("Fetched weight data:", data)
         setWeightData(data)
       } catch (error) {
@@ -78,6 +82,16 @@ export default function WeightChartPage() {
 
     fetchWeightData()
   }, [startDate, endDate, supabase])
+
+  useEffect(() => {
+    let timer
+    if (showAlert) {
+      timer = setTimeout(() => {
+        setShowAlert(false)
+      }, 3000) // Change 5000 to the desired duration in milliseconds (e.g., 5000 for 5 seconds)
+    }
+    return () => clearTimeout(timer) // Cleanup function to clear the timer on component unmount or state change
+  }, [showAlert])
 
   const handleFormattedDate = (date) => {
     return dayjs(date).format("MMMM DD, YYYY")
@@ -97,6 +111,7 @@ export default function WeightChartPage() {
       console.log("Deleted weight entry:", id)
       const updatedData = weightData?.filter((entry) => entry.id !== id)
       setWeightData(updatedData)
+      setShowAlert(true)
     } catch (error) {
       console.error("Error deleting weight entry:", error)
     }
@@ -105,6 +120,24 @@ export default function WeightChartPage() {
   return (
     <div className=" my-8 p-4 rounded">
       <Navigation />
+      {showAlert && (
+        <Alert
+          className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4"
+          role="alert"
+        >
+          <div className="flex">
+            <div className="py-1">
+              <MdDelete />
+            </div>
+            <div>
+              <AlertTitle className="font-bold">Weight Data Deleted</AlertTitle>
+              <AlertDescription>
+                Your weight entry has been deleted successfully.
+              </AlertDescription>
+            </div>
+          </div>
+        </Alert>
+      )}
 
       <div className="bg-white shadow-md rounded-lg my-6 p-4">
         <h2 className="text-lg font-semibold mb-4 text-snd-bkg w-3/4">
@@ -172,7 +205,7 @@ export default function WeightChartPage() {
             Show Graph
           </button> */}
           {/* {showGraph && <WeightGraph data={weightData} />} */}
-          {/* <Tracker /> */}
+          {/* <div className="border w-96"><ProgressTracker /></div> */}
         </div>
       </div>
     </div>

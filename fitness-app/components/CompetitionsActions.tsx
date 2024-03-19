@@ -8,7 +8,7 @@ import {
 
 import { FaEllipsisH } from "react-icons/fa"
 
-export function DropdownMenuDemo({ deleteWeight }) {
+export function DropdownMenuDemo({ deleteCompetition }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -26,9 +26,9 @@ export function DropdownMenuDemo({ deleteWeight }) {
           </DropdownMenuItem> */}
           <DropdownMenuItem
             className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 ease-in-out"
-            onClick={deleteWeight}
+            onClick={deleteCompetition}
           >
-            Delete Weight
+            Delete Competition
           </DropdownMenuItem>
           {/* <DropdownMenuItem className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 ease-in-out">
             Add Weight To Goal
@@ -38,3 +38,5 @@ export function DropdownMenuDemo({ deleteWeight }) {
     </DropdownMenu>
   )
 }
+
+export default DropdownMenuDemo

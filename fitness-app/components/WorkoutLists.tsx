@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-import InfoDropdown from "@/components/InfoDropdown"
+import { DropdownMenuDemo } from "@/components/WorkoutActions"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/client"
 
@@ -41,6 +41,17 @@ export default function WorkoutLists() {
     return colors[Math.floor(Math.random() * colors.length)]
   }
 
+  const handleDeleteWorkoutList = async (id) => {
+    const { error } = await supabase.from("lists").delete().eq("id", id)
+
+    if (error) {
+      console.log("Error deleting workout list!", error)
+    } else {
+      console.log("Workout list deleted!")
+      fetchLists()
+    }
+  }
+
   return (
     <div className="space-x-0.5">
       <div>
@@ -67,9 +78,13 @@ export default function WorkoutLists() {
                   {list.name}
                 </Link>
               </div>
-              <div className="flex items-center text-black font-bold">
+              <div className="flex items-center text-black font-bold pl-4">
                 {getTotalExerciseCount(list.workouts_lists)} exercises
-                <InfoDropdown listData={lists} />
+                <div className="pl-4">
+                  <DropdownMenuDemo
+                    deleteWorkoutList={() => handleDeleteWorkoutList(list.id)}
+                  />
+                </div>
               </div>
             </div>
           ))}
