@@ -88,9 +88,9 @@ export default function WeightChartPage() {
     if (showAlert) {
       timer = setTimeout(() => {
         setShowAlert(false)
-      }, 3000) // Change 5000 to the desired duration in milliseconds (e.g., 5000 for 5 seconds)
+      }, 3000)
     }
-    return () => clearTimeout(timer) // Cleanup function to clear the timer on component unmount or state change
+    return () => clearTimeout(timer)
   }, [showAlert])
 
   const handleFormattedDate = (date) => {

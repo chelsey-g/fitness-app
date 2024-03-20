@@ -1,10 +1,12 @@
-import DeleteButton from "@/components/DeleteButton"
+import BackButton from "@/components/BackButton"
+import DropdownMenuDemo from "@/components/WorkoutActions"
+import { IoArrowBack } from "react-icons/io5"
+import { IoIosAdd } from "react-icons/io"
 import Link from "next/link"
 import Navigation from "@/components/Navigation"
 import React from "react"
 import { cookies } from "next/headers"
 import { createClient } from "@/utils/supabase/server"
-// import BackButton from "@/components/BackButton"
 
 export default async function ListPage(props) {
   const cookieStore = cookies()
@@ -23,37 +25,60 @@ export default async function ListPage(props) {
   return (
     <div className="p-4">
       <Navigation />
+      {/* <BackButton /> */}
+
       <div className="p-4 mb-4 rounded-lg mt-5">
-        {listData?.map((result, index) => (
-          <div
-            key={index}
-            className="bg-white shadow-md p-4 mb-4 rounded-lg mt-5"
-          >
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800 cursor-pointer">
-                <Link
-                  href={`/workouts/exercise/${result.workouts.details.name}`}
-                >
-                  {result.workouts.details.name}
-                </Link>
-              </h2>
-            </div>
-            <div className="flex">
-              <div className="w-1/2">
-                <h3 className="text-gray-600 font-bold">Type:</h3>
-                <p className="text-gray-600">{result.workouts.details.type}</p>
+        {listData && listData.length > 0 ? (
+          listData.map((result, index) => (
+            <div
+              key={index}
+              className="bg-white shadow-md p-4 mb-4 rounded-lg mt-5"
+            >
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800 cursor-pointer">
+                  <Link
+                    href={`/workouts/exercise/${result.workouts.details.name}`}
+                  >
+                    {result.workouts.details.name}
+                  </Link>
+                </h2>
               </div>
-              <div className="w-1/2">
-                <h3 className="text-gray-600 font-bold">Difficulty:</h3>
-                <p className="text-gray-600">
-                  {result.workouts.details.difficulty}
-                </p>
+              <div className="flex">
+                <div className="w-1/2">
+                  <h3 className="text-gray-600 font-bold">Type:</h3>
+                  <p className="text-gray-600">
+                    {result.workouts.details.type}
+                  </p>
+                </div>
+                <div className="w-1/2">
+                  <h3 className="text-gray-600 font-bold">Difficulty:</h3>
+                  <p className="text-gray-600">
+                    {result.workouts.details.difficulty}
+                  </p>
+                </div>
+                <div className="pr-4">
+                  <DropdownMenuDemo
+                    workoutId={result.workouts.id}
+                    listData={listData}
+                  />
+                </div>
               </div>
-              <DeleteButton listData={listData} />
             </div>
-            {/* <BackButton /> */}
+          ))
+        ) : (
+          <div className="bg-white rounded-lg mt-5 shadow-md text-center text-gray-600 p-8">
+            <h1 className="text-3xl font-bold mb-4">Your list is empty!</h1>
+            <p className="text-lg mb-6">Add a workout now to get started.</p>
+            <div className="flex justify-center">
+              <Link href="/workouts">
+                <button className="bg-snd-bkg hover:bg-opacity-90 text-white font-bold py-2 px-6 rounded flex items-center transition duration-300 ease-in-out">
+                  <IoIosAdd className="text-xl mr-2" />
+                  Browse Exercises
+                </button>
+              </Link>
+            </div>
           </div>
-        ))}
+        )}
       </div>
     </div>
   )

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-import { DropdownMenuDemo } from "@/components/WorkoutActions"
+import { DropdownMenuDemo } from "@/components/WorkoutListActions"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/client"
 

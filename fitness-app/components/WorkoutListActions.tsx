@@ -1,5 +1,3 @@
-"use client"
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,24 +7,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { FaEllipsisH } from "react-icons/fa"
-import { createClient } from "@/utils/supabase/client"
 
-export function DropdownMenuDemo({ workoutId, listData }) {
-  const supabase = createClient()
-  async function handleDeleteWorkout(id) {
-    const { data, error } = await supabase
-      .from("workouts_lists")
-      .delete()
-      .eq("workout_id", workoutId)
-
-    if (error) {
-      console.log("Error deleting workout!", error)
-    } else {
-      console.log("Workout deleted!")
-    }
-  }
-  console.log("workoutId", workoutId)
-
+export function DropdownMenuDemo({ deleteWorkoutList }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -35,13 +17,22 @@ export function DropdownMenuDemo({ workoutId, listData }) {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-auto min-w-full bg-white shadow-lg rounded-md overflow-hidden border border-gray-200">
+        {/* <DropdownMenuLabel className="px-4 py-2 text-sm font-semibold text-gray-600 border-b border-gray-100">
+          Options
+        </DropdownMenuLabel> */}
         <DropdownMenuGroup className="py-1">
+          {/* <DropdownMenuItem className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 ease-in-out">
+            Edit Weight
+          </DropdownMenuItem> */}
           <DropdownMenuItem
             className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 ease-in-out"
-            onClick={() => handleDeleteWorkout(workoutId)}
+            onClick={deleteWorkoutList}
           >
-            Delete Workout
+            Delete Workout List
           </DropdownMenuItem>
+          {/* <DropdownMenuItem className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 ease-in-out">
+            Add Weight To Goal
+          </DropdownMenuItem> */}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
