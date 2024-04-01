@@ -6,16 +6,26 @@ import Link from "next/link"
 import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
-export default async function CompetitionsPage() {
+import useSWR from "swr"
+
+export default function CompetitionsPage() {
   const supabase = createClient()
   const router = useRouter()
 
-  let { data: competitions, error } = await supabase
-    .from("competitions")
-    .select(`name, id`)
-  if (error) {
-    console.log("error", error)
-  }
+  const {
+    data: competitions,
+    error,
+    isLoading,
+  } = useSWR("/competitions", () =>
+    supabase
+      .from("competitions")
+      .select(`name, id`)
+      .then((res) => res.data)
+  )
+
+  if (error) return <div>Failed to load</div>
+
+  if (isLoading) return <div>Loading...</div>
 
   const handleCreateCompetition = () => {
     router.push("/competitions/create")
@@ -47,7 +57,7 @@ export default async function CompetitionsPage() {
           >
             <div className="flex items-center">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${getRandomColor()}`}
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${getRandomColor()} }`}
               >
                 <span className="text-white text-sm font-semibold">
                   {result.name.charAt(0).toUpperCase()}
@@ -61,9 +71,6 @@ export default async function CompetitionsPage() {
                 {result.name}
               </Link>
             </div>
-            {/* <button className="float-right">
-              <IoIosInformationCircleOutline />
-            </button> */}
             <DropdownMenuDemo
               deleteCompetition={() => handleDeleteCompetition(result.id)}
             />

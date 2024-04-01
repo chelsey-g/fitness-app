@@ -1,6 +1,5 @@
 import BackButton from "@/components/BackButton"
 import DropdownMenuDemo from "@/components/WorkoutActions"
-import { IoArrowBack } from "react-icons/io5"
 import { IoIosAdd } from "react-icons/io"
 import Link from "next/link"
 import Navigation from "@/components/Navigation"
@@ -25,9 +24,11 @@ export default async function ListPage(props) {
   return (
     <div className="p-4">
       <Navigation />
-      {/* <BackButton /> */}
-
       <div className="p-4 mb-4 rounded-lg mt-5">
+        <div className="flex justify-start mb-4">
+          {" "}
+          <BackButton />
+        </div>
         {listData && listData.length > 0 ? (
           listData.map((result, index) => (
             <div
