@@ -4,6 +4,7 @@ import DropdownMenuDemo from "@/components/CompetitionsActions"
 import { IoIosAdd } from "react-icons/io"
 import Link from "next/link"
 import Navigation from "@/components/Navigation"
+// import ProgressBarComp from "@/components/ProgressBar"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 import useSWR from "swr"
@@ -12,6 +13,8 @@ export default function CompetitionsPage() {
   const supabase = createClient()
   const router = useRouter()
 
+  const today = new Date()
+
   const {
     data: competitions,
     error,
@@ -19,10 +22,12 @@ export default function CompetitionsPage() {
   } = useSWR("/competitions", () =>
     supabase
       .from("competitions")
-      .select(`name, id`)
-      .then((res) => res.data)
+      .select(`name, id, date_started, date_ending`)
+      .order("date_ending", { ascending: false })
+      .then((res) =>
+        res.data.filter((comp) => new Date(comp.date_ending) > today)
+      )
   )
-
   if (error) return <div>Failed to load</div>
 
   if (isLoading) return <div>Loading...</div>
@@ -43,12 +48,38 @@ export default function CompetitionsPage() {
     return colors[Math.floor(Math.random() * colors.length)]
   }
 
+  const handleExpiredCompeition = (endDate) => {
+    const endDateTime = new Date(endDate).getTime()
+    return endDateTime < new Date().getTime()
+  }
+
+  const handleShowExpiredCompetitions = () => {
+    router.push("/competitions/history")
+  }
+
   return (
     <div>
       <Navigation />
+      <h1 className="p-4 text-2xl font-semibold text-white">Overview</h1>
+      <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+        <h2 className="text-lg font-semibold">Active Competitions</h2>
+        <p className="text-sm text-gray-500">
+          Competitions that are currently running
+          {/* <ProgressBarComp value={45} color="teal" className="mt-3" /> */}
+        </p>
+      </div>
       <h1 className="p-4 text-2xl font-semibold text-white">
-        Current Competitions
+        Active Competitions ({competitions.length})
       </h1>
+      <div className="flex justify-center">
+        <button
+          className="bg-snd-bkg hover:opacity-90 text-white font-bold py-2 px-4 mt-5 rounded flex items-center"
+          onClick={handleCreateCompetition}
+        >
+          <IoIosAdd className="mr-2" />
+          Create Competition
+        </button>
+      </div>
       <div className="p-4">
         {competitions?.map((result, index) => (
           <div
@@ -65,10 +96,19 @@ export default function CompetitionsPage() {
               </div>
 
               <Link
-                href={`/competitions/${result.name}`}
-                className="ml-3 text-black hover:text-blue-800 font-medium"
+                href={`/competitions/${result.id}`}
+                className={`ml-3 text-black hover:text-blue-800 font-medium ${
+                  handleExpiredCompeition(result.date_ending)
+                    ? "text-red-500"
+                    : ""
+                }`}
               >
                 {result.name}
+                {handleExpiredCompeition(result.date_ending) && (
+                  <span className="text-xs ml-2">
+                    (This competition has ended)
+                  </span>
+                )}
               </Link>
             </div>
             <DropdownMenuDemo
@@ -79,10 +119,9 @@ export default function CompetitionsPage() {
         <div className="flex justify-center">
           <button
             className="bg-snd-bkg hover:opacity-90 text-white font-bold py-2 px-4 mb-10 mt-5 rounded flex items-center"
-            onClick={handleCreateCompetition}
+            onClick={handleShowExpiredCompetitions}
           >
-            <IoIosAdd className="mr-2" />
-            Create Competition
+            View Competition History
           </button>
         </div>
       </div>

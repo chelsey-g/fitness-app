@@ -4,6 +4,7 @@ import React, { useState } from "react"
 
 import AddPlayers from "@/components/AddPlayers"
 import BackButton from "@/components/BackButton"
+import { LuPlusCircle } from "react-icons/lu"
 import Navigation from "./Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
@@ -13,7 +14,6 @@ export default function CompetitionForm() {
   const router = useRouter()
 
   const [competitionData, setCompetitionData] = useState(null)
-
   const [addPlayers, setAddPlayers] = useState(false)
   const [selectedPlayerIds, setSelectedPlayerIds] = useState([])
 
@@ -35,6 +35,7 @@ export default function CompetitionForm() {
           name: competitionData.name,
           date_started: competitionData.date_started,
           date_ending: competitionData.date_ending,
+          rules: competitionData.rules,
         },
       ])
 
@@ -74,6 +75,22 @@ export default function CompetitionForm() {
   const handleAddPlayers = (e) => {
     e.target.value === "yes" ? setAddPlayers(true) : setAddPlayers(false)
   }
+
+  // function handleAddRuleInput() {
+  //   return (
+  //     <div className="flex items-center">
+  //       <input
+  //         className="shadow appearance-none border rounded w-3/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+  //         id="rules"
+  //         name="rules"
+  //         value={competitionData?.rules}
+  //         onChange={handleChange}
+  //       />
+  //       <LuPlusCircle className="text-xl text-snd-bkg ml-3" />
+  //     </div>
+  //   )
+  // }
+
   return (
     <>
       <Navigation />
@@ -131,7 +148,6 @@ export default function CompetitionForm() {
               No
             </label>
           </div>
-
           {addPlayers && (
             <div className="mb-4">
               <AddPlayers selectPlayers={handleSelectPlayers} />
@@ -167,6 +183,22 @@ export default function CompetitionForm() {
               name="date_ending"
               value={competitionData?.date_ending}
               onChange={handleChange}
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="rules"
+            >
+              Rules
+            </label>
+            <textarea
+              className="shadow appearance-none border rounded w-3/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="rules"
+              name="rules"
+              value={competitionData?.rules}
+              onChange={handleChange}
+              rows={4}
             />
           </div>
           <div className="flex items-center justify-between">

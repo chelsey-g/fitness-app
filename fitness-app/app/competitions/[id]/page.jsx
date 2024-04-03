@@ -7,8 +7,10 @@ import { TbAwardFilled } from "react-icons/tb"
 import { createClient } from "@/utils/supabase/client"
 import dayjs from "dayjs"
 import useSWR from "swr"
+import { useState } from "react"
 
 export default function CompetitionPage(props) {
+  const [showQuitButton, setShowQuitButton] = useState(false)
   const supabase = createClient()
   const {
     data: competitionData,
@@ -20,9 +22,11 @@ export default function CompetitionPage(props) {
       .select(
         "*, competitions_players(*, profiles(id,first_name, last_name, weight_tracker(weight, date_entry)))"
       )
-      .eq("name", props.params.name)
+      .eq("id", props.params.id)
       .then((res) => res.data)
   )
+
+  console.log("competitionData", competitionData)
   if (error) return <div>failed to load</div>
   if (isLoading)
     return (
@@ -115,6 +119,10 @@ export default function CompetitionPage(props) {
     }
   }
 
+  if (competitionData.date_ending > new Date()) {
+    setShowQuitButton(true)
+  }
+
   return (
     <div className="p-4">
       <Navigation />
@@ -143,9 +151,15 @@ export default function CompetitionPage(props) {
                 </span>
               </p>
             </div>
-            <div className="flex items-center text-xs italic">
-              Only {handleDaysLeft(competition.date_ending)} days left of the
-              competition! Keep pushing!
+            <div className="flex items-center text-xs italic text-green-500">
+              {handleDaysLeft(competition.date_ending) <= 0 ? (
+                <div className="text-red-500">This competition has ended!</div>
+              ) : (
+                <div>
+                  Only {handleDaysLeft(competition.date_ending)} days left of
+                  the competition! Keep pushing!
+                </div>
+              )}
             </div>
           </div>
 
@@ -206,17 +220,25 @@ export default function CompetitionPage(props) {
                 )}
               </tbody>
             </table>
-            <div className="align-right mt-6">
-              <div className="italic">
-                * Only the top 3 competitors will be awarded
+            <div className="mt-6">
+              <h3 className="text-xl font-semibold mb-2">Rules</h3>
+              <div className="bg-gray-100 rounded-lg p-4">
+                <pre className="text-sm text-gray-800 font-sans overflow-auto">
+                  {competition.rules}
+                </pre>
               </div>
             </div>
           </div>
-          <div className="flex justify-center">
-            <button className="bg-snd-bkg hover:opacity-90 text-white font-bold py-2 px-4 mt-5 rounded flex items-center">
-              Quit
-            </button>
-          </div>
+          {showQuitButton && (
+            <div className="flex justify-center">
+              <button
+                className="bg-snd-bkg hover:opacity-90 text-white font-bold py-2 px-4 mt-5 rounded flex items-center"
+                onClick={() => handleRemovePlayer()}
+              >
+                Quit
+              </button>
+            </div>
+          )}
         </div>
       ))}
       <div className="font-bold text-center text-xs">
