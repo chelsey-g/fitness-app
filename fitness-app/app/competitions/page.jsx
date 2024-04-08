@@ -60,13 +60,27 @@ export default function CompetitionsPage() {
   return (
     <div>
       <Navigation />
-      <h1 className="p-4 text-2xl font-semibold text-white">Overview</h1>
+      <h1 className="p-4 text-2xl font-semibold text-white">
+        Your Current Standings
+      </h1>
       <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-        <h2 className="text-lg font-semibold">Active Competitions</h2>
+        <h2 className="text-lg font-semibold">
+          Rankings in Active Competitions
+        </h2>
         <p className="text-sm text-gray-500">
-          Competitions that are currently running
-          {/* <ProgressBarComp value={45} color="teal" className="mt-3" /> */}
+          Here are your current standings in the active competitions
         </p>
+        {/* <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-snd-bkg rounded-full flex items-center justify-center">
+              <span className="text-white text-sm font-semibold">1</span>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-lg font-semibold">Competition 1</h3>
+              <p className="text-sm text-gray-500">You are currently 1st</p>
+            </div>
+          </div>
+        </div> */}
       </div>
       <h1 className="p-4 text-2xl font-semibold text-white">
         Active Competitions ({competitions.length})

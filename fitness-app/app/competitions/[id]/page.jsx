@@ -1,6 +1,9 @@
 "use client"
 
+import { getAwardColor, getOrdinalSuffix } from "@/app/functions"
+
 import BackButton from "@/components/BackButton"
+import CompetitionWeekTable from "@/components/CompetitionWeekTable"
 import Navigation from "@/components/Navigation"
 import { ProgressBar } from "@/components/ProgressBar"
 import { TbAwardFilled } from "react-icons/tb"
@@ -11,6 +14,7 @@ import { useState } from "react"
 
 export default function CompetitionPage(props) {
   const [showQuitButton, setShowQuitButton] = useState(false)
+
   const supabase = createClient()
   const {
     data: competitionData,
@@ -26,7 +30,9 @@ export default function CompetitionPage(props) {
       .then((res) => res.data)
   )
 
-  console.log("competitionData", competitionData)
+  const competitionName = competitionData?.id
+
+  // console.log("competitionData", competitionData)
   if (error) return <div>failed to load</div>
   if (isLoading)
     return (
@@ -39,7 +45,7 @@ export default function CompetitionPage(props) {
   if (error) {
     console.error("Error fetching data:", error)
   } else {
-    console.log("competitionData", competitionData)
+    // console.log("competitionData", competitionData)
   }
 
   function handleDate(date) {
@@ -54,23 +60,7 @@ export default function CompetitionPage(props) {
     return daysLeft
   }
 
-  function getOrdinalSuffix(number) {
-    const suffixes = ["th", "st", "nd", "rd"]
-    const v = number % 100
-    return number + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0])
-  }
-
-  function getAwardColor(position) {
-    if (position === 1) {
-      return "text-yellow-500"
-    } else if (position === 2) {
-      return "text-gray-500"
-    } else if (position === 3) {
-      return "text-yellow-800"
-    }
-  }
-
-  function getInitialWeight(player) {
+  function getInitialWeight(player, competitionData) {
     const closestInitialDate = player.profiles.weight_tracker.reduce((a, b) =>
       Math.abs(new Date(b.date_entry) - new Date(competitionData.date_ending)) <
       Math.abs(new Date(a.date_entry) - new Date(competitionData.date_started))
@@ -80,7 +70,7 @@ export default function CompetitionPage(props) {
     return closestInitialDate.weight
   }
 
-  function getCurrentWeight(player) {
+  function getCurrentWeight(player, competitionData) {
     const closestCurrentDate = player.profiles.weight_tracker.reduce((a, b) =>
       Math.abs(
         new Date(b.date_entry) - new Date(competitionData.date_started)
@@ -96,8 +86,8 @@ export default function CompetitionPage(props) {
   if (competitionData) {
     competitionData.forEach((competition) => {
       competition.competitions_players.forEach((player) => {
-        const initialWeight = getInitialWeight(player)
-        const currentWeight = getCurrentWeight(player)
+        const initialWeight = getInitialWeight(player, competitionData)
+        const currentWeight = getCurrentWeight(player, competitionData)
         const weightChange = currentWeight - initialWeight
         const percentageChange = (weightChange / initialWeight) * 100
 
@@ -126,6 +116,7 @@ export default function CompetitionPage(props) {
   return (
     <div className="p-4">
       <Navigation />
+
       {competitionData?.map((competition, index) => (
         <div
           key={index}
@@ -161,9 +152,12 @@ export default function CompetitionPage(props) {
                 </div>
               )}
             </div>
+            <CompetitionWeekTable competitionData={competitionData} />
           </div>
 
           <div className="overflow-x-auto">
+            <h3 className="text-xl font-semibold">Overall Competition Stats</h3>
+
             <table className="table-auto w-full">
               <thead>
                 <tr>
@@ -220,14 +214,16 @@ export default function CompetitionPage(props) {
                 )}
               </tbody>
             </table>
-            <div className="mt-6">
-              <h3 className="text-xl font-semibold mb-2">Rules</h3>
-              <div className="bg-gray-100 rounded-lg p-4">
-                <pre className="text-sm text-gray-800 font-sans overflow-auto">
-                  {competition.rules}
-                </pre>
+            {competition.rules && (
+              <div className="mt-6">
+                <h3 className="text-xl font-semibold mb-2">Rules</h3>
+                <div className="bg-gray-100 rounded-lg p-4">
+                  <pre className="text-sm text-gray-800 font-sans overflow-auto">
+                    {competition.rules}
+                  </pre>
+                </div>
               </div>
-            </div>
+            )}
           </div>
           {showQuitButton && (
             <div className="flex justify-center">
