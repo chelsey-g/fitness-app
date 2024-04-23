@@ -76,21 +76,6 @@ export default function CompetitionForm() {
     e.target.value === "yes" ? setAddPlayers(true) : setAddPlayers(false)
   }
 
-  // function handleAddRuleInput() {
-  //   return (
-  //     <div className="flex items-center">
-  //       <input
-  //         className="shadow appearance-none border rounded w-3/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-  //         id="rules"
-  //         name="rules"
-  //         value={competitionData?.rules}
-  //         onChange={handleChange}
-  //       />
-  //       <LuPlusCircle className="text-xl text-snd-bkg ml-3" />
-  //     </div>
-  //   )
-  // }
-
   return (
     <>
       <Navigation />

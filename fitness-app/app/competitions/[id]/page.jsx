@@ -5,16 +5,14 @@ import { getAwardColor, getOrdinalSuffix } from "@/app/functions"
 import BackButton from "@/components/BackButton"
 import CompetitionWeekTable from "@/components/CompetitionWeekTable"
 import Navigation from "@/components/Navigation"
-import { ProgressBar } from "@/components/ProgressBar"
 import { TbAwardFilled } from "react-icons/tb"
 import { createClient } from "@/utils/supabase/client"
-import dayjs from "dayjs"
+import { handleDate } from "@/app/functions"
 import useSWR from "swr"
 import { useState } from "react"
 
 export default function CompetitionPage(props) {
   const [showQuitButton, setShowQuitButton] = useState(false)
-
   const supabase = createClient()
   const {
     data: competitionData,
@@ -30,27 +28,13 @@ export default function CompetitionPage(props) {
       .then((res) => res.data)
   )
 
-  const competitionName = competitionData?.id
-
-  // console.log("competitionData", competitionData)
   if (error) return <div>failed to load</div>
   if (isLoading)
     return (
       <div>
-        {/* <ProgressBar /> */}
         <span className="text-gray-700">Loading competition...</span>
       </div>
     )
-
-  if (error) {
-    console.error("Error fetching data:", error)
-  } else {
-    // console.log("competitionData", competitionData)
-  }
-
-  function handleDate(date) {
-    return dayjs(date).format("MM/DD/YYYY")
-  }
 
   const handleDaysLeft = (date) => {
     const today = new Date()

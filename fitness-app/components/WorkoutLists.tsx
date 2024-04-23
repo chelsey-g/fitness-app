@@ -1,33 +1,33 @@
 "use client"
 
-import { useEffect, useState } from "react"
-
+import CreateWorkout from "@/components/CreateWorkout"
 import { DropdownMenuDemo } from "@/components/WorkoutListActions"
 import Link from "next/link"
+import ShowAlert from "@/components/SubmitAlert"
 import { createClient } from "@/utils/supabase/client"
+import { getRandomColor } from "@/app/functions"
+import useSWR from "swr"
+import { useState } from "react"
 
 export default function WorkoutLists() {
-  const [lists, setLists] = useState([])
+  const [showAlert, setShowAlert] = useState(false)
   const supabase = createClient()
 
-  const fetchLists = async () => {
-    const { data, error } = await supabase
+  const {
+    data: listData,
+    error,
+    isLoading,
+  } = useSWR("/workouts", () =>
+    supabase
       .from("lists")
       .select(`id, name, created_at, workouts_lists(workouts(count))`)
+      .order("created_at", { ascending: false })
+      .then((res) => res.data)
+  )
 
-    if (error) {
-      console.log("Error fetching lists!", error)
-      return
-    }
+  if (error) return <div>Failed to load</div>
 
-    setLists(data)
-  }
-
-  console.log(lists, "lists")
-
-  useEffect(() => {
-    fetchLists()
-  }, [])
+  if (isLoading) return <div>Loading...</div>
 
   const getTotalExerciseCount = (exercises) => {
     return exercises.reduce(
@@ -35,12 +35,6 @@ export default function WorkoutLists() {
       0
     )
   }
-
-  function getRandomColor() {
-    const colors = ["bg-snd-bkg", "bg-trd-bkg", "bg-nav-bkg"]
-    return colors[Math.floor(Math.random() * colors.length)]
-  }
-
   const handleDeleteWorkoutList = async (id) => {
     const { error } = await supabase.from("lists").delete().eq("id", id)
 
@@ -48,16 +42,21 @@ export default function WorkoutLists() {
       console.log("Error deleting workout list!", error)
     } else {
       console.log("Workout list deleted!")
-      fetchLists()
     }
+  }
+
+  const handleShowAlert = () => {
+    setShowAlert(true)
+    setTimeout(() => setShowAlert(false), 2000)
   }
 
   return (
     <div className="space-x-0.5">
+      {showAlert && <ShowAlert />}
       <div>
         <h1 className="p-4 text-2xl font-semibold text-white">My Workouts</h1>
         <div className="p-4">
-          {lists.map((list, index) => (
+          {listData?.map((list, index) => (
             <div
               key={index}
               className="flex items-center justify-between mb-4 p-2 pr-5 bg-white shadow-md rounded-lg hover:bg-gray-50"
@@ -88,6 +87,9 @@ export default function WorkoutLists() {
               </div>
             </div>
           ))}
+          <div className="flex justify-center">
+            <CreateWorkout showAlert={handleShowAlert} />
+          </div>
         </div>
       </div>
     </div>

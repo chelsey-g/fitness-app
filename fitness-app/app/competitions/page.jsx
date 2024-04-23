@@ -6,6 +6,7 @@ import Link from "next/link"
 import Navigation from "@/components/Navigation"
 // import ProgressBarComp from "@/components/ProgressBar"
 import { createClient } from "@/utils/supabase/client"
+import { getRandomColor } from "@/app/functions"
 import { useRouter } from "next/navigation"
 import useSWR from "swr"
 
@@ -41,11 +42,6 @@ export default function CompetitionsPage() {
     if (error) {
       console.log("error", error)
     }
-  }
-
-  function getRandomColor() {
-    const colors = ["bg-snd-bkg", "bg-trd-bkg", "bg-nav-bkg"]
-    return colors[Math.floor(Math.random() * colors.length)]
   }
 
   const handleExpiredCompeition = (endDate) => {
