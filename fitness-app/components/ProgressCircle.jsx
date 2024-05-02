@@ -7,6 +7,7 @@ const ProgressCircleHero = (profileInfo) => {
   const supabase = createClient()
   const [goals, setGoals] = useState([])
   const [weight, setWeight] = useState([])
+  const [percentage, setPercentage] = useState(0)
 
   useEffect(() => {
     const fetchGoals = async () => {
@@ -37,6 +38,15 @@ const ProgressCircleHero = (profileInfo) => {
           console.error(error)
         } else {
           setWeight(weight)
+          if (weight.length > 0) {
+            const currentWeight = weight[0].weight // Assuming weight is stored in a field named 'weight'
+            const goalWeight = goals.length > 0 ? goals[0].goal_weight : 0 // Assuming goal weight is stored in a field named 'goal_weight'
+            const calculatedPercentage = weightPercentage(
+              currentWeight,
+              goalWeight
+            )
+            setPercentage(calculatedPercentage)
+          }
         }
       } catch (error) {
         console.error(error)
@@ -47,17 +57,28 @@ const ProgressCircleHero = (profileInfo) => {
     fetchWeight()
   }, [profileInfo.profileInfo.id])
 
-  const weightPercentage = (weight, goal) => {
-    const weightDifference = goal - weight
-    const percentage = (weightDifference / goal) * 100
-    return percentage
+  const weightPercentage = (currentWeight, goalWeight) => {
+    let calculatedPercentage = 0
+    if (currentWeight >= goalWeight) {
+      calculatedPercentage = 100
+    } else {
+      const weightDifference = goalWeight - currentWeight
+      calculatedPercentage =
+        ((goalWeight - weightDifference) / goalWeight) * 100
+    }
+    return calculatedPercentage
   }
+
+  console.log(goals)
+  console.log(weight)
 
   return (
     <div className="mx-auto grid grid-cols-1 gap-12">
       <div className="flex justify-center mt-5">
-        <ProgressCircle value="31" size="xl">
-          <span className="text-xs font-medium text-slate-700">31%</span>
+        <ProgressCircle value={percentage} size="xl">
+          <span className="text-xs font-medium text-slate-700">
+            {percentage.toFixed(2)}%
+          </span>
         </ProgressCircle>
       </div>
     </div>

@@ -81,8 +81,6 @@ export default function CompetitionPage(props) {
         })
       })
     })
-  } else {
-    console.log("No player data found")
   }
 
   function handleRemovePlayer(player) {

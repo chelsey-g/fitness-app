@@ -29,9 +29,9 @@ export default function Navigation() {
           />
           <ul className="flex space-x-4 items-center font-bold font-sans">
             <li>
-              <a href="/home" className="text-white hover:text-gray-300">
+              <Link href="/home" className="text-white hover:text-gray-300">
                 Home
-              </a>
+              </Link>
             </li>
             <li>
               <Link href="/tracker" className="text-white hover:text-gray-300">
@@ -39,12 +39,12 @@ export default function Navigation() {
               </Link>
             </li>
             <li>
-              <a
+              <Link
                 href="/competitions"
                 className="text-white hover:text-gray-300"
               >
                 Competitions
-              </a>
+              </Link>
             </li>
             <li>
               <a href="/workouts" className="text-white hover:text-gray-300">
@@ -53,15 +53,15 @@ export default function Navigation() {
             </li>
             {!isLoggedIn && (
               <li>
-                <a href="/login" className="text-white hover:text-gray-300">
+                <Link href="/login" className="text-white hover:text-gray-300">
                   Login
-                </a>
+                </Link>
               </li>
             )}
             <li>
-              <a href="/contact" className="text-white hover:text-gray-300">
+              <Link href="/contact" className="text-white hover:text-gray-300">
                 Contact
-              </a>
+              </Link>
             </li>
           </ul>
           {isLoggedIn && <Profile />}

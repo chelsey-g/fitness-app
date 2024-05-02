@@ -11,23 +11,37 @@ import {
 
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/client"
+import useSWR from "swr"
 import { useState } from "react"
 
 export default function ProfileDropDown() {
+  const [isOpen, setIsOpen] = useState(false)
   const supabase = createClient()
+
+  const { data: user } = useSWR("/user", () =>
+    supabase.auth.getUser().then((res) => res.data)
+  )
+
+  const fileName = user?.user.id
+  const { data: name } = supabase.storage
+    .from("habit-kick/profile-pictures")
+    .getPublicUrl(fileName)
+
+  console.log("name", name)
+  console.log(user, "userrrrrr")
+
   function handleSignOutUser() {
     const { error } = supabase.auth.signOut()
     if (error) console.error("Sign out error", error)
   }
 
-  const [isOpen, setIsOpen] = useState(false)
   return (
     <div className="flex items-center pl-4">
       <div className="relative flex items-center inline-block text-left">
         <DropdownMenu isOpen={isOpen} setIsOpen={setIsOpen}>
           <DropdownMenuTrigger>
             <img
-              src="/images/profile-stock.jpg"
+              src={name.publicUrl || "/images/profile-stock.jpg"}
               alt="Profile Picture"
               className="w-10 h-10 rounded-full ml-2"
             />

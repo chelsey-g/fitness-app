@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import Goals from "@/components/Goals"
 import { Input } from "@/components/ui/input"
 import Navigation from "@/components/Navigation"
+import UploadPicture from "@/components/UploadPicture"
 import UsernamePassword from "@/components/UsernamePassword"
 import { createClient } from "@/utils/supabase/client"
 import useSWR from "swr"
@@ -119,6 +120,12 @@ export default function ProfileDashboard() {
         <UsernamePassword />
       </Card>
     )
+  } else if (selectedProfileCard === "Profile Picture") {
+    cardContent = (
+      <Card x-chunk="dashboard-04-chunk-2">
+        <UploadPicture />
+      </Card>
+    )
   }
 
   return (
@@ -150,6 +157,9 @@ export default function ProfileDashboard() {
             </button>
             <button onClick={() => setSelectedProfileCard("Username/Password")}>
               Username/Password
+            </button>
+            <button onClick={() => setSelectedProfileCard("Profile Picture")}>
+              Profile Picture
             </button>
           </nav>
           <div className="grid gap-6">{cardContent}</div>
