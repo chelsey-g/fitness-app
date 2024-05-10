@@ -53,9 +53,7 @@ export default function ExercisePage(props) {
     if (error) {
       console.error("Error adding workout!", error)
     } else {
-      console.log("Workout added successfully!")
       setWorkouts(exerciseData.name)
-      console.log(data, "hello")
     }
   }
 

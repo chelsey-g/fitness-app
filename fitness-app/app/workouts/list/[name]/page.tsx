@@ -17,8 +17,6 @@ export default async function ListPage(props) {
     .eq("list_id", props.params.name)
   if (error) {
     console.error("Error fetching data:", error)
-  } else {
-    console.log("hello", listData)
   }
 
   return (

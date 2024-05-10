@@ -2,9 +2,9 @@
 
 import Link from "next/link"
 import Navigation from "@/components/Navigation"
-import ProgressCircle from "@/components/ProgressCircle"
 import ProgressTracker from "@/components/ProgressTracker"
 import { createClient } from "@/utils/supabase/client"
+import { handleDate } from "@/app/functions"
 import useSWR from "swr"
 
 export default function HomePage() {
@@ -19,8 +19,6 @@ export default function HomePage() {
 
   let identityId = user?.identities?.[0]?.id || null
 
-  console.log("user", user)
-
   const { data: competitions } = useSWR(
     () => (identityId ? "/competitions/" + identityId : null),
     () =>
@@ -30,7 +28,6 @@ export default function HomePage() {
         .eq("player_id", identityId)
         .then((res) => res.data)
   )
-  console.log("competitions", competitions)
 
   const { data: profiles } = useSWR(
     identityId ? "/profiles/" + identityId : null,
@@ -41,9 +38,43 @@ export default function HomePage() {
         .eq("id", identityId)
         .then((res) => res.data)
   )
-  console.log("profiles", profiles)
+
+  const { data: goals } = useSWR(
+    () => (identityId ? "/profile_goals/" + identityId : null),
+    () =>
+      supabase
+        .from("profile_goals")
+        .select("*")
+        .eq("profile_id", identityId)
+        .then((res) => res.data)
+  )
+
+  const { data: weights } = useSWR(
+    () => (identityId ? "/weights/" + identityId : null),
+    () =>
+      supabase
+        .from("weight_tracker")
+        .select("*")
+        .eq("created_by", identityId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .then((res) => res.data)
+  )
+  console.log(weights, "weights")
 
   if (!profiles) return
+
+  const calculateWeightDifference = (goalWeight, currentWeight) => {
+    return goalWeight - currentWeight
+  }
+
+  const calculateDaysLeft = (date) => {
+    const goalDate = new Date(date)
+    const today = new Date()
+    const differenceInTime = goalDate.getTime() - today.getTime()
+    const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24))
+    return differenceInDays
+  }
 
   return (
     <div>
@@ -78,8 +109,53 @@ export default function HomePage() {
               </Link>
             </div>
             <div className="mt-5 text-sm">
-              Personal Loss Goal Progress:
-              <ProgressCircle profileInfo={user} />
+              <h3 className="text-lg font-semibold mb-2">Active Goals</h3>
+              <div className="flex justify-around">
+                <div>
+                  <h4 className="font-semibold mb-1">Goal Date</h4>
+                  <ul>
+                    {goals.map((goal) => (
+                      <li key={goal.id} className="mb-1">
+                        {handleDate(goal.goal_date)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-1">Goal Weight</h4>
+                  <ul>
+                    {goals.map((goal) => (
+                      <li key={goal.id} className="mb-1">
+                        {goal.goal_weight} lbs
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-1">Weight Remaining</h4>
+                  <ul>
+                    {goals.map((goal) => (
+                      <li key={goal.id} className="mb-1">
+                        {calculateWeightDifference(
+                          goal.goal_date,
+                          weights[0].id
+                        )}{" "}
+                        lbs
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-1">Days Left</h4>
+                  <ul>
+                    {goals.map((goal) => (
+                      <li key={goal.id} className="mb-1">
+                        {calculateDaysLeft(goal.goal_date)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         )}

@@ -8,8 +8,6 @@ import { DropdownMenuDemo } from "@/components/TrackerActions"
 import Link from "next/link"
 import { MdDelete } from "react-icons/md"
 import Navigation from "@/components/Navigation"
-// import ProgressTracker from "@/components/ProgressTracker"
-import WeightGraph from "@/components/WeightGraph"
 import { createClient } from "@/utils/supabase/client"
 import dayjs from "dayjs"
 
@@ -18,7 +16,6 @@ export default function WeightChartPage() {
 
   const [weightData, setWeightData] = useState(null)
   const [loadedDates, setLoadedDates] = useState(null)
-  const [showGraph, setShowGraph] = useState(false)
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
   const [showAlert, setShowAlert] = useState(false)
@@ -198,14 +195,6 @@ export default function WeightChartPage() {
               Add Weight
             </button>
           </Link>
-          {/* <button
-            className="bg-snd-bkg text-white py-2 px-4 rounded items-center"
-            onClick={() => setShowGraph(!showGraph)}
-          >
-            Show Graph
-          </button> */}
-          {/* <WeightGraph data={weightData} /> */}
-          {/* <div className="border w-96"><ProgressTracker /></div> */}
         </div>
       </div>
     </div>

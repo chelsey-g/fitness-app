@@ -51,6 +51,11 @@ export default function Navigation() {
                 Workouts
               </a>
             </li>
+            <li>
+              <a href="/goals" className="text-white hover:text-gray-300">
+                Goals
+              </a>
+            </li>
             {!isLoggedIn && (
               <li>
                 <Link href="/login" className="text-white hover:text-gray-300">
@@ -58,11 +63,11 @@ export default function Navigation() {
                 </Link>
               </li>
             )}
-            <li>
+            {/* <li>
               <Link href="/contact" className="text-white hover:text-gray-300">
                 Contact
               </Link>
-            </li>
+            </li> */}
           </ul>
           {isLoggedIn && <Profile />}
         </div>

@@ -8,11 +8,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import Goals from "@/components/Goals"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import Navigation from "@/components/Navigation"
 import UploadPicture from "@/components/UploadPicture"
 import UsernamePassword from "@/components/UsernamePassword"
@@ -22,10 +31,14 @@ import useSWR from "swr"
 export default function ProfileDashboard() {
   const supabase = createClient()
   const [user, setUser] = useState(null)
+  const [selectedProfileCard, setSelectedProfileCard] = useState("General")
+  const [isOpen, setIsOpen] = useState(false)
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
-  const [selectedProfileCard, setSelectedProfileCard] = useState("General")
 
+  const handleEditModal = () => {
+    setIsOpen(true)
+  }
   useEffect(() => {
     const fetchUserData = async () => {
       const {
@@ -71,59 +84,98 @@ export default function ProfileDashboard() {
   }
 
   let cardContent
-  if (selectedProfileCard === "General") {
+  if (selectedProfileCard === "Account Settings") {
     cardContent = (
-      <Card x-chunk="dashboard-04-chunk-1">
-        <CardHeader>
-          <CardTitle>Profile Info</CardTitle>
-          <CardDescription>
-            Edit your personal information and preferences.
+      <Card
+        x-chunk="dashboard-04-chunk-1"
+        className="border rounded-lg shadow-md"
+      >
+        <CardHeader className="bg-gray-100 py-4 px-6">
+          <CardTitle className="text-xl font-semibold text-gray-800">
+            Account Settings
+          </CardTitle>
+          <CardDescription className="text-gray-600">
+            Edit your personal information and preferences
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleProfileUpdate}>
-            <Input
-              className="placeholder-black"
-              id="first_name"
-              type="text"
-              placeholder={profiles[0].first_name}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
-            <Input
-              className="placeholder-black"
-              id="last_name"
-              type="text"
-              placeholder={profiles[0].last_name}
-              onChange={(e) => setLastName(e.target.value)}
-            />
-          </form>
+        <CardContent className="py-6 px-6">
+          <div className="border-b pb-4 mb-4 flex justify-between items-center">
+            <div>
+              <p className="text-gray-700 font-semibold">Name:</p>
+              <p className="text-gray-700">
+                {profiles[0].first_name} {profiles[0].last_name}
+              </p>
+            </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  onClick={handleEditModal}
+                  className="text-sm px-4 py-2 bg-snd-bkg text-white rounded hover:bg-gray-600"
+                >
+                  Edit
+                </button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px] bg-white">
+                <DialogHeader>
+                  <DialogTitle>Edit Name</DialogTitle>
+                  <DialogDescription>
+                    Click save when you're done.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="first_name" className="text-right">
+                      First Name
+                    </Label>
+                    <Input
+                      id="first_name"
+                      placeholder={profiles[0].first_name}
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="last_name" className="text-right">
+                      Last Name
+                    </Label>
+                    <Input
+                      id="last_name"
+                      placeholder={profiles[0].last_name}
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="col-span-3"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    className="bg-snd-bkg text-white"
+                    onClick={handleProfileUpdate}
+                  >
+                    Save
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+          <div className="border-b pb-4 mb-4">
+            <UploadPicture />
+          </div>
         </CardContent>
-        <CardFooter className="border-t px-6 py-4 flex justify-center">
-          <Button
-            onClick={handleProfileUpdate}
-            className="bg-snd-bkg hover:bg-snd-bkg text-white py-3 px-6 rounded-full focus:outline-none text-center"
-          >
-            Save
-          </Button>
-        </CardFooter>
       </Card>
     )
-  } else if (selectedProfileCard === "Goals") {
-    cardContent = (
-      <Card x-chunk="dashboard-04-chunk-2">
-        <Goals profileInfo={user} />
-      </Card>
-    )
-  } else if (selectedProfileCard === "Username/Password") {
+    // } else if (selectedProfileCard === "Goals") {
+    //   cardContent = (
+    //     <Card x-chunk="dashboard-04-chunk-2">
+    //       <Goals profileInfo={user} />
+    //     </Card>
+    //   )
+  } else if (selectedProfileCard === "Login & Security") {
     cardContent = (
       <Card x-chunk="dashboard-04-chunk-2">
         <UsernamePassword />
-      </Card>
-    )
-  } else if (selectedProfileCard === "Profile Picture") {
-    cardContent = (
-      <Card x-chunk="dashboard-04-chunk-2">
-        <UploadPicture />
       </Card>
     )
   }
@@ -133,34 +185,30 @@ export default function ProfileDashboard() {
       <Navigation />
       <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-white rounded-lg p-4 md:gap-8 md:p-10">
         <div className="grid w-full max-w-6xl">
-          <h1 className="text-3xl font-semibold">Profile</h1>
+          <h1 className="text-3xl font-semibold">
+            {profiles[0].first_name} {profiles[0].last_name}
+          </h1>
         </div>
         <div className="grid w-full max-w-6xl items-start gap-6 md:grid-cols-[180px_1fr] lg:grid-cols-[250px_1fr] align-left">
           <nav className="grid gap-4 text-sm text-muted-foreground justify-start">
             <button
               className="font-semibold text-primary justify-start text-left"
-              onClick={() => setSelectedProfileCard("General")}
+              onClick={() => setSelectedProfileCard("Account Settings")}
             >
-              General
+              Account Settings
             </button>
             <button
+              className="justify-start text-left"
+              onClick={() => setSelectedProfileCard("Login & Security")}
+            >
+              Login & Security
+            </button>
+            {/* <button
               className="justify-start text-left"
               onClick={() => setSelectedProfileCard("Goals")}
             >
               Goals
-            </button>
-            <button
-              className="text-left"
-              onClick={() => setSelectedProfileCard("Measurements")}
-            >
-              Measurements
-            </button>
-            <button onClick={() => setSelectedProfileCard("Username/Password")}>
-              Username/Password
-            </button>
-            <button onClick={() => setSelectedProfileCard("Profile Picture")}>
-              Profile Picture
-            </button>
+            </button> */}
           </nav>
           <div className="grid gap-6">{cardContent}</div>
         </div>

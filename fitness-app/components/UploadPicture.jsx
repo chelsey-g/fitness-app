@@ -1,3 +1,4 @@
+import { GoPlus } from "react-icons/go"
 import { createClient } from "@/utils/supabase/client"
 import useSWR from "swr"
 import { useState } from "react"
@@ -47,13 +48,27 @@ const UploadPhoto = () => {
   }
 
   return (
-    <div className="max-w-md mx-auto p-4 bg-white rounded-md shadow-md">
-      <h2 className="text-xl font-bold mb-4">Upload Photo</h2>
-      <input type="file" onChange={handleFileChange} className="mb-4" />
+    <div className="bg-white rounded-md">
+      <h2 className="text-gray-700 font-semibold mb-4">Upload Profile Photo</h2>
+      <label htmlFor="file-upload" className="relative cursor-pointer">
+        <input
+          id="file-upload"
+          type="file"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+        <div className="flex items-center justify-center bg-snd-bkg text-white px-4 py-2 rounded-md">
+          <GoPlus className="mr-1" />
+          <span>Choose Photo</span>
+        </div>
+      </label>
+      <span className="block text-sm text-gray-500 mt-2 text-center">
+        {selectedFile ? selectedFile.name : "No file chosen"}
+      </span>
       <button
         onClick={handleUpload}
         disabled={!selectedFile || uploading}
-        className="bg-blue-500 text-white px-4 py-2 rounded-md disabled:bg-gray-400"
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md disabled:bg-gray-400 text-center justify-center flex"
       >
         {uploading ? "Uploading..." : "Upload"}
       </button>

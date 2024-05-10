@@ -38,8 +38,6 @@ export default function TrackerPage() {
     router.push("/tracker/chart")
   }
 
-  console.log("sup")
-
   return (
     <div className=" p-4">
       <Navigation />
@@ -86,7 +84,6 @@ export default function TrackerPage() {
             <button
               type="submit"
               className="bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-full focus:outline-none"
-              onClick={handleSubmit}
             >
               Submit
             </button>
