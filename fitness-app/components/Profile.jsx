@@ -11,10 +11,12 @@ import {
 
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/client"
+import { useRouter } from "next/navigation"
 import useSWR from "swr"
 import { useState } from "react"
 
 export default function ProfileDropDown() {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const supabase = createClient()
 
@@ -45,6 +47,7 @@ export default function ProfileDropDown() {
   function handleSignOutUser() {
     const { error } = supabase.auth.signOut()
     if (error) console.error("Sign out error", error)
+    router.push("/home")
   }
 
   return (
@@ -69,10 +72,10 @@ export default function ProfileDropDown() {
                       className="w-10 h-10 rounded-full mr-3"
                     />
                     <div>
-                      {/* <div className="text-sm text-gray-700 font-semibold">
+                      <div className="text-sm text-gray-700 font-semibold">
                         {profiles[0]?.first_name} {profiles[0]?.last_name}
-                      </div> */}
-                      {/* <div className="text-xs text-gray-500">{user.email}</div> */}
+                      </div>
+                      <div className="text-xs text-gray-500">{user.email}</div>
                     </div>
                   </div>
                 </div>
