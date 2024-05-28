@@ -3,7 +3,7 @@
 import ContactAlert from "@/components/ContactAlert"
 import Navigation from "@/components/Navigation"
 import React from "react"
-import { sendEmail } from "../api/send/route"
+import { sendEmail } from "@/lib/sendEmail"
 
 export default function ContactForm() {
   const handleSubmit = <ContactAlert />

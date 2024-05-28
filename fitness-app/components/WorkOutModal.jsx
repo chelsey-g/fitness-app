@@ -5,7 +5,7 @@ import AddList from "@/components/AddList"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 
-const App: React.FC = ({ exerciseData }) => {
+const App = ({ exerciseData }) => {
   const [open, setOpen] = useState(false)
   const [workout, setWorkout] = useState("")
   const [list, setList] = useState("")
