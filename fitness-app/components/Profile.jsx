@@ -71,12 +71,12 @@ export default function ProfileDropDown() {
                       alt="Profile Picture"
                       className="w-10 h-10 rounded-full mr-3"
                     />
-                    <div>
+                    {/* <div>
                       <div className="text-sm text-gray-700 font-semibold">
                         {profiles[0]?.first_name} {profiles[0]?.last_name}
                       </div>
                       <div className="text-xs text-gray-500">{user.email}</div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </DropdownMenuItem>
