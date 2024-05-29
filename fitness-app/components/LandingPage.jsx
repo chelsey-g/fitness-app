@@ -21,6 +21,8 @@ export default function LandingPage() {
         <header className="flex items-center justify-between px-4 py-2 pt-5 sticky top-0 z-50 backdrop-filter">
           <Image
             className="w-48 h-auto pl-5"
+            width={200}
+            height={50}
             src="/images/text-logo.png"
             alt="text-logo"
           />
