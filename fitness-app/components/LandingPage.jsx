@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { Link } from "react-scroll"
 import React from "react"
 import { useRouter } from "next/navigation"
@@ -18,7 +19,7 @@ export default function LandingPage() {
     <div className="">
       <div className="">
         <header className="flex items-center justify-between px-4 py-2 pt-5 sticky top-0 z-50 backdrop-filter">
-          <img
+          <Image
             className="w-48 h-auto pl-5"
             src="/images/text-logo.png"
             alt="text-logo"
