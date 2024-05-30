@@ -1,5 +1,6 @@
 import { GoPlus } from "react-icons/go"
 import { createClient } from "@/utils/supabase/client"
+import { useRouter } from "next/navigation"
 import useSWR from "swr"
 import { useState } from "react"
 
@@ -7,7 +8,7 @@ const UploadPhoto = () => {
   const supabase = createClient()
   const [selectedFile, setSelectedFile] = useState(null)
   const [uploading, setUploading] = useState(false)
-
+  const router = useRouter()
   const {
     data: user,
     error,
@@ -29,7 +30,7 @@ const UploadPhoto = () => {
     setUploading(true)
 
     const avatarFile = selectedFile
-    const fileName = user.user.id
+    const fileName = user?.id
     supabase.storage
       .from("habit-kick/profile-pictures")
       .upload(fileName, avatarFile)
@@ -40,6 +41,7 @@ const UploadPhoto = () => {
           console.log("File uploaded successfully:", fileName)
         }
         setUploading(false)
+        router.refresh()
       })
       .catch((error) => {
         console.error("Error uploading file:", error.message)
