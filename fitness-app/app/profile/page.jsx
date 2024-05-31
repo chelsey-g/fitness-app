@@ -39,32 +39,19 @@ export default function ProfileDashboard() {
   const handleEditModal = () => {
     setIsOpen(true)
   }
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      setUser(user)
-    }
-
-    fetchUserData()
-  }, [])
+  const { data: userInfo } = useSWR("/user", () =>
+    supabase.auth.getUser().then((res) => res.data.user)
+  )
 
   console.log(user)
 
-  const {
-    data: profiles,
-    error,
-    isLoading,
-  } = useSWR("/profiles", () =>
+  const { data: profiles, isLoading } = useSWR("/profiles", () =>
     supabase
       .from("profiles")
       .select("*")
-      .eq("id", user.identities[0].id)
+      .eq("id", userInfo?.identities[0].id)
       .then((res) => res.data)
   )
-  if (error) return <div>Failed to load</div>
   if (isLoading) return <div>Loading...</div>
 
   const handleProfileUpdate = async (e) => {
