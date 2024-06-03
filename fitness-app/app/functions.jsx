@@ -24,3 +24,16 @@ export function getRandomColor() {
 export function handleDate(date) {
   return dayjs(date).format("MM/DD/YYYY")
 }
+
+export const calculateWeightDifference = (goalWeight, currentWeight) => {
+  const difference = goalWeight - currentWeight
+  return difference.toFixed(2)
+}
+
+export const calculateDaysLeft = (date) => {
+  const goalDate = new Date(date)
+  const today = new Date()
+  const differenceInTime = goalDate.getTime() - today.getTime()
+  const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24))
+  return differenceInDays
+}

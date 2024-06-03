@@ -1,5 +1,7 @@
 "use client"
 
+import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
+
 import Link from "next/link"
 import Navigation from "@/components/Navigation"
 import ProgressTracker from "@/components/ProgressTracker"
@@ -75,17 +77,10 @@ export default function UserDashboard() {
 
   if (!profiles) return <div>Loading...</div>
 
-  const calculateWeightDifference = (goalWeight, currentWeight) => {
-    return goalWeight - currentWeight
-  }
-
-  const calculateDaysLeft = (date) => {
-    const goalDate = new Date(date)
-    const today = new Date()
-    const differenceInTime = goalDate.getTime() - today.getTime()
-    const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24))
-    return differenceInDays
-  }
+  const currentDate = new Date()
+  const activeGoals = goals?.filter(
+    (goal) => new Date(goal.goal_date) >= currentDate
+  )
 
   return (
     <div>
@@ -125,7 +120,7 @@ export default function UserDashboard() {
                 <div>
                   <h4 className="font-semibold mb-1">Goal Date</h4>
                   <ul>
-                    {goals?.map((goal) => (
+                    {activeGoals?.map((goal) => (
                       <li key={goal.id} className="mb-1">
                         {handleDate(goal.goal_date)}
                       </li>
@@ -135,7 +130,7 @@ export default function UserDashboard() {
                 <div>
                   <h4 className="font-semibold mb-1">Goal Weight</h4>
                   <ul>
-                    {goals?.map((goal) => (
+                    {activeGoals?.map((goal) => (
                       <li key={goal.id} className="mb-1">
                         {goal.goal_weight} lbs
                       </li>
@@ -145,7 +140,7 @@ export default function UserDashboard() {
                 <div>
                   <h4 className="font-semibold mb-1">Weight Remaining</h4>
                   <ul>
-                    {goals?.map((goal) => (
+                    {activeGoals?.map((goal) => (
                       <li key={goal.id} className="mb-1">
                         {calculateWeightDifference(
                           goal.goal_weight,
@@ -159,7 +154,7 @@ export default function UserDashboard() {
                 <div>
                   <h4 className="font-semibold mb-1">Days Left</h4>
                   <ul>
-                    {goals?.map((goal) => (
+                    {activeGoals?.map((goal) => (
                       <li key={goal.id} className="mb-1">
                         {calculateDaysLeft(goal.goal_date)}
                       </li>

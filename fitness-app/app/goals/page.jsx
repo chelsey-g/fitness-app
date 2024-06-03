@@ -9,8 +9,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
 
 import { Button } from "@/components/ui/button"
+import GoalsDropdown from "@/components/GoalsActions"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Navigation from "@/components/Navigation"
@@ -42,6 +44,19 @@ export default function ProfileGoals() {
         .then((res) => res.data)
   )
 
+  const { data: weights } = useSWR(
+    identityId ? "/weights/" + identityId : null,
+    () =>
+      supabase
+        .from("weight_tracker")
+        .select("*")
+        .eq("created_by", identityId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .then((res) => res.data),
+    { revalidateOnFocus: false }
+  )
+
   const handleEditModal = () => {
     setIsOpen(true)
   }
@@ -60,7 +75,17 @@ export default function ProfileGoals() {
       setIsOpen(false)
     }
   }
+  const currentDate = new Date()
+  const activeGoals = userGoals?.filter(
+    (goal) => new Date(goal.goal_date) >= currentDate
+  )
 
+  const handleDeleteGoal = async (id) => {
+    const { error } = await supabase.from("profile_goals").delete().eq("id", id)
+    if (error) {
+      console.error(error)
+    }
+  }
   return (
     <div className="p-4">
       <Navigation />
@@ -69,18 +94,36 @@ export default function ProfileGoals() {
         <table className="min-w-full">
           <thead className="font-semibold items-center">
             <tr className="items-center">
-              <th className="p-4 text-sm">Goal Weight</th>
               <th className="p-4 text-sm">Goal Date</th>
+              <th className="p-4 text-sm">Goal Weight</th>
+              <th className="p-4 text-sm">Days Left</th>
+              <th className="p-4 text-sm">Weight Remaining</th>
+              <th className="p-4 text-sm"></th>
             </tr>
           </thead>
           <tbody>
-            {userGoals?.map((goal) => (
+            {activeGoals?.map((goal) => (
               <tr key={goal.id}>
+                <td className="p-4 text-sm text-center">
+                  {handleDate(goal.goal_date)}
+                </td>
                 <td className="p-4 text-sm text-center">
                   {goal.goal_weight} lbs
                 </td>
                 <td className="p-4 text-sm text-center">
-                  {handleDate(goal.goal_date)}
+                  {calculateDaysLeft(goal.goal_date)}
+                </td>
+                <td className="p-4 text-sm text-center">
+                  {calculateWeightDifference(
+                    goal.goal_weight,
+                    weights?.[0]?.weight
+                  )}{" "}
+                  lbs
+                </td>
+                <td className="p-4 text-sm text-center">
+                  <GoalsDropdown
+                    deleteGoals={() => handleDeleteGoal(goal.id)}
+                  />
                 </td>
               </tr>
             ))}
