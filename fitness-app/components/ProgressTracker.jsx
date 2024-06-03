@@ -43,10 +43,10 @@ export default function ProgressTracker() {
       const dateStr = currentDate.format("MM-DD-YYYY")
       const color =
         i === 0
-          ? "slate-400"
+          ? "slate-600"
           : weightDate.includes(dateStr)
           ? "green"
-          : "slate-400"
+          : "slate-600"
       const tooltipText = dateStr
       dates.push({ color, tooltip: tooltipText })
     }
