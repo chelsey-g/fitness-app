@@ -26,6 +26,7 @@ export default function ProfileGoals() {
   const [goalWeight, setGoalWeight] = useState("")
   const [goalDate, setGoalDate] = useState("")
   const [isOpen, setIsOpen] = useState(false)
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
   const { data: user } = useSWR("/users", () =>
     supabase.auth.getUser().then((res) => res.data.user)
