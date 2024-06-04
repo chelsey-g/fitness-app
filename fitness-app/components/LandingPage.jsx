@@ -24,8 +24,8 @@ export default function LandingPage() {
           alt="text-logo"
         />
         <nav className="space-x-4">
-          <ul className="flex space-x-10">
-            <li>
+          <ul className="flex flex-col lg:flex-row lg:space-x-5">
+            <li className="lg:px-4 lg:py-2">
               <ScrollLink
                 to="hero"
                 smooth={true}
@@ -35,7 +35,7 @@ export default function LandingPage() {
                 Home
               </ScrollLink>
             </li>
-            <li>
+            <li className="lg:px-4 lg:py-2">
               <ScrollLink
                 to="features"
                 smooth={true}
@@ -45,7 +45,7 @@ export default function LandingPage() {
                 Features
               </ScrollLink>
             </li>
-            <li>
+            <li className="lg:px-4 lg:py-2">
               <ScrollLink
                 to="testimonials"
                 smooth={true}
@@ -55,7 +55,7 @@ export default function LandingPage() {
                 Testimonials
               </ScrollLink>
             </li>
-            <li>
+            <li className="lg:px-4 lg:py-2">
               <Link
                 href="/login"
                 className="cursor-pointer text-white hover:text-gray-300 bg-trd-bkg px-4 py-2 rounded-lg shadow transition duration-300 ease-in-out font-bold"
