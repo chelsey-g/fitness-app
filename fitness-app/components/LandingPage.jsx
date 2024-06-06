@@ -66,7 +66,7 @@ export default function LandingPage() {
           </ul>
         </nav>
       </header>
-      <div className="relative">
+      <div className="">
         <Image
           className="w-full h-auto rounded"
           width={2000}
@@ -74,7 +74,7 @@ export default function LandingPage() {
           src="/images/background-image.jpg"
           alt="Background"
         />
-        <div className="absolute top-[-150px] left-0 w-full h-full flex flex-col items-center justify-center">
+        <div className="top-[-150px] left-0 w-full h-full flex flex-col items-center justify-center">
           <h2 className="text-4xl text-white font-bold mb-4">
             Fitness At Your Fingertips
           </h2>
