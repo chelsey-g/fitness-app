@@ -42,11 +42,7 @@ export default function ProgressTracker() {
       const currentDate = today.subtract(i, "day")
       const dateStr = currentDate.format("MM-DD-YYYY")
       const color =
-        i === 0
-          ? "slate-600"
-          : weightDate.includes(dateStr)
-          ? "green"
-          : "slate-600"
+        i === 0 ? "gray" : weightDate.includes(dateStr) ? "green" : "gray"
       const tooltipText = dateStr
       dates.push({ color, tooltip: tooltipText })
     }
