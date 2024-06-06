@@ -10,13 +10,13 @@ const supabaseKey = process.env.SUPABASE_ANON_KEY
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_KEY
 
 var supabase = createClient(supabaseUrl, supabaseKey)
+var supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey)
 
 describe("Permissions Tests", () => {
   let authUser
 
   beforeAll(async () => {
-    let supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
-    const { data, error } = await supabase.auth.admin.createUser({
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email: "testuser@example.com",
       password: "password123",
       email_confirm: true,
@@ -26,7 +26,6 @@ describe("Permissions Tests", () => {
   })
 
   afterAll(async () => {
-    let supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
     await supabase.auth.admin.deleteUser(authUser.id)
   })
 
