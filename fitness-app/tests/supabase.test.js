@@ -26,7 +26,7 @@ describe("Permissions Tests", () => {
   })
 
   afterAll(async () => {
-    await supabase.auth.admin.deleteUser(authUser.id)
+    await supabaseAdmin.auth.admin.deleteUser(authUser.id)
   })
 
   test("anonymous cannot load competitions", async () => {
