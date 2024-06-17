@@ -1,6 +1,7 @@
 "use client"
 
 import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
+import { useEffect, useState } from "react"
 
 import Link from "next/link"
 import Navigation from "@/components/Navigation"
@@ -10,6 +11,29 @@ import { handleDate } from "@/app/functions"
 import useSWR from "swr"
 
 export default function UserDashboard() {
+  const [quote, setQuote] = useState(null)
+
+  const fetchQuote = async () => {
+    try {
+      const response = await fetch("https://type.fit/api/quotes")
+      const data = await response.json()
+
+      const randomQuote = data[Math.floor(Math.random() * data.length)]
+
+      const cleanAuthor = randomQuote.author
+        ? randomQuote.author.split(",")[0]
+        : "Unknown"
+      const cleanQuote = { text: randomQuote.text, author: cleanAuthor }
+
+      setQuote(cleanQuote)
+    } catch (error) {
+      console.error("Error fetching quote:", error)
+    }
+  }
+
+  useEffect(() => {
+    fetchQuote()
+  }, [])
   const supabase = createClient()
   const {
     data: user,
@@ -90,6 +114,17 @@ export default function UserDashboard() {
         <h1 className="text-4xl font-semibold text-gray-800 mb-4 text-center">
           Welcome back, {profiles[0]?.first_name}!
         </h1>
+        {quote && (
+          <div className="bg-gray-100 p-6 rounded-lg shadow-md my-4 mx-auto max-w-md">
+            <blockquote className="text-xl italic font-semibold text-center text-gray-900">
+              "{quote.text}"
+            </blockquote>
+            <p className="text-right mt-4 text-lg text-gray-600">
+              - {quote.author}
+            </p>
+          </div>
+        )}
+
         <div className="text-gray-700 text-sm text-center">
           <ProgressTracker />
           Check your progress{" "}

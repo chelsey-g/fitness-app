@@ -37,8 +37,8 @@ export default function ProfileDropDown() {
         .then((res) => res.data)
   )
 
-  console.log("user", user)
-  console.log("profiles", profiles)
+  // console.log("user", user)
+  // console.log("profiles", profiles)
 
   const fileName = user?.id
   const { data: name } = supabase.storage
