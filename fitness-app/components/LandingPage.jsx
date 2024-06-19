@@ -14,140 +14,153 @@ export default function LandingPage() {
   }
 
   return (
-    <div>
-      <header className="flex items-center justify-between px-4 py-2 pt-5 sticky top-0 z-50 backdrop-filter">
+    <div className="w-full">
+      {/* <nav className="space-x-4">
+        <ul className="flex flex-col lg:flex-row lg:space-x-5">
+          <li className="lg:px-4 lg:py-2">
+            <ScrollLink
+              to="hero"
+              smooth={true}
+              duration={500}
+              className="cursor-pointer text-white hover:text-gray-300 bg-trd-bkg px-4 py-2 rounded-lg shadow transition duration-300 ease-in-out font-bold"
+            >
+              Home
+            </ScrollLink>
+          </li>
+          <li className="lg:px-4 lg:py-2">
+            <ScrollLink
+              to="features"
+              smooth={true}
+              duration={500}
+              className="cursor-pointer text-white hover:text-gray-300 bg-trd-bkg px-4 py-2 rounded-lg shadow transition duration-300 ease-in-out font-bold"
+            >
+              Features
+            </ScrollLink>
+          </li>
+          <li className="lg:px-4 lg:py-2">
+            <ScrollLink
+              to="testimonials"
+              smooth={true}
+              duration={500}
+              className="cursor-pointer text-white hover:text-gray-300 bg-trd-bkg px-4 py-2 rounded-lg shadow transition duration-300 ease-in-out font-bold"
+            >
+              Testimonials
+            </ScrollLink>
+          </li>
+          <li className="lg:px-4 lg:py-2">
+            <Link
+              href="/login"
+              className="cursor-pointer text-white hover:text-gray-300 bg-trd-bkg px-4 py-2 rounded-lg shadow transition duration-300 ease-in-out font-bold"
+            >
+              Sign Up
+            </Link>
+          </li>
+        </ul>
+      </nav> */}
+      <div className="relative h-72 flex items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-prm-bkg z-10"></div>
         <Image
-          className="w-48 h-auto pl-5"
-          width={100}
-          height={50}
-          src="/images/text-logo.png"
-          alt="text-logo"
-        />
-        <nav className="space-x-4">
-          <ul className="flex flex-col lg:flex-row lg:space-x-5">
-            <li className="lg:px-4 lg:py-2">
-              <ScrollLink
-                to="hero"
-                smooth={true}
-                duration={500}
-                className="cursor-pointer text-white hover:text-gray-300 bg-trd-bkg px-4 py-2 rounded-lg shadow transition duration-300 ease-in-out font-bold"
-              >
-                Home
-              </ScrollLink>
-            </li>
-            <li className="lg:px-4 lg:py-2">
-              <ScrollLink
-                to="features"
-                smooth={true}
-                duration={500}
-                className="cursor-pointer text-white hover:text-gray-300 bg-trd-bkg px-4 py-2 rounded-lg shadow transition duration-300 ease-in-out font-bold"
-              >
-                Features
-              </ScrollLink>
-            </li>
-            <li className="lg:px-4 lg:py-2">
-              <ScrollLink
-                to="testimonials"
-                smooth={true}
-                duration={500}
-                className="cursor-pointer text-white hover:text-gray-300 bg-trd-bkg px-4 py-2 rounded-lg shadow transition duration-300 ease-in-out font-bold"
-              >
-                Testimonials
-              </ScrollLink>
-            </li>
-            <li className="lg:px-4 lg:py-2">
-              <Link
-                href="/login"
-                className="cursor-pointer text-white hover:text-gray-300 bg-trd-bkg px-4 py-2 rounded-lg shadow transition duration-300 ease-in-out font-bold"
-              >
-                Sign Up
-              </Link>
-            </li>
-          </ul>
-        </nav>
-      </header>
-      <div className="">
-        <Image
-          className="w-full h-auto rounded"
-          width={2000}
-          height={1080}
+          className="w-full h-full object-cover"
+          layout="fill"
           src="/images/background-image.jpg"
           alt="Background"
         />
-        <div className="top-[-150px] left-0 w-full h-full flex flex-col items-center justify-center">
+        <div className="relative z-20 text-center mt-20">
+          <Image
+            className="mx-auto mb-5 opacity-80"
+            width={300}
+            height={150}
+            src="/images/text-logo.png"
+            alt="text-logo"
+          />
           <h2 className="text-4xl text-white font-bold mb-4">
             Fitness At Your Fingertips
           </h2>
-          <p className="text-lg text-white mb-6">
+          <p className="text-lg text-white mb-6 px-4 italic">
             Your path to friendly competition, motivation, and a healthier
-            lifestyle. Start your fitness journey with us today!
+            lifestyle.
           </p>
-          <div className="bg-snd-bkg hover:bg-prm-bkg text-white font-bold py-3 px-6 rounded-lg shadow transition duration-300 ease-in-out">
-            <button onClick={handleJoinNowButton}>Join Now</button>
-          </div>
+          <button
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow transition duration-300 ease-in-out mt-20"
+            onClick={handleJoinNowButton}
+          >
+            Sign In/Sign Up
+          </button>
         </div>
       </div>
-      <div className="mx-auto px-4 pt-5">
-        <section id="features" className="py-20 bg-prm-bkg text-gray-800">
-          <h2 className="text-3xl font-bold text-center text-white mb-12">
+      <div className="mx-auto px-4 py-10 bg-prm-bkg">
+        <section id="features" className="py-20 text-gray-800">
+          <h2 className="text-4xl font-extrabold text-center mb-12 text-white">
             Features
           </h2>
-          <div className="flex flex-wrap justify-center gap-6">
-            <div className="feature max-w-sm p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out">
-              <h3 className="text-2xl font-semibold mb-3">
+          <div className="flex flex-wrap justify-center gap-8">
+            <div className="feature max-w-sm p-6 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out bg-white">
+              <h3 className="text-2xl font-semibold mb-4 text-center">
                 Compete with Friends
               </h3>
-              <p>Engage in friendly competitions and stay motivated.</p>
+              <p className="text-center text-gray-700">
+                Engage in exciting challenges with friends to stay motivated and
+                push each other to new heights.
+              </p>
             </div>
-            <div className="feature max-w-sm p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out">
-              <h3 className="text-2xl font-semibold mb-3">
-                Compete with Friends
+            <div className="feature max-w-sm p-6 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out bg-white">
+              <h3 className="text-2xl font-semibold mb-4 text-center">
+                Track Your Progress
               </h3>
-              <p>Engage in friendly competitions and stay motivated.</p>
+              <p className="text-center text-gray-700">
+                Keep a detailed record of your fitness journey with
+                comprehensive progress tracking tools.
+              </p>
             </div>
-            <div className="feature max-w-sm p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out">
-              <h3 className="text-2xl font-semibold mb-3">
-                Compete with Friends
+            <div className="feature max-w-sm p-6 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out bg-white">
+              <h3 className="text-2xl font-semibold mb-4 text-center ">
+                Personalized Plans
               </h3>
-              <p>Engage in friendly competitions and stay motivated.</p>
+              <p className="text-center text-gray-700">
+                Create customized workout plans tailored to meet your unique
+                fitness goals.
+              </p>
             </div>
           </div>
         </section>
-
+        <h2 className="text-3xl font-bold text-center mb-12 text-white">
+          What Our Users Say
+        </h2>
         <section
           id="testimonials"
           className="bg-gray-100 py-20 text-black rounded-xl"
         >
-          <h2 className="text-3xl font-bold text-center mb-12">
-            What Our Users Say
-          </h2>
           <div className="flex flex-wrap justify-center gap-6">
-            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out">
-              <p className="italic">
+            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out bg-white ml-4">
+              <p className="italic mb-2">
                 "This app has transformed the way I approach fitness and
-                challenges!" - Jane Doe
+                challenges!"
               </p>
+              <p className="font-bold">- Jane Doe</p>
             </div>
-            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out">
-              <p className="italic">
-                "This app has transformed the way I approach fitness and
-                challenges!" - Jane Doe
+            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out bg-white">
+              <p className="italic mb-2">
+                "I've never felt more motivated to stay active!"
               </p>
+              <p className="font-bold">- John Smith</p>
             </div>
-            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out">
-              <p className="italic">
-                "This app has transformed the way I approach fitness and
-                challenges!" - Jane Doe
+            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out bg-white mr-4">
+              <p className="italic mb-2">
+                "The friendly competition keeps me going every day."
               </p>
+              <p className="font-bold">- Emily Johnson</p>
             </div>
           </div>
         </section>
-        <section id="join" className="text-center py-20 text-white">
+        <section
+          id="join"
+          className="text-center py-20 bg-prm-bkg text-white rounded-xl"
+        >
           <h2 className="text-3xl font-bold mb-8">
             Ready to Start Your Journey?
           </h2>
           <button
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow transition duration-300 ease-in-out font-bold"
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow transition duration-300 ease-in-out"
             onClick={handleJoinNowButton}
           >
             Join Now
