@@ -78,6 +78,8 @@ export default function UserDashboard() {
     { revalidateOnFocus: false }
   )
 
+  console.log("goals", goals)
+
   const { data: weights } = useSWR(
     identityId ? "/weights/" + identityId : null,
     () =>
@@ -115,7 +117,7 @@ export default function UserDashboard() {
           Welcome back, {profiles[0]?.first_name}!
         </h1>
         {quote && (
-          <div className="bg-gray-100 p-6 rounded-lg shadow-md my-4 mx-auto max-w-md">
+          <div className="bg-gray-100 p-6 rounded-lg opacity-70 my-4 mx-auto max-w-md">
             <blockquote className="text-xl italic font-semibold text-center text-gray-900">
               "{quote.text}"
             </blockquote>
@@ -135,7 +137,34 @@ export default function UserDashboard() {
             here
           </Link>
         </div>
-        {competitions && (
+        {!competitions?.length && !activeGoals?.length && (
+          <div className="text-center mt-8">
+            <h3 className="text-2xl font-semibold text-gray-700 mb-4">
+              Stay Motivated!
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Set your fitness goals to start your journey towards a healthier
+              lifestyle.
+            </p>
+            <Link
+              href="/goals"
+              className="bg-snd-bkg hover:bg-opacity-90 text-white font-bold py-2 px-6 rounded items-center transition duration-300 ease-in-out mb-4"
+            >
+              Set a New Goal
+            </Link>
+            <p className="text-gray-600 mt-4 mb-4">
+              Join a competition to challenge yourself and stay motivated.
+            </p>
+            <Link
+              href="/competitions/create"
+              className="bg-snd-bkg hover:bg-opacity-90 text-white font-bold py-2 px-6 rounded items-center transition duration-300 ease-in-out mt-4"
+            >
+              Create a Competiton
+            </Link>
+          </div>
+        )}
+
+        {competitions > 0 && (
           <div className="text-gray-700 text-lg mt-5 text-center text-sm">
             <span>
               You are currently involved in {competitions.length} active
@@ -149,55 +178,58 @@ export default function UserDashboard() {
                 View Active Competitions
               </Link>
             </div>
-            <div className="mt-5 text-sm">
-              <h3 className="text-lg font-semibold mb-2">Active Goals</h3>
-              <div className="flex justify-around">
-                <div>
-                  <h4 className="font-semibold mb-1">Goal Date</h4>
-                  <ul>
-                    {activeGoals?.map((goal) => (
-                      <li key={goal.id} className="mb-1">
-                        {handleDate(goal.goal_date)}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Goal Weight</h4>
-                  <ul>
-                    {activeGoals?.map((goal) => (
-                      <li key={goal.id} className="mb-1">
-                        {goal.goal_weight} lbs
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Weight Remaining</h4>
-                  <ul>
-                    {activeGoals?.map((goal) => (
-                      <li key={goal.id} className="mb-1">
-                        {calculateWeightDifference(
-                          goal.goal_weight,
-                          weights?.[0]?.weight || 0
-                        )}{" "}
-                        lbs
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Days Left</h4>
-                  <ul>
-                    {activeGoals?.map((goal) => (
-                      <li key={goal.id} className="mb-1">
-                        {calculateDaysLeft(goal.goal_date)}
-                      </li>
-                    ))}
-                  </ul>
+
+            {goals > 0 && (
+              <div className="mt-5 text-sm">
+                <h3 className="text-lg font-semibold mb-2">Active Goals</h3>
+                <div className="flex justify-around">
+                  <div>
+                    <h4 className="font-semibold mb-1">Goal Date</h4>
+                    <ul>
+                      {activeGoals?.map((goal) => (
+                        <li key={goal.id} className="mb-1">
+                          {handleDate(goal.goal_date)}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">Goal Weight</h4>
+                    <ul>
+                      {activeGoals?.map((goal) => (
+                        <li key={goal.id} className="mb-1">
+                          {goal.goal_weight} lbs
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">Weight Remaining</h4>
+                    <ul>
+                      {activeGoals?.map((goal) => (
+                        <li key={goal.id} className="mb-1">
+                          {calculateWeightDifference(
+                            goal.goal_weight,
+                            weights?.[0]?.weight || 0
+                          )}{" "}
+                          lbs
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">Days Left</h4>
+                    <ul>
+                      {activeGoals?.map((goal) => (
+                        <li key={goal.id} className="mb-1">
+                          {calculateDaysLeft(goal.goal_date)}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
