@@ -71,7 +71,7 @@ export default function SearchBar({ onResultsChange }) {
     <div className="p-4 rounded-lg ">
       <div className="mb-4 text-center">
         <input
-          className="w-5/6
+          className="w-3/4
          p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 text-center text-black"
           type="text"
           placeholder="Search Exercise"
