@@ -78,8 +78,8 @@ export default function CompetitionForm() {
 
   return (
     <>
-      <Navigation />
-      <div className="p-4 mb-5 mt-8 rounded-lg w-3/5">
+      <div className="p-4 mb-5 mt-8 rounded-lg">
+        <Navigation />
         <form
           onSubmit={handleSubmit}
           className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
