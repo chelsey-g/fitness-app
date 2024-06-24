@@ -1,10 +1,9 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 import AddPlayers from "@/components/AddPlayers"
 import BackButton from "@/components/BackButton"
-import { LuPlusCircle } from "react-icons/lu"
 import Navigation from "./Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
@@ -13,9 +12,28 @@ export default function CompetitionForm() {
   const supabase = createClient()
   const router = useRouter()
 
-  const [competitionData, setCompetitionData] = useState(null)
+  const [competitionData, setCompetitionData] = useState({
+    name: "",
+    date_started: "",
+    date_ending: "",
+    rules: "",
+  })
   const [addPlayers, setAddPlayers] = useState(false)
   const [selectedPlayerIds, setSelectedPlayerIds] = useState([])
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data, error } = await supabase.auth.getUser()
+      if (error) {
+        console.error("Error getting user:", error)
+      } else {
+        setUser(data.user)
+      }
+    }
+
+    getUser()
+  }, [])
 
   const handleSelectPlayers = (selectedPlayers) => {
     setSelectedPlayerIds(selectedPlayers)
@@ -28,7 +46,12 @@ export default function CompetitionForm() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    const { data: competitionInfo, error } = await supabase
+    if (!user) {
+      console.error("User is not authenticated")
+      return
+    }
+
+    const { data: competitionInfo, error: insertError } = await supabase
       .from("competitions")
       .insert([
         {
@@ -36,35 +59,34 @@ export default function CompetitionForm() {
           date_started: competitionData.date_started,
           date_ending: competitionData.date_ending,
           rules: competitionData.rules,
+          created_by: user.id, // Assuming you have a created_by column
         },
       ])
+      .select()
 
-    if (error) {
-      console.error("Error inserting competition:", error)
+    if (insertError) {
+      console.error("Error inserting competition:", insertError)
+      return
     }
 
-    const { data: competitionIdData, error2 } = await supabase
-      .from("competitions")
-      .select("id")
-      .eq("name", competitionData.name)
+    const competitionId = competitionInfo?.[0]?.id
 
-    if (error2) {
-      console.error("Error getting competition id:", error2)
+    if (!competitionId) {
+      console.error("Competition ID not found after insertion")
+      return
     }
 
-    const competitionId = competitionIdData[0].id
+    const { data: playerInsertData, error: playerInsertError } = await supabase
+      .from("competitions_players")
+      .insert(
+        selectedPlayerIds.map((playerId) => ({
+          player_id: playerId,
+          competition_id: competitionId,
+        }))
+      )
 
-    console.log(competitionId)
-
-    const { data, error1 } = await supabase.from("competitions_players").insert(
-      selectedPlayerIds.map((playerId) => ({
-        player_id: playerId,
-        competition_id: competitionId,
-      }))
-    )
-
-    if (error1) {
-      console.error("Error inserting competition players:", error1)
+    if (playerInsertError) {
+      console.error("Error inserting competition players:", playerInsertError)
       return
     }
 
@@ -73,7 +95,7 @@ export default function CompetitionForm() {
   }
 
   const handleAddPlayers = (e) => {
-    e.target.value === "yes" ? setAddPlayers(true) : setAddPlayers(false)
+    setAddPlayers(e.target.value === "yes")
   }
 
   return (
@@ -98,7 +120,7 @@ export default function CompetitionForm() {
               type="text"
               placeholder="Competition Name"
               name="name"
-              value={competitionData?.name}
+              value={competitionData.name}
               onChange={handleChange}
               required
             />
@@ -150,7 +172,7 @@ export default function CompetitionForm() {
               id="date_started"
               type="date"
               name="date_started"
-              value={competitionData?.date_started}
+              value={competitionData.date_started}
               onChange={handleChange}
             />
           </div>
@@ -166,7 +188,7 @@ export default function CompetitionForm() {
               id="date_ending"
               type="date"
               name="date_ending"
-              value={competitionData?.date_ending}
+              value={competitionData.date_ending}
               onChange={handleChange}
             />
           </div>
@@ -181,7 +203,7 @@ export default function CompetitionForm() {
               className="shadow appearance-none border rounded w-3/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="rules"
               name="rules"
-              value={competitionData?.rules}
+              value={competitionData.rules}
               onChange={handleChange}
               rows={4}
             />
