@@ -3,7 +3,7 @@
 import CreateWorkout from "@/components/CreateWorkout"
 import { DropdownMenuDemo } from "@/components/WorkoutListActions"
 import Link from "next/link"
-import ShowAlert from "@/components/SubmitAlert"
+import SubmitWorkoutAlert from "@/components/SubmitWorkoutAlert"
 import { createClient } from "@/utils/supabase/client"
 import { getRandomColor } from "@/app/functions"
 import useSWR from "swr"
@@ -52,7 +52,7 @@ export default function WorkoutLists() {
 
   return (
     <div className="space-x-0.5">
-      {showAlert && <ShowAlert />}
+      {showAlert && <SubmitWorkoutAlert />}
       <div>
         <h1 className="p-4 text-2xl font-semibold text-white">My Workouts</h1>
         <div className="p-4">
