@@ -5,8 +5,8 @@ import { useEffect, useState } from "react"
 
 import DropdownMenu from "@/components/DateRangePicker"
 import { DropdownMenuDemo } from "@/components/TrackerActions"
+import { FaCheckCircle } from "react-icons/fa"
 import Link from "next/link"
-import { MdDelete } from "react-icons/md"
 import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import dayjs from "dayjs"
@@ -119,17 +119,17 @@ export default function WeightChartPage() {
       <Navigation />
       {showAlert && (
         <Alert
-          className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4"
+          className="bg-green-100 border-l-4 border-green-500 text-green-700 p-2 rounded-md shadow-md"
           role="alert"
         >
-          <div className="flex">
-            <div className="py-1">
-              <MdDelete />
-            </div>
+          <div className="flex items-center">
+            <FaCheckCircle className="flex-shrink-0 w-4 h-4 text-green-500 mr-2" />
             <div>
-              <AlertTitle className="font-bold">Weight Data Deleted</AlertTitle>
-              <AlertDescription>
-                Your weight entry has been deleted successfully.
+              <AlertTitle className="font-bold text-md">
+                Weight Entry Deleted
+              </AlertTitle>
+              <AlertDescription className="mt-1 text-sm">
+                Your weight entry has been successfully deleted.
               </AlertDescription>
             </div>
           </div>

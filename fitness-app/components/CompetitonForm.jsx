@@ -59,7 +59,7 @@ export default function CompetitionForm() {
           date_started: competitionData.date_started,
           date_ending: competitionData.date_ending,
           rules: competitionData.rules,
-          created_by: user.id, // Assuming you have a created_by column
+          created_by: user.id,
         },
       ])
       .select()
@@ -91,6 +91,7 @@ export default function CompetitionForm() {
     }
 
     console.log("Competition and players inserted successfully!")
+
     router.push("/competitions")
   }
 

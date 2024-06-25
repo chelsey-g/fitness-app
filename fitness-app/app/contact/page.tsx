@@ -1,18 +1,28 @@
 "use client"
 
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { ValidationError, useForm } from "@formspree/react"
 
 import Navigation from "@/components/Navigation"
+import SubmitContactAlert from "@/components/ContactAlert"
 import { useRouter } from "next/navigation"
 
 function ContactForm() {
   const router = useRouter()
   const [state, handleSubmit] = useForm("mrgnbwoj")
+  const [showContactAlert, setShowContactAlert] = useState(false)
+
+  const handleAlert = () => {
+    setShowContactAlert(true)
+    setTimeout(() => {
+      setShowContactAlert(false)
+    }, 3000)
+  }
 
   useEffect(() => {
     if (state.succeeded) {
-      router.push("/dashboard")
+      handleAlert()
+      // router.push("/dashboard")
     }
   }, [state.succeeded, router])
 
@@ -20,6 +30,7 @@ function ContactForm() {
     <div>
       <Navigation />
       <h1 className="text-3xl text-center font-bold pt-10">Contact Us</h1>
+      {showContactAlert && <SubmitContactAlert />}
       <form onSubmit={handleSubmit} className="max-w-lg mx-auto p-4 ">
         <div className="mb-4">
           <label

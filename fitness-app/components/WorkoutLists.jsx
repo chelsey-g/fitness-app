@@ -1,17 +1,21 @@
 "use client"
 
 import CreateWorkout from "@/components/CreateWorkout"
-import { DropdownMenuDemo } from "@/components/WorkoutListActions"
+import DeleteWorkoutAlert from "@/components/DeleteWorkoutAlert"
 import Link from "next/link"
 import SubmitWorkoutAlert from "@/components/SubmitWorkoutAlert"
+import { WorkoutDropdown } from "@/components/WorkoutListActions"
 import { createClient } from "@/utils/supabase/client"
 import { getRandomColor } from "@/app/functions"
+import { useRouter } from "next/navigation"
 import useSWR from "swr"
 import { useState } from "react"
 
 export default function WorkoutLists() {
-  const [showAlert, setShowAlert] = useState(false)
+  const [showCreateAlert, setShowCreateAlert] = useState(false)
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false)
   const supabase = createClient()
+  const router = useRouter()
 
   const {
     data: listData,
@@ -42,17 +46,24 @@ export default function WorkoutLists() {
       console.log("Error deleting workout list!", error)
     } else {
       console.log("Workout list deleted!")
+      router.refresh()
     }
   }
 
-  const handleShowAlert = () => {
-    setShowAlert(true)
-    setTimeout(() => setShowAlert(false), 2000)
+  const handleCreateAlert = () => {
+    setShowCreateAlert(true)
+    setTimeout(() => setShowCreateAlert(false), 3000)
+  }
+
+  const handleDeleteAlert = () => {
+    setShowDeleteAlert(true)
+    setTimeout(() => setShowDeleteAlert(false), 3000)
   }
 
   return (
     <div className="space-x-0.5">
-      {showAlert && <SubmitWorkoutAlert />}
+      {showCreateAlert && <SubmitWorkoutAlert />}
+      {showDeleteAlert && <DeleteWorkoutAlert />}
       <div>
         <h1 className="p-4 text-2xl font-semibold text-white">My Workouts</h1>
         <div className="p-4">
@@ -80,15 +91,16 @@ export default function WorkoutLists() {
               <div className="flex items-center text-black font-bold pl-4">
                 {getTotalExerciseCount(list.workouts_lists)} exercises
                 <div className="pl-4">
-                  <DropdownMenuDemo
-                    deleteWorkoutList={() => handleDeleteWorkoutList(list.id)}
+                  <WorkoutDropdown
+                    deleteWorkout={() => handleDeleteWorkoutList(list.id)}
+                    showAlert={handleDeleteAlert}
                   />
                 </div>
               </div>
             </div>
           ))}
           <div className="flex justify-center">
-            <CreateWorkout showAlert={handleShowAlert} />
+            <CreateWorkout showAlert={handleCreateAlert} />
           </div>
         </div>
       </div>

@@ -1,14 +1,35 @@
 import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+import { Button } from "@/components/ui/button"
 import { FaEllipsisH } from "react-icons/fa"
+import { useState } from "react"
 
-export function DropdownMenuDemo({ deleteWorkoutList }) {
+export function WorkoutDropdown({ deleteWorkout, showAlert }) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleEditModal = () => {
+    setIsOpen(true)
+  }
+
+  const handleDeleteAndClose = async () => {
+    await deleteWorkout()
+    setIsOpen(false)
+    showAlert()
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -17,26 +38,41 @@ export function DropdownMenuDemo({ deleteWorkoutList }) {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-auto min-w-full bg-white shadow-lg rounded-md overflow-hidden border border-gray-200">
-        {/* <DropdownMenuLabel className="px-4 py-2 text-sm font-semibold text-gray-600 border-b border-gray-100">
-          Options
-        </DropdownMenuLabel> */}
         <DropdownMenuGroup className="py-1">
-          {/* <DropdownMenuItem className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 ease-in-out">
-            Edit Weight
-          </DropdownMenuItem> */}
-          <DropdownMenuItem
-            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 ease-in-out"
-            onClick={deleteWorkoutList}
-          >
-            Delete Workout List
-          </DropdownMenuItem>
-          {/* <DropdownMenuItem className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 ease-in-out">
-            Add Weight To Goal
-          </DropdownMenuItem> */}
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <button
+                onClick={handleEditModal}
+                className="text-sm px-4 py-2 text-snd-bkg"
+              >
+                Delete Workout
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px] bg-white">
+              <DialogHeader>
+                <DialogTitle>Delete Workout Entry</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="text-sm">
+                  Are you sure you wish to delete this workout? <br />
+                  All exercises in this workout will be deleted.
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  className="bg-red-600 text-white"
+                  onClick={handleDeleteAndClose}
+                >
+                  Delete
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
 
-export default DropdownMenuDemo
+export default WorkoutDropdown
