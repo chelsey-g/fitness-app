@@ -1,5 +1,6 @@
 "use client"
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   Dialog,
   DialogContent,
@@ -9,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { FaCheckCircle, FaTrashAlt } from "react-icons/fa"
 import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
 
 import { Button } from "@/components/ui/button"
@@ -26,7 +28,8 @@ export default function ProfileGoals() {
   const [goalWeight, setGoalWeight] = useState("")
   const [goalDate, setGoalDate] = useState("")
   const [isOpen, setIsOpen] = useState(false)
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [GoalSubmitAlert, setGoalSubmitAlert] = useState(false)
+  const [deleteAlert, setDeleteAlert] = useState(false)
 
   const { data: user } = useSWR("/users", () =>
     supabase.auth.getUser().then((res) => res.data.user)
@@ -35,7 +38,7 @@ export default function ProfileGoals() {
   let identityId = user?.identities?.[0]?.id || null
 
   console.log(identityId, "identityId")
-  const { data: userGoals } = useSWR(
+  const { data: userGoals, mutate: mutateUserGoals } = useSWR(
     () => (identityId ? "/profile_goals/" + identityId : null),
     () =>
       supabase
@@ -67,15 +70,29 @@ export default function ProfileGoals() {
 
     const { data: goal, error } = await supabase
       .from("profile_goals")
-      .insert([{ goal_weight: goalWeight, goal_date: goalDate }])
+      .insert([
+        {
+          goal_weight: goalWeight,
+          goal_date: goalDate,
+          profile_id: identityId,
+        },
+      ])
       .select()
-    setGoalWeight(e.target.value)
+
     if (error) {
       console.error(error)
     } else {
+      setGoalWeight("")
+      setGoalDate("")
       setIsOpen(false)
+      setGoalSubmitAlert(true)
+      setTimeout(() => {
+        setGoalSubmitAlert(false)
+      }, 3000)
+      mutateUserGoals() // Refresh goals data
     }
   }
+
   const currentDate = new Date()
   const activeGoals = userGoals?.filter(
     (goal) => new Date(goal.goal_date) >= currentDate
@@ -85,11 +102,54 @@ export default function ProfileGoals() {
     const { error } = await supabase.from("profile_goals").delete().eq("id", id)
     if (error) {
       console.error(error)
+    } else {
+      setDeleteAlert(true)
+      setTimeout(() => {
+        setDeleteAlert(false)
+      }, 3000)
+      mutateUserGoals() // Refresh goals data
     }
   }
+
   return (
     <div className="p-4">
       <Navigation />
+      {GoalSubmitAlert && (
+        <Alert
+          className="bg-green-100 border-l-4 border-green-500 text-green-700 p-2 rounded-md shadow-md"
+          role="alert"
+        >
+          <div className="flex items-center">
+            <FaCheckCircle className="flex-shrink-0 w-4 h-4 text-green-500 mr-2" />
+            <div>
+              <AlertTitle className="font-bold text-md">
+                Goal Created
+              </AlertTitle>
+              <AlertDescription className="mt-1 text-sm">
+                Your goal has been created successfully. Good luck!
+              </AlertDescription>
+            </div>
+          </div>
+        </Alert>
+      )}
+      {deleteAlert && (
+        <Alert
+          className="bg-red-100 border-l-4 border-red-500 text-red-700 p-2 rounded-md shadow-md"
+          role="alert"
+        >
+          <div className="flex items-center">
+            <FaTrashAlt className="flex-shrink-0 w-4 h-4 text-red-500 mr-2" />
+            <div>
+              <AlertTitle className="font-bold text-md">
+                Goal Deleted
+              </AlertTitle>
+              <AlertDescription className="mt-1 text-sm">
+                Your goal has been deleted successfully.
+              </AlertDescription>
+            </div>
+          </div>
+        </Alert>
+      )}
       <div className="overflow-x-auto mt-4 bg-white rounded-lg shadow-md p-4">
         <h1 className="text-lg font-semibold text-center">Active Goals</h1>
         <table className="min-w-full">
@@ -131,7 +191,7 @@ export default function ProfileGoals() {
           </tbody>
         </table>
         <div className="mt-4 text-center">
-          <Dialog>
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <button
                 onClick={handleEditModal}
@@ -148,7 +208,7 @@ export default function ProfileGoals() {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-center gap-4">
                   <Label
                     htmlFor="goal_weight"
                     className="block text-sm font-medium text-gray-700"
@@ -161,10 +221,10 @@ export default function ProfileGoals() {
                     id="goal_weight"
                     value={goalWeight}
                     onChange={(e) => setGoalWeight(e.target.value)}
-                    className="focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    className="focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm sm:text-sm border-gray-300 rounded-md w-full sm:w-60"
                   />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-center gap-4">
                   <Label
                     htmlFor="goal_date"
                     className="block text-sm font-medium text-gray-700"
@@ -177,7 +237,7 @@ export default function ProfileGoals() {
                     id="goal_date"
                     value={goalDate}
                     onChange={(e) => setGoalDate(e.target.value)}
-                    className="focus:ring-indigo-500 focus:border-indigo-500 w-40 shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    className="focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm sm:text-sm border-gray-300 rounded-md w-full sm:w-60"
                   />
                 </div>
               </div>

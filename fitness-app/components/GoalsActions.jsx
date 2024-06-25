@@ -20,8 +20,9 @@ import { useState } from "react"
 export default function GoalsDropdown({ deleteGoals }) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
-  const handleEditModal = () => {
-    setIsDeleteOpen(true)
+  const handleDeleteAndClose = async () => {
+    await deleteGoals()
+    setIsDeleteOpen(false)
   }
 
   return (
@@ -33,10 +34,10 @@ export default function GoalsDropdown({ deleteGoals }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-auto min-w-full bg-white shadow-lg rounded-md overflow-hidden border border-gray-200">
         <DropdownMenuGroup className="py-1">
-          <Dialog>
+          <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
             <DialogTrigger asChild>
               <button
-                onClick={handleEditModal}
+                onClick={() => setIsDeleteOpen(true)}
                 className="text-sm px-4 py-2 text-snd-bkg"
               >
                 Delete
@@ -56,19 +57,13 @@ export default function GoalsDropdown({ deleteGoals }) {
                 <Button
                   type="button"
                   className="bg-red-600 text-white"
-                  onClick={deleteGoals}
+                  onClick={handleDeleteAndClose}
                 >
                   Delete
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          {/* <DropdownMenuItem
-            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 ease-in-out"
-            onClick={deleteGoals}
-          >
-            Delete
-          </DropdownMenuItem> */}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
