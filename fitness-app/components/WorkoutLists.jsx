@@ -53,6 +53,7 @@ export default function WorkoutLists() {
   const handleCreateAlert = () => {
     setShowCreateAlert(true)
     setTimeout(() => setShowCreateAlert(false), 3000)
+    router.refresh()
   }
 
   const handleDeleteAlert = () => {
@@ -83,7 +84,7 @@ export default function WorkoutLists() {
 
                 <Link
                   href={`/workouts/list/${list.id}`}
-                  className="ml-3 text-black hover:text-blue-800 font-medium"
+                  className="ml-3 text-black hover:text-prm-bkg font-bold"
                 >
                   {list.name}
                 </Link>

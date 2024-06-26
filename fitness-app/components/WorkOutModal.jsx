@@ -15,6 +15,19 @@ const App = ({ exerciseData }) => {
   const router = useRouter()
 
   useEffect(() => {
+    async function fetchUser() {
+      const {
+        data: { user, error },
+      } = await supabase.auth.getUser()
+      if (error) console.log("error", error)
+      if (user) {
+        console.log("fuck", user)
+      }
+    }
+    fetchUser()
+  }, [])
+
+  useEffect(() => {
     async function fetchLists() {
       let { data: lists, error } = await supabase.from("lists").select("*")
       setList(lists)
@@ -76,7 +89,7 @@ const App = ({ exerciseData }) => {
     <>
       <button
         onClick={showModal}
-        className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none mt-5 text-center"
+        className="py-2 px-4 bg-snd-bkg hover:opacity-90 text-white rounded-md focus:outline-none mt-5 text-center"
       >
         Add Workout
       </button>
@@ -103,9 +116,13 @@ const App = ({ exerciseData }) => {
               onChange={(val) => setListId(val)}
             />
           </Form.Item>
-          <Button htmlType="submit" type="primary">
-            Add Workout
-          </Button>
+          <button
+            htmlType="submit"
+            type="primary"
+            className="py-2 px-4 bg-snd-bkg hover:opacity-90 text-white rounded-md focus:outline-none mt-5 text-center"
+          >
+            Add Exercise
+          </button>
         </Form>{" "}
       </Modal>
     </>

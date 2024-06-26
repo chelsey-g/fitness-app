@@ -12,6 +12,19 @@ const AddList = ({ exerciseData, onChange }) => {
   const supabase = createClient()
 
   useEffect(() => {
+    async function fetchUser() {
+      const {
+        data: { user, error },
+      } = await supabase.auth.getUser()
+      if (error) console.log("error", error)
+      if (user) {
+        console.log("userrrrrrrrr", user)
+      }
+    }
+    fetchUser()
+  }, [])
+
+  useEffect(() => {
     async function fetchLists() {
       let { data: lists, error } = await supabase.from("lists").select("*")
       setItems(lists)

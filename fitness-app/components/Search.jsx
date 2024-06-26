@@ -72,14 +72,14 @@ export default function SearchBar({ onResultsChange }) {
       <div className="mb-4 text-center">
         <input
           className="w-3/4
-         p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 text-center text-black"
+         p-2 border border-gray-300 rounded-md text-center text-black hover:border-gray-500 focus:outline-none focus:border-snd-bkg  focus:ring-white"
           type="text"
           placeholder="Search Exercise"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
         />
         <button
-          className="py-2 px-4 bg-snd-bkg hover:bg-blue-600 text-white rounded-md focus:outline-none ml-2 "
+          className="py-2 px-4 bg-snd-bkg text-white rounded-md focus:outline-none ml-2 "
           onClick={() => {
             handleSearch()
           }}

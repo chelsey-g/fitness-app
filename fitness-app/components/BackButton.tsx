@@ -8,7 +8,7 @@ export default function BackButton() {
   return (
     <div>
       <IoArrowBack
-        className=" hover:opacity-90 rounded ml-auto cursor-pointer"
+        className=" hover:opacity-90 rounded ml-auto cursor-pointer mr-4 mt-4"
         onClick={() => router.back()}
       ></IoArrowBack>
     </div>
