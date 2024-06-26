@@ -89,7 +89,7 @@ export default function ProfileGoals() {
       setTimeout(() => {
         setGoalSubmitAlert(false)
       }, 3000)
-      mutateUserGoals() // Refresh goals data
+      mutateUserGoals()
     }
   }
 
@@ -107,7 +107,7 @@ export default function ProfileGoals() {
       setTimeout(() => {
         setDeleteAlert(false)
       }, 3000)
-      mutateUserGoals() // Refresh goals data
+      mutateUserGoals()
     }
   }
 

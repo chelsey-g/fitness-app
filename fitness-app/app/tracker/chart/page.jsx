@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 
 import DropdownMenu from "@/components/DateRangePicker"
 import { DropdownMenuDemo } from "@/components/TrackerActions"
-import { FaCheckCircle } from "react-icons/fa"
+import { FaTrashAlt } from "react-icons/fa"
 import Link from "next/link"
 import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
@@ -119,11 +119,11 @@ export default function WeightChartPage() {
       <Navigation />
       {showAlert && (
         <Alert
-          className="bg-green-100 border-l-4 border-green-500 text-green-700 p-2 rounded-md shadow-md"
+          className="bg-red-100 border-l-4 border-red-500 text-red-700 p-2 rounded-md shadow-md"
           role="alert"
         >
           <div className="flex items-center">
-            <FaCheckCircle className="flex-shrink-0 w-4 h-4 text-green-500 mr-2" />
+            <FaTrashAlt className="flex-shrink-0 w-4 h-4 text-red-500 mr-2" />
             <div>
               <AlertTitle className="font-bold text-md">
                 Weight Entry Deleted
