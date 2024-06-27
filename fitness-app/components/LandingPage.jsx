@@ -84,7 +84,7 @@ export default function LandingPage() {
             className="bg-trd-bkg hover:bg-green-700 text-white font-bold py-4 px-8 text-xl rounded-lg shadow transition duration-300 ease-in-out mt-20"
             onClick={handleJoinNowButton}
           >
-            Sign In/Sign Up
+            Get Started
           </button>
         </div>
       </div>
