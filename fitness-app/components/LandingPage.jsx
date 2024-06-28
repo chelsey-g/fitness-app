@@ -62,7 +62,7 @@ export default function LandingPage() {
         <Image
           className="w-full h-full object-cover"
           layout="fill"
-          src="/images/background-image.jpg"
+          src="/images/background-image.png"
           alt="Background"
         />
         <div className="relative z-20 text-center mt-20">
