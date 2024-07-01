@@ -42,12 +42,6 @@ export default function TrackerPage() {
     <div className=" p-4">
       <Navigation />
       <div className="bg-white rounded-lg p-8 shadow-lg relative">
-        <button
-          onClick={handleChartButton}
-          className="absolute top-0 right-0 mt-2 mr-2 rounded text-white p-2 bg-snd-bkg hover:opacity-90 focus:outline-none"
-        >
-          View your progress log &rarr;
-        </button>
         <div className="mb-4">
           <h2 className="text-xl font-semibold text-black mb-2">
             Weight Tracker
