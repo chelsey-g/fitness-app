@@ -13,11 +13,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { IoIosAdd } from "react-icons/io"
 import { createClient } from "@/utils/supabase/client"
+import { useRouter } from "next/navigation"
 
 export function CreateWorkout({ showAlert }) {
   const [name, setName] = useState("")
   const inputRef = useRef(null)
   const supabase = createClient()
+  const router = useRouter()
 
   const onNameChange = (event) => {
     setName(event.target.value)
@@ -28,6 +30,7 @@ export function CreateWorkout({ showAlert }) {
       setName("")
       dialogClose()
       showAlert()
+      router.push("/workouts")
     } catch (error) {
       console.error("Error adding workout:", error.message)
     }
