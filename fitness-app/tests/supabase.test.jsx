@@ -46,6 +46,20 @@ async function createCompetition(name, user) {
 }
 
 async function createCompetitionPlayer(competition, user) {
+  const { data: competitionData, error: fetchError } = await supabaseAdmin
+    .from("competitions")
+    .select("created_by")
+    .eq("id", competition.id)
+    .single()
+
+  if (fetchError) {
+    throw new Error("Error fetching competition data")
+  }
+
+  if (competitionData.created_by !== user.id) {
+    throw new Error("Permission denied")
+  }
+
   const { data, error } = await supabaseAdmin
     .from("competitions_players")
     .insert([
@@ -57,7 +71,11 @@ async function createCompetitionPlayer(competition, user) {
     ])
     .select()
     .single()
-  if (error) throw error
+
+  if (error) {
+    throw error
+  }
+
   return data
 }
 
@@ -396,4 +414,25 @@ describe("Permissions Tests", () => {
 
   //   await supabase.auth.signOut()
   // })
+
+  test.only("a user adding a competition player when they did not create it", async () => {
+    const { data: session, error: signInError } =
+      await supabase.auth.signInWithPassword({
+        email: users.userA.email,
+        password: users.userA.password,
+      })
+
+    if (signInError) throw signInError
+
+    expect(session).not.toBeNull()
+
+    await expect(
+      createCompetitionPlayer(competitions.privateB, users.userA)
+    ).rejects.toThrowError()
+
+    const { error: signOutError } = await supabase.auth.signOut()
+    if (signOutError) throw signOutError
+
+    expect(signOutError).toBeNull()
+  })
 })
