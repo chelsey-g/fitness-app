@@ -84,7 +84,7 @@ export default function Navigation() {
                     <NavigationMenuContent className="bg-white p-2 rounded-md shadow-lg">
                       <NavigationMenuLink asChild>
                         <Link
-                          href="/competitions/new"
+                          href="/competitions/create"
                           className="block px-4 py-2 rounded-md text-xs hover:opacity-80 whitespace-nowrap"
                         >
                           Create New Competition

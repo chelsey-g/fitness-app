@@ -91,7 +91,7 @@ export default function CompetitionPage(props) {
     }
   }
 
-  if (competitionData.date_ending > new Date()) {
+  if (competitionData?.date_ending > new Date()) {
     setShowQuitButton(true)
   }
 
