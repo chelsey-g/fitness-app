@@ -166,6 +166,25 @@ export default function Navigation() {
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
+              <NavigationMenu>
+                <NavigationMenuList>
+                  <NavigationMenuItem className="relative">
+                    <NavigationMenuTrigger className="text-white font-bold hover:text-gray-300 bg-trd-bkg">
+                      Tools
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent className="bg-white p-2 rounded-md shadow-lg">
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href="/calculator"
+                          className="block px-4 py-2 rounded-md text-xs hover:opacity-80 whitespace-nowrap"
+                        >
+                          BMI Calculator
+                        </Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
 
               <Profile />
             </div>
