@@ -118,14 +118,14 @@ export default function Navigation() {
                       Workouts
                     </NavigationMenuTrigger>
                     <NavigationMenuContent className="bg-white p-2 rounded-md shadow-lg">
-                      {/* <NavigationMenuLink asChild>
+                      <NavigationMenuLink asChild>
                         <Link
-                          href="/workouts"
+                          href="/workouts/browse"
                           className="block px-4 py-2 rounded-md text-xs hover:opacity-80 whitespace-nowrap"
                         >
-                          Create New Workout
+                          Browse Exercises
                         </Link>
-                      </NavigationMenuLink> */}
+                      </NavigationMenuLink>
                       <NavigationMenuLink asChild>
                         <Link
                           href="/workouts"
