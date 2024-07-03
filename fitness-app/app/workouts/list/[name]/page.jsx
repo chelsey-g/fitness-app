@@ -82,7 +82,7 @@ export default async function ListPage(props) {
               <h1 className="text-3xl font-bold mb-4">Your list is empty!</h1>
               <p className="text-lg mb-6">Add a workout now to get started.</p>
               <div className="flex justify-center">
-                <Link href="/workouts">
+                <Link href="/workouts/browse">
                   <button className="bg-snd-bkg hover:opacity-90 text-white font-bold py-2 px-6 rounded flex items-center transition duration-300 ease-in-out">
                     <IoIosAdd className="text-xl mr-2" />
                     Browse Exercises
