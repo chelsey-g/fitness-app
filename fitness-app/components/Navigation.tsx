@@ -146,14 +146,6 @@ export default function Navigation() {
                       Goals
                     </NavigationMenuTrigger>
                     <NavigationMenuContent className="bg-white p-2 rounded-md shadow-lg">
-                      {/* <NavigationMenuLink asChild>
-                        <Link
-                          href="/goals"
-                          className="block px-4 py-2 rounded-md text-xs hover:opacity-80 whitespace-nowrap"
-                        >
-                          Create New Goal
-                        </Link>
-                      </NavigationMenuLink> */}
                       <NavigationMenuLink asChild>
                         <Link
                           href="/goals"
@@ -179,6 +171,14 @@ export default function Navigation() {
                           className="block px-4 py-2 rounded-md text-xs hover:opacity-80 whitespace-nowrap"
                         >
                           BMI Calculator
+                        </Link>
+                      </NavigationMenuLink>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href="/calculator/calorie"
+                          className="block px-4 py-2 rounded-md text-xs hover:opacity-80 whitespace-nowrap"
+                        >
+                          Calorie Calculator
                         </Link>
                       </NavigationMenuLink>
                     </NavigationMenuContent>
