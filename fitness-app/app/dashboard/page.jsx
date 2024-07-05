@@ -3,6 +3,8 @@
 import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
 import { useEffect, useState } from "react"
 
+import { FaCalculator } from "react-icons/fa"
+import { GiBodyHeight } from "react-icons/gi"
 import Link from "next/link"
 import Navigation from "@/components/Navigation"
 import ProgressTracker from "@/components/ProgressTracker"
@@ -112,7 +114,7 @@ export default function UserDashboard() {
     <div>
       <Navigation />
 
-      <div className="bg-white rounded-lg container mx-auto my-8 p-4 max-w-xl shadow-md">
+      <div className="bg-white rounded-lg container mx-auto my-8 p-4 shadow-md">
         <h1 className="text-4xl font-semibold text-gray-800 mb-4 text-center">
           Welcome back, {profiles[0]?.first_name}!
         </h1>
@@ -159,79 +161,81 @@ export default function UserDashboard() {
               href="/competitions/create"
               className="bg-snd-bkg hover:bg-opacity-90 text-white font-bold py-2 px-6 rounded items-center transition duration-300 ease-in-out mt-4"
             >
-              Create a Competiton
+              Create a Competition
             </Link>
           </div>
         )}
 
-        {competitions > 0 && (
-          <div className="text-gray-700 text-lg mt-5 text-center text-sm">
-            <span>
-              You are currently involved in {competitions.length} active
-              competitions:
-            </span>
-            <div className="mt-5 mx-auto" style={{ maxWidth: "fit-content" }}>
-              <Link
-                href="/competitions"
-                className="inline-block bg-snd-bkg text-white font-bold py-2 px-4 rounded"
-              >
-                View Active Competitions
-              </Link>
-            </div>
-
-            {goals > 0 && (
-              <div className="mt-5 text-sm">
-                <h3 className="text-lg font-semibold mb-2">Active Goals</h3>
-                <div className="flex justify-around">
-                  <div>
-                    <h4 className="font-semibold mb-1">Goal Date</h4>
-                    <ul>
-                      {activeGoals?.map((goal) => (
-                        <li key={goal.id} className="mb-1">
-                          {handleDate(goal.goal_date)}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-1">Goal Weight</h4>
-                    <ul>
-                      {activeGoals?.map((goal) => (
-                        <li key={goal.id} className="mb-1">
-                          {goal.goal_weight} lbs
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-1">Weight Remaining</h4>
-                    <ul>
-                      {activeGoals?.map((goal) => (
-                        <li key={goal.id} className="mb-1">
-                          {calculateWeightDifference(
-                            goal.goal_weight,
-                            weights?.[0]?.weight || 0
-                          )}{" "}
-                          lbs
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-1">Days Left</h4>
-                    <ul>
-                      {activeGoals?.map((goal) => (
-                        <li key={goal.id} className="mb-1">
-                          {calculateDaysLeft(goal.goal_date)}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
+        {goals?.length > 0 && (
+          <div className="mt-5 text-sm text-center">
+            <h3 className="text-2xl font-semibold mb-5">Active Goals</h3>
+            <div className="flex justify-around">
+              <div>
+                <h4 className="font-semibold mb-1">Goal Date</h4>
+                <ul>
+                  {activeGoals?.map((goal) => (
+                    <li key={goal.id} className="mb-1">
+                      {handleDate(goal.goal_date)}
+                    </li>
+                  ))}
+                </ul>
               </div>
-            )}
+              <div>
+                <h4 className="font-semibold mb-1">Goal Weight</h4>
+                <ul>
+                  {activeGoals?.map((goal) => (
+                    <li key={goal.id} className="mb-1">
+                      {goal.goal_weight} lbs
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1">Weight Remaining</h4>
+                <ul>
+                  {activeGoals?.map((goal) => (
+                    <li key={goal.id} className="mb-1">
+                      {calculateWeightDifference(
+                        goal.goal_weight,
+                        weights?.[0]?.weight || 0
+                      )}{" "}
+                      lbs
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1">Days Left</h4>
+                <ul>
+                  {activeGoals?.map((goal) => (
+                    <li key={goal.id} className="mb-1">
+                      {calculateDaysLeft(goal.goal_date)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
         )}
+        <div className="max-w-4xl mx-auto mt-10">
+          <h2 className="text-2xl font-bold text-center mb-5 text-gray-800">
+            Explore More Tools
+          </h2>
+          <div className="flex justify-around p-5">
+            <Link href="/calculator">
+              <div className="bg-white shadow-md rounded-lg p-6 text-center hover:shadow-lg transition duration-300 ease-in-out cursor-pointer ml-5">
+                <GiBodyHeight className="text-2xl text-blue-500 mx-auto mb-4" />
+                <h3 className="text-md font-bold">BMI Calculator</h3>
+              </div>
+            </Link>
+            <Link href="/calculator/calorie">
+              <div className="bg-white shadow-md rounded-lg p-6 text-center hover:shadow-lg transition duration-300 ease-in-out cursor-pointer">
+                <FaCalculator className="text-2xl text-green-500 mx-auto mb-4" />
+                <h3 className="text-md font-bold">Calorie Calculator</h3>
+              </div>
+            </Link>
+          </div>
+        </div>
       </div>
 
       <footer className="py-4">
