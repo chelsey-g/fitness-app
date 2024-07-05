@@ -1,9 +1,12 @@
 "use client"
 
+import { FaBullseye, FaCalculator, FaTrophy } from "react-icons/fa"
+
+import { FaQuoteLeft } from "react-icons/fa"
+import { GiBodyHeight } from "react-icons/gi"
 import Image from "next/image"
 import Link from "next/link"
 import React from "react"
-import { Link as ScrollLink } from "react-scroll"
 import { useRouter } from "next/navigation"
 
 export default function LandingPage() {
@@ -15,49 +18,7 @@ export default function LandingPage() {
 
   return (
     <div className="w-full">
-      {/* <nav className="space-x-4">
-        <ul className="flex flex-col lg:flex-row lg:space-x-5">
-          <li className="lg:px-4 lg:py-2">
-            <ScrollLink
-              to="hero"
-              smooth={true}
-              duration={500}
-              className="cursor-pointer text-white hover:text-gray-300 bg-trd-bkg px-4 py-2 rounded-lg shadow transition duration-300 ease-in-out font-bold"
-            >
-              Home
-            </ScrollLink>
-          </li>
-          <li className="lg:px-4 lg:py-2">
-            <ScrollLink
-              to="features"
-              smooth={true}
-              duration={500}
-              className="cursor-pointer text-white hover:text-gray-300 bg-trd-bkg px-4 py-2 rounded-lg shadow transition duration-300 ease-in-out font-bold"
-            >
-              Features
-            </ScrollLink>
-          </li>
-          <li className="lg:px-4 lg:py-2">
-            <ScrollLink
-              to="testimonials"
-              smooth={true}
-              duration={500}
-              className="cursor-pointer text-white hover:text-gray-300 bg-trd-bkg px-4 py-2 rounded-lg shadow transition duration-300 ease-in-out font-bold"
-            >
-              Testimonials
-            </ScrollLink>
-          </li>
-          <li className="lg:px-4 lg:py-2">
-            <Link
-              href="/login"
-              className="cursor-pointer text-white hover:text-gray-300 bg-trd-bkg px-4 py-2 rounded-lg shadow transition duration-300 ease-in-out font-bold"
-            >
-              Sign Up
-            </Link>
-          </li>
-        </ul>
-      </nav> */}
-      <div className="relative h-72 flex items-center justify-center">
+      <div className="relative h-96 flex items-center justify-center">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-prm-bkg z-10"></div>
         <Image
           className="w-full h-full object-cover"
@@ -65,7 +26,7 @@ export default function LandingPage() {
           src="/images/background-image.png"
           alt="Background"
         />
-        <div className="relative z-20 text-center mt-20">
+        <div className="relative z-20 text-center mt-20 mb-10">
           <Image
             className="mx-auto mb-5 opacity-80"
             width={300}
@@ -76,85 +37,93 @@ export default function LandingPage() {
           <h2 className="text-4xl text-white font-bold mb-4">
             Fitness At Your Fingertips
           </h2>
-          <p className="text-lg text-white mb-6 px-4 italic">
+          <p className="text-lg text-white mb-6 px-4 italic mb-10">
             Your path to friendly competition, motivation, and a healthier
             lifestyle.
           </p>
           <button
-            className="bg-trd-bkg hover:bg-green-700 text-white font-bold py-4 px-8 text-xl rounded-lg shadow transition duration-300 ease-in-out mt-20"
+            className="bg-trd-bkg hover:bg-green-700 text-white font-bold py-6 px-12 text-2xl rounded-lg shadow transition duration-300 ease-in-out mt-20"
             onClick={handleJoinNowButton}
           >
             Get Started
           </button>
         </div>
       </div>
+
       <div className="mx-auto px-4 py-10 bg-prm-bkg">
-        <section id="features" className="py-20 text-gray-800">
-          <h2 className="text-4xl font-extrabold text-center mb-12 text-white">
-            Features
+        <div className="max-w-4xl mx-auto mt-10">
+          <h2 className="text-3xl font-bold text-center mb-8 text-white">
+            Explore Our Tools
           </h2>
-          <div className="flex flex-wrap justify-center gap-8">
-            <div className="feature max-w-sm p-6 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out bg-white">
-              <h3 className="text-2xl font-semibold mb-4 text-center">
-                Compete with Friends
-              </h3>
-              <p className="text-center text-gray-700">
-                Engage in exciting challenges with friends to stay motivated and
-                push each other to new heights.
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out bg-white ml-4">
+              <GiBodyHeight className="text-4xl text-blue-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold">BMI Calculator</h3>
+              <p className="text-gray-600 mt-2">
+                Calculate your Body Mass Index (BMI) to know your health status.
               </p>
             </div>
-            <div className="feature max-w-sm p-6 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out bg-white">
-              <h3 className="text-2xl font-semibold mb-4 text-center">
-                Track Your Progress
-              </h3>
-              <p className="text-center text-gray-700">
-                Keep a detailed record of your fitness journey with
-                comprehensive progress tracking tools.
+            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out bg-white ml-4">
+              <FaCalculator className="text-4xl text-green-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold">Calorie Calculator</h3>
+              <p className="text-gray-600 mt-2">
+                Find out how many calories you need to maintain or achieve your
+                goals.
               </p>
             </div>
-            <div className="feature max-w-sm p-6 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out bg-white">
-              <h3 className="text-2xl font-semibold mb-4 text-center ">
-                Personalized Plans
-              </h3>
-              <p className="text-center text-gray-700">
-                Create customized workout plans tailored to meet your unique
-                fitness goals.
+
+            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out bg-white ml-4">
+              <FaBullseye className="text-4xl text-red-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold">Start a Goal</h3>
+              <p className="text-gray-600 mt-2">
+                Set and track your personal fitness goals.
+              </p>
+            </div>
+            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out bg-white ml-4">
+              <FaTrophy className="text-4xl text-yellow-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold">Create a Competition</h3>
+              <p className="text-gray-600 mt-2">
+                Challenge your friends and stay motivated together.
               </p>
             </div>
           </div>
-        </section>
-        <h2 className="text-3xl font-bold text-center mb-12 text-white">
-          What Our Users Say
-        </h2>
-        <section
-          id="testimonials"
-          className="bg-gray-100 py-20 text-black rounded-xl"
-        >
-          <div className="flex flex-wrap justify-center gap-6">
-            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out bg-white ml-4">
+        </div>
+
+        <div className="mx-auto mt-20 max-w-4xl">
+          <h2 className="text-3xl font-bold text-center mb-8 text-white">
+            What Our Users Say
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
+            <div className="bg-white shadow-md rounded-lg p-6 text-center hover:shadow-lg transition duration-300 ease-in-out cursor-pointer h-48 flex flex-col justify-center">
+              <FaQuoteLeft className="text-4xl text-blue-500 mx-auto mb-4" />
               <p className="italic mb-2">
-                "This app has transformed the way I approach fitness and
-                challenges!"
+                "This app has completely revolutionized my approach to fitness
+                and challenges!"
               </p>
               <p className="font-bold">- Jane Doe</p>
             </div>
-            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out bg-white">
+            <div className="bg-white shadow-md rounded-lg p-6 text-center hover:shadow-lg transition duration-300 ease-in-out cursor-pointer h-48 flex flex-col justify-center">
+              <FaQuoteLeft className="text-4xl text-green-500 mx-auto mb-4" />
               <p className="italic mb-2">
-                "I've never felt more motivated to stay active!"
+                "I've never been more inspired to stay active and reach my
+                goals!"
               </p>
               <p className="font-bold">- John Smith</p>
             </div>
-            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out bg-white mr-4">
+            <div className="bg-white shadow-md rounded-lg p-6 text-center hover:shadow-lg transition duration-300 ease-in-out cursor-pointer h-48 flex flex-col justify-center">
+              <FaQuoteLeft className="text-4xl text-red-500 mx-auto mb-4" />
               <p className="italic mb-2">
-                "The friendly competition keeps me going every day."
+                "The friendly competition keeps me motivated and striving for
+                more every day."
               </p>
               <p className="font-bold">- Emily Johnson</p>
             </div>
           </div>
-        </section>
+        </div>
+
         <section
           id="join"
-          className="text-center py-20 bg-prm-bkg text-white rounded-xl"
+          className="text-center py-20 bg-prm-bkg text-white rounded-xl mt-15"
         >
           <h2 className="text-3xl font-bold mb-8">
             Ready to Start Your Journey?
