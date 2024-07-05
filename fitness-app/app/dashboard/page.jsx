@@ -1,5 +1,6 @@
 "use client"
 
+import { FaQuoteLeft, FaQuoteRight } from "react-icons/fa"
 import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
 import { useEffect, useState } from "react"
 
@@ -119,11 +120,15 @@ export default function UserDashboard() {
           Welcome back, {profiles[0]?.first_name}!
         </h1>
         {quote && (
-          <div className="bg-gray-100 p-6 rounded-lg opacity-70 my-4 mx-auto max-w-md">
-            <blockquote className="text-xl italic font-semibold text-center text-gray-900">
-              "{quote.text}"
-            </blockquote>
-            <p className="text-right mt-4 text-lg text-gray-600">
+          <div className="bg-white p-6 rounded-lg opacity-90 my-4 mx-auto max-w-md flex flex-col items-center">
+            <div className="flex items-center">
+              <FaQuoteLeft className="text-lg text-gray-500 mr-2" />
+              <blockquote className="text-sm italic font-semibold text-center text-gray-900">
+                {quote.text}
+              </blockquote>
+              <FaQuoteRight className="text-lg text-gray-500 ml-2" />
+            </div>
+            <p className="text-right mt-4 text-md text-gray-600">
               - {quote.author}
             </p>
           </div>
