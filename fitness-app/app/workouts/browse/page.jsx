@@ -1,10 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
-
 import BrowseExercises from "@/components/BrowseExercises"
 import Navigation from "../../../components/Navigation"
 import SearchBar from "@/components/Search"
+import { useState } from "react"
 
 export default function BrowseExercisePage() {
   const [searchResults, setSearchResults] = useState([])
