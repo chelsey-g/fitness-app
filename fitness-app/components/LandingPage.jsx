@@ -3,6 +3,7 @@
 import { FaBullseye, FaCalculator, FaTrophy } from "react-icons/fa"
 
 import { FaQuoteLeft } from "react-icons/fa"
+import { FaRunning } from "react-icons/fa"
 import { GiBodyHeight } from "react-icons/gi"
 import Image from "next/image"
 import Link from "next/link"
@@ -57,18 +58,14 @@ export default function LandingPage() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out bg-white ml-4">
-              <GiBodyHeight className="text-4xl text-blue-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold">BMI Calculator</h3>
+              <div className="flex justify-center mb-4">
+                <GiBodyHeight className="text-4xl text-blue-500 mx-2" />
+                <FaCalculator className="text-4xl text-green-500 mx-2" />
+              </div>
+              <h3 className="text-xl font-bold">BMI & Calorie Calculators</h3>
               <p className="text-gray-600 mt-2">
-                Calculate your Body Mass Index (BMI) to know your health status.
-              </p>
-            </div>
-            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out bg-white ml-4">
-              <FaCalculator className="text-4xl text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold">Calorie Calculator</h3>
-              <p className="text-gray-600 mt-2">
-                Find out how many calories you need to maintain or achieve your
-                goals.
+                Calculate your Body Mass Index (BMI) and find out how many
+                calories you need to maintain or achieve your goals.
               </p>
             </div>
 
@@ -84,6 +81,14 @@ export default function LandingPage() {
               <h3 className="text-xl font-bold">Create a Competition</h3>
               <p className="text-gray-600 mt-2">
                 Challenge your friends and stay motivated together.
+              </p>
+            </div>
+            <div className="testimonial max-w-md text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out bg-white ml-4">
+              <FaRunning className="text-4xl text-red-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold">Personalized Workouts</h3>
+              <p className="text-gray-600 mt-2">
+                Create customized workout routines tailored to your fitness
+                goals.
               </p>
             </div>
           </div>
