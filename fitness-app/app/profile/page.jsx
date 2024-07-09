@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -17,7 +16,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,6 +25,7 @@ import UploadPicture from "@/components/UploadPicture"
 import UsernamePassword from "@/components/UsernamePassword"
 import { createClient } from "@/utils/supabase/client"
 import useSWR from "swr"
+import { useState } from "react"
 
 export default function ProfileDashboard() {
   const supabase = createClient()
@@ -176,11 +175,8 @@ export default function ProfileDashboard() {
     )
   }
 
-  // if (profilesLoading || userLoading) return <div>Loading...</div>
-  // if (profilesError || userError) return <div>Error loading profile data</div>
-
   return (
-    <div className="flex min-h-screen w-3/4 flex-col">
+    <div className="flex min-h-screen flex-col">
       <Navigation />
       <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-row gap-4 bg-white rounded-lg p-4 md:gap-8 md:p-10">
         <div className="flex flex-col w-1/4">
