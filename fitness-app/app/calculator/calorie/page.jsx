@@ -12,6 +12,7 @@ const CalorieCalculator = () => {
   const [heightInches, setHeightInches] = useState("")
   const [activityLevel, setActivityLevel] = useState("1.2")
   const [calories, setCalories] = useState(null)
+  const [calorieData, setCalorieData] = useState([])
 
   const calculateCalories = () => {
     if (!age || !weight || !heightFeet || !heightInches) return
@@ -29,8 +30,21 @@ const CalorieCalculator = () => {
       bmr = 447.593 + 9.247 * weightKg + 3.098 * height * 2.54 - 4.33 * age
     }
 
-    const totalCalories = bmr * parseFloat(activityLevel)
-    setCalories(totalCalories.toFixed(2))
+    const totalCalories = Math.round(bmr * parseFloat(activityLevel))
+    setCalories(totalCalories)
+
+    const levels = [
+      { level: "Sedentary", multiplier: 1.2 },
+      { level: "Light", multiplier: 1.375 },
+      { level: "Moderate", multiplier: 1.55 },
+      { level: "Active", multiplier: 1.725 },
+      { level: "Very Active", multiplier: 1.9 },
+    ]
+    const data = levels.map((lvl) => ({
+      ...lvl,
+      calories: Math.round(bmr * lvl.multiplier),
+    }))
+    setCalorieData(data)
   }
 
   return (
@@ -121,6 +135,29 @@ const CalorieCalculator = () => {
           </div>
         )}
       </div>
+      {calorieData.length > 0 && (
+        <div className="mt-8 mx-auto bg-white shadow-lg rounded-lg p-8">
+          <h2 className="text-2xl font-bold mb-4 text-center">
+            Calorie Needs Based on Activity Level
+          </h2>
+          <table className="w-full table-auto">
+            <thead>
+              <tr>
+                <th className="px-4 py-2 border">Activity Level</th>
+                <th className="px-4 py-2 border">Calories Needed</th>
+              </tr>
+            </thead>
+            <tbody>
+              {calorieData.map((row, index) => (
+                <tr key={index}>
+                  <td className="px-4 py-2 border">{row.level}</td>
+                  <td className="px-4 py-2 border">{row.calories}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
