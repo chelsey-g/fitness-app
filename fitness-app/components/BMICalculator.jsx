@@ -1,5 +1,11 @@
 "use client"
 
+import {
+  FaArrowDown,
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaWeight,
+} from "react-icons/fa"
 import React, { useState } from "react"
 
 const BMICalculator = () => {
@@ -8,6 +14,7 @@ const BMICalculator = () => {
   const [pounds, setPounds] = useState("")
   const [bmi, setBMI] = useState(null)
   const [message, setMessage] = useState("")
+  const [weightToLose, setWeightToLose] = useState(null)
 
   const calculateBMI = () => {
     if (feet && inches && pounds) {
@@ -19,16 +26,31 @@ const BMICalculator = () => {
       )
       setBMI(bmiValue)
       let bmiMessage = ""
+      let targetBMI = null
+
       if (bmiValue < 18.5) {
         bmiMessage = "Underweight"
+        targetBMI = 18.5
       } else if (bmiValue >= 18.5 && bmiValue < 24.9) {
         bmiMessage = "Normal weight"
+        targetBMI = 24.9
       } else if (bmiValue >= 25 && bmiValue < 29.9) {
         bmiMessage = "Overweight"
+        targetBMI = 24.9
       } else {
         bmiMessage = "Obese"
+        targetBMI = 29.9
       }
       setMessage(bmiMessage)
+
+      if (targetBMI && targetBMI < bmiValue) {
+        const targetWeightKg = targetBMI * (heightInMeters * heightInMeters)
+        const targetWeightLbs = targetWeightKg / 0.453592
+        const weightToLoseLbs = (pounds - targetWeightLbs).toFixed(2)
+        setWeightToLose(weightToLoseLbs)
+      } else {
+        setWeightToLose(null)
+      }
     }
   }
 
@@ -79,10 +101,24 @@ const BMICalculator = () => {
       </button>
       {bmi && (
         <div className="mt-6 text-center bg-gray-100 p-4 rounded-lg shadow-lg">
-          <p className="text-3xl font-bold">
-            Your BMI: <span className="text-snd-bkg">{bmi}</span>
-          </p>
+          <div className="flex justify-center items-center">
+            <FaWeight className="text-3xl text-snd-bkg mr-2" />
+            <p className="text-3xl font-bold">
+              Your BMI: <span className="text-snd-bkg">{bmi}</span>
+            </p>
+          </div>
           <p className="text-xl text-gray-700 mt-2">{message}</p>
+          {weightToLose && (
+            <div className="mt-4">
+              <div className="flex justify-center items-center text-red-500">
+                <FaArrowDown className="text-2xl mr-2" />
+                <p className="text-lg">
+                  You need to lose approximately {weightToLose} lbs to reach the
+                  next category of BMI
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
