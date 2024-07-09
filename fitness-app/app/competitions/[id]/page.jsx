@@ -28,10 +28,10 @@ export default function CompetitionPage(props) {
       .then((res) => res.data)
   )
 
-  if (error) return <div>failed to load</div>
+  if (error) return <div>Failed to load</div>
   if (isLoading)
     return (
-      <div>
+      <div className="text-center mt-20">
         <span className="text-gray-700">Loading competition...</span>
       </div>
     )
@@ -85,7 +85,6 @@ export default function CompetitionPage(props) {
 
   function handleRemovePlayer(player) {
     const { error } = supabase.from("competitions_players").delete()
-    // .eq("player_id", .competitions_players[0].profiles.id)
     if (error) {
       console.error("Error removing player:", error)
     }
@@ -96,109 +95,118 @@ export default function CompetitionPage(props) {
   }
 
   return (
-    <div className="p-4">
+    <div className="p-4 min-h-screen">
       <Navigation />
 
       {competitionData?.map((competition, index) => (
         <div
           key={index}
-          className="bg-white shadow-lg p-6 mb-6 rounded-lg mt-6"
+          className="bg-white shadow-lg p-8 mb-8 rounded-lg mt-6 mx-auto max-w-5xl"
         >
-          <BackButton />
-          <h2 className="text-3xl font-bold">{competition.name}</h2>
+          <div className="flex justify-between mb-6">
+            <h2 className="text-3xl font-bold text-gray-800">
+              {competition.name}
+            </h2>
+            <BackButton />
+          </div>
           <h3 className="text-xl font-semibold text-trd-bkg mb-6">
-            {competition.competitions_players.length} Competitors
+            {competition.competitions_players.length}{" "}
+            {competition.competitions_players.length === 1
+              ? "Competitor"
+              : "Competitors"}
           </h3>
-          <div className="flex justify-center text-gray-700 mb-6 flex-col items-center">
-            <div className="flex align-center">
-              <p className="text-lg font-semibold mr-5">
+
+          <div className="flex flex-col items-center text-gray-700 mb-6">
+            <div className="flex justify-around w-full text-lg font-semibold mb-2">
+              <p>
                 Start Date:{" "}
                 <span className="font-medium">
                   {handleDate(competition.date_started)}
                 </span>
               </p>
-              <p className="text-lg font-semibold">
+              <p>
                 End Date:{" "}
                 <span className="font-medium">
                   {handleDate(competition.date_ending)}
                 </span>
               </p>
             </div>
-            <div className="flex items-center text-xs italic text-green-500">
+            <div className="text-xs italic text-green-500">
               {handleDaysLeft(competition.date_ending) <= 0 ? (
                 <div className="text-red-500">This competition has ended!</div>
               ) : (
                 <div>
                   Only {handleDaysLeft(competition.date_ending)} days left of
-                  the competition! Keep pushing!
+                  the competition
                 </div>
               )}
             </div>
-            <CompetitionWeekTable competitionData={competitionData} />
+            {/* <CompetitionWeekTable competitionData={competitionData} /> */}
           </div>
 
           <div className="overflow-x-auto">
-            <h3 className="text-xl font-semibold">Overall Competition Stats</h3>
+            <h3 className="text-xl font-semibold mb-4 text-center">
+              Overall Competition Stats
+            </h3>
 
-            <table className="table-auto w-full">
-              <thead>
-                <tr>
-                  <th className="px-4 py-3 text-left text-lg font-medium">
-                    Ranking
-                  </th>
-                  <th className="px-4 py-3 text-left text-lg font-medium">
-                    Name
-                  </th>
-                  <th className="px-4 py-3 text-left text-lg font-medium">
-                    % Lost/Gain
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {competition.competitions_players.map(
-                  (comp_players, playerIndex) => (
-                    <tr
-                      key={playerIndex}
-                      className={
-                        playerIndex % 2 === 0 ? "bg-gray-100" : "bg-white"
-                      }
-                    >
-                      <td className="border px-4 py-3 text-gray-700 font-semibold flex items-center ">
-                        {playerIndex < 3 ? (
-                          <>
-                            <TbAwardFilled
-                              className={`mr-2 justify-center ${getAwardColor(
-                                playerIndex + 1
-                              )} rounded-full`}
-                            />
-                            {getOrdinalSuffix(playerIndex + 1)}
-                          </>
-                        ) : (
-                          getOrdinalSuffix(playerIndex + 1)
-                        )}
-                      </td>
-                      <td className="border px-4 py-3 text-gray-700 font-semibold">
-                        {
-                          difference.sort((a, b) =>
-                            a.player.localeCompare(b.player)
-                          )[playerIndex]?.player
+            <div className="flex justify-center">
+              <table className="table-auto">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="px-4 py-3 text-left text-lg font-medium text-gray-700">
+                      Ranking
+                    </th>
+                    <th className="px-4 py-3 text-left text-lg font-medium text-gray-700">
+                      Name
+                    </th>
+                    <th className="px-4 py-3 text-left text-lg font-medium text-gray-700">
+                      % Lost/Gain
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {difference
+                    .sort((a, b) => b.percentageChange - a.percentageChange)
+                    .map((player, playerIndex) => (
+                      <tr
+                        key={playerIndex}
+                        className={
+                          playerIndex % 2 === 0 ? "bg-gray-100" : "bg-white"
                         }
-                      </td>
-                      <td className="border px-4 py-3 text-gray-700 font-semibold">
-                        {difference
-                          .sort(
-                            (a, b) => a.percentageChange - b.percentageChange
-                          )
-                          [playerIndex]?.percentageChange.toFixed(2) + "%"}
-                      </td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
+                      >
+                        <td className="border px-4 py-3 text-gray-700 font-semibold flex items-center">
+                          {playerIndex < 3 ? (
+                            <>
+                              <TbAwardFilled
+                                className={`mr-2 ${getAwardColor(
+                                  playerIndex + 1
+                                )} rounded-full`}
+                              />
+                              {getOrdinalSuffix(playerIndex + 1)}
+                            </>
+                          ) : (
+                            getOrdinalSuffix(playerIndex + 1)
+                          )}
+                        </td>
+                        <td className="border px-4 py-3 text-gray-700 font-semibold">
+                          {player.player}
+                        </td>
+                        <td className="border px-4 py-3 text-gray-700 font-semibold">
+                          {player.percentageChange.toFixed(2)}%
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex font-bold justify-center text-xs mt-4">
+              Updated {handleDate(new Date())}
+            </div>
             {competition.rules && (
               <div className="mt-6">
-                <h3 className="text-xl font-semibold mb-2">Rules</h3>
+                <h3 className="text-xl font-semibold mb-2 text-center">
+                  Rules
+                </h3>
                 <div className="bg-gray-100 rounded-lg p-4">
                   <pre className="text-sm text-gray-800 font-sans overflow-auto">
                     {competition.rules}
@@ -207,10 +215,11 @@ export default function CompetitionPage(props) {
               </div>
             )}
           </div>
+
           {showQuitButton && (
-            <div className="flex justify-center">
+            <div className="flex justify-center mt-6">
               <button
-                className="bg-snd-bkg hover:opacity-90 text-white font-bold py-2 px-4 mt-5 rounded flex items-center"
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded flex items-center"
                 onClick={() => handleRemovePlayer()}
               >
                 Quit
@@ -219,9 +228,6 @@ export default function CompetitionPage(props) {
           )}
         </div>
       ))}
-      <div className="font-bold text-center text-xs">
-        Updated {handleDate(new Date())}
-      </div>
     </div>
   )
 }
