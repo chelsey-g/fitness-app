@@ -1,3 +1,4 @@
+import { FaDumbbell, FaWeightHanging } from "react-icons/fa"
 import { useEffect, useState } from "react"
 
 import Link from "next/link"
@@ -63,15 +64,17 @@ export default function BrowseExercises() {
                 key={index}
                 className="bg-white shadow-md p-6 rounded-lg hover:shadow-lg transition duration-300 ease-in-out"
               >
-                <div>
-                  <h2 className="flex justify-between items-center text-lg font-bold text-gray-800 cursor-pointer hover:opacity-80 transition duration-300 ease-in-out">
+                <div className="flex items-center">
+                  <FaDumbbell className="text-gray-800 mr-2" />
+                  <h2 className="text-lg font-bold text-gray-800 cursor-pointer hover:opacity-80 transition duration-300 ease-in-out">
                     <Link href={`exercise/${exercise.name}`}>
                       {exercise.name}
                     </Link>
                   </h2>
                 </div>
-                <div className="flex mt-4">
-                  <div className="flex pl-4">
+                <div className="flex mt-4 items-center">
+                  <FaWeightHanging className="text-gray-600 mr-2" />
+                  <div className="flex">
                     <h3 className="text-gray-600 font-bold mr-2">
                       Difficulty:
                     </h3>
