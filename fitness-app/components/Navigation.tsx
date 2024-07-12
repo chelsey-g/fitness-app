@@ -181,6 +181,14 @@ export default function Navigation() {
                           Calorie Calculator
                         </Link>
                       </NavigationMenuLink>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href="/tools/recipe-search"
+                          className="block px-4 py-2 rounded-md text-xs hover:opacity-80 whitespace-nowrap"
+                        >
+                          Recipe Finder
+                        </Link>
+                      </NavigationMenuLink>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
                 </NavigationMenuList>
