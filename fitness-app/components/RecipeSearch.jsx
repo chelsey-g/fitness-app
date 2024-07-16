@@ -1,10 +1,18 @@
 "use client"
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import React, { useEffect, useState } from "react"
 
 import { AiOutlineClockCircle } from "react-icons/ai"
+import { AiOutlineEye } from "react-icons/ai"
 import { GiForkKnifeSpoon } from "react-icons/gi"
+import { HiOutlineSave } from "react-icons/hi"
 import { IoIosClose } from "react-icons/io"
+import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 
 export default function RecipeSearch() {
@@ -12,6 +20,7 @@ export default function RecipeSearch() {
   const [query, setQuery] = useState("chicken")
   const [searchValue, setSearchValue] = useState("")
   const router = useRouter()
+  const supabase = createClient()
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -48,10 +57,34 @@ export default function RecipeSearch() {
   }
 
   const handleSearchClick = (recipe) => {
-    router.push(recipe.recipe.url, { shallow: true })
+    window.open(recipe.recipe.url, "_blank")
   }
 
   console.log(recipes)
+
+  const handleAddRecipe = async (recipe) => {
+    const { data, error } = await supabase
+      .from("recipes")
+      .insert([{ title: recipe.recipe.label, url: recipe.recipe.url }])
+      .select()
+    if (error) {
+      console.error("Error adding recipe:", error.message)
+    } else {
+      console.log("Recipe added successfully:", data)
+    }
+  }
+
+  useEffect(() => {
+    const { data: recipes, error } = supabase
+      .from("recipes")
+      .select("*")
+      .eq("user_id", supabase.auth.getUser().id)
+    if (error) {
+      console.error("Error fetching recipes:", error.message)
+    } else {
+      console.log("Recipes:", recipes)
+    }
+  })
 
   return (
     <div className="p-4 rounded-lg">
@@ -79,36 +112,54 @@ export default function RecipeSearch() {
             Search
           </button>
         </div>
-        <div className="mx-auto mt-5 grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-2 gap-4">
+        <div className="mx-auto mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2">
           {recipes.map((recipe, index) => (
-            <div
-              key={index}
-              className="bg-white shadow-md p-4 mb-4 rounded-lg cursor-pointer flex justify-between items-center"
-              onClick={() => handleSearchClick(recipe)}
-            >
-              <div className="flex-grow">
-                <h2 className="text-lg font-bold text-gray-800">
-                  {recipe.recipe.label}
-                </h2>
-                <div className="flex items-center my-2">
-                  <GiForkKnifeSpoon className="text-gray-600 mr-2" />
-                  <p className="text-gray-600 text-sm">
-                    {recipe.recipe.dietLabels.join(", ")}
-                  </p>
+            <Popover key={index}>
+              <PopoverTrigger>
+                <div className="bg-white shadow-md p-2 mb-4 rounded-lg cursor-pointer flex items-center max-w-xs">
+                  <div className="flex-grow">
+                    <h2 className="text-lg font-bold text-gray-800">
+                      {recipe.recipe.label}
+                    </h2>
+                    <div className="flex items-center my-1">
+                      <GiForkKnifeSpoon className="text-gray-600 mr-2" />
+                      <p className="text-gray-600 text-sm">
+                        {recipe.recipe.dietLabels.join(", ")}
+                      </p>
+                    </div>
+                    <div className="flex items-center">
+                      <AiOutlineClockCircle className="text-gray-600 mr-2" />
+                      <div className="text-gray-600 text-sm">
+                        {recipe.recipe.totalTime} minutes
+                      </div>
+                    </div>
+                  </div>
+                  <img
+                    src={recipe.recipe.image}
+                    alt={recipe.recipe.label}
+                    className="h-24 w-24 object-cover rounded"
+                  />
                 </div>
-                <div className="flex items-center">
-                  <AiOutlineClockCircle className="text-gray-600 mr-2" />
-                  <p className="text-gray-600 text-sm">
-                    {recipe.recipe.totalTime} minutes
-                  </p>
+              </PopoverTrigger>
+              <PopoverContent className="relative bg-white p-4 rounded-lg shadow-lg max-w-xs -top-4">
+                <div className="flex flex-col items-start space-y-4 items-center">
+                  <button
+                    onClick={() => handleSearchClick(recipe)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                  >
+                    <AiOutlineEye size={20} />
+                    <span>View Recipe</span>
+                  </button>
+                  <button
+                    onClick={() => handleAddRecipe(recipe)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                  >
+                    <HiOutlineSave size={20} />
+                    <span>Save Recipe</span>
+                  </button>
                 </div>
-              </div>
-              <img
-                src={recipe.recipe.image}
-                alt={recipe.recipe.label}
-                className="h-24 w-24 object-cover rounded ml-4"
-              />
-            </div>
+              </PopoverContent>
+            </Popover>
           ))}
         </div>
       </div>
