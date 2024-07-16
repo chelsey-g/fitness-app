@@ -183,12 +183,20 @@ export default function Navigation() {
                       </NavigationMenuLink>
                       <NavigationMenuLink asChild>
                         <Link
-                          href="/tools/recipe-search"
+                          href="/recipes"
                           className="block px-4 py-2 rounded-md text-xs hover:opacity-80 whitespace-nowrap"
                         >
                           Recipe Finder
                         </Link>
                       </NavigationMenuLink>
+                      {/* <NavigationMenuLink asChild>
+                        <Link
+                          href="/recipes"
+                          className="block px-4 py-2 rounded-md text-xs hover:opacity-80 whitespace-nowrap"
+                        >
+                          Recipe Finder
+                        </Link>
+                      </NavigationMenuLink> */}
                     </NavigationMenuContent>
                   </NavigationMenuItem>
                 </NavigationMenuList>

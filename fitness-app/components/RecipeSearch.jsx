@@ -1,19 +1,24 @@
 "use client"
 
 import {
+  AiFillHeart,
+  AiOutlineClockCircle,
+  AiOutlineHeart,
+} from "react-icons/ai"
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
 import React, { useEffect, useState } from "react"
 
-import { AiOutlineClockCircle } from "react-icons/ai"
 import { AiOutlineEye } from "react-icons/ai"
 import { GiForkKnifeSpoon } from "react-icons/gi"
 import { HiOutlineSave } from "react-icons/hi"
 import { IoIosClose } from "react-icons/io"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
+import useSWR from "swr"
 
 export default function RecipeSearch() {
   const [recipes, setRecipes] = useState([])
@@ -21,6 +26,14 @@ export default function RecipeSearch() {
   const [searchValue, setSearchValue] = useState("")
   const router = useRouter()
   const supabase = createClient()
+
+  const { data: user } = useSWR("/user", () =>
+    supabase.auth.getUser().then((res) => res.data.user)
+  )
+
+  let identityId = user?.identities?.[0]?.id || null
+
+  console.log(user, "hi")
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -62,10 +75,26 @@ export default function RecipeSearch() {
 
   console.log(recipes)
 
+  const { data: recipeList } = useSWR(
+    identityId ? "/recipes/" + identityId : null,
+    () =>
+      supabase
+        .from("recipes")
+        .select("*")
+        .eq("created_by", identityId)
+        .then((res) => res.data)
+  )
+
   const handleAddRecipe = async (recipe) => {
     const { data, error } = await supabase
       .from("recipes")
-      .insert([{ title: recipe.recipe.label, url: recipe.recipe.url }])
+      .insert([
+        {
+          title: recipe.recipe.label,
+          url: recipe.recipe.url,
+          image: recipe.recipe.image,
+        },
+      ])
       .select()
     if (error) {
       console.error("Error adding recipe:", error.message)
@@ -74,17 +103,13 @@ export default function RecipeSearch() {
     }
   }
 
-  useEffect(() => {
-    const { data: recipes, error } = supabase
-      .from("recipes")
-      .select("*")
-      .eq("user_id", supabase.auth.getUser().id)
-    if (error) {
-      console.error("Error fetching recipes:", error.message)
-    } else {
-      console.log("Recipes:", recipes)
-    }
-  })
+  console.log(recipeList, "recipe list")
+
+  const isRecipeInUserList = (recipe) => {
+    return recipeList.some(
+      (userRecipe) => userRecipe.title === recipe.recipe.label
+    )
+  }
 
   return (
     <div className="p-4 rounded-lg">
@@ -118,7 +143,7 @@ export default function RecipeSearch() {
               <PopoverTrigger>
                 <div className="bg-white shadow-md p-2 mb-4 rounded-lg cursor-pointer flex items-center max-w-xs">
                   <div className="flex-grow">
-                    <h2 className="text-lg font-bold text-gray-800">
+                    <h2 className="text-md font-bold text-gray-800">
                       {recipe.recipe.label}
                     </h2>
                     <div className="flex items-center my-1">
@@ -132,6 +157,9 @@ export default function RecipeSearch() {
                       <div className="text-gray-600 text-sm">
                         {recipe.recipe.totalTime} minutes
                       </div>
+                      {isRecipeInUserList(recipe) ? (
+                        <AiFillHeart className="text-red-500 ml-5" size={24} />
+                      ) : null}
                     </div>
                   </div>
                   <img
