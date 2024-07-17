@@ -28,6 +28,8 @@ export default function CompetitionPage(props) {
       .then((res) => res.data)
   )
 
+  console.log(competitionData)
+
   if (error) return <div>Failed to load</div>
   if (isLoading)
     return (
@@ -45,7 +47,7 @@ export default function CompetitionPage(props) {
   }
 
   function getInitialWeight(player, competitionData) {
-    const closestInitialDate = player.profiles.weight_tracker.reduce((a, b) =>
+    const closestInitialDate = player?.profiles.weight_tracker.reduce((a, b) =>
       Math.abs(new Date(b.date_entry) - new Date(competitionData.date_ending)) <
       Math.abs(new Date(a.date_entry) - new Date(competitionData.date_started))
         ? a
@@ -78,20 +80,24 @@ export default function CompetitionPage(props) {
         difference.push({
           player: player.profiles.first_name + " " + player.profiles.last_name,
           percentageChange: percentageChange,
+          playerId: player.profiles.id,
         })
       })
     })
   }
 
-  function handleRemovePlayer(player) {
-    const { error } = supabase.from("competitions_players").delete()
-    if (error) {
-      console.error("Error removing player:", error)
-    }
-  }
-
-  if (competitionData?.date_ending > new Date()) {
-    setShowQuitButton(true)
+  function handleRemovePlayer(playerId) {
+    supabase
+      .from("competitions_players")
+      .delete()
+      .eq("player_id", playerId)
+      .then(({ error }) => {
+        if (error) {
+          console.error("Error removing player:", error)
+        } else {
+          console.log("Player removed successfully")
+        }
+      })
   }
 
   return (
@@ -216,16 +222,18 @@ export default function CompetitionPage(props) {
             )}
           </div>
 
-          {showQuitButton && (
-            <div className="flex justify-center mt-6">
-              <button
-                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded flex items-center"
-                onClick={() => handleRemovePlayer()}
-              >
-                Quit
-              </button>
-            </div>
-          )}
+          <div className="flex justify-center mt-6">
+            <button
+              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded flex items-center"
+              onClick={() =>
+                handleRemovePlayer(
+                  competition.competitions_players[0].profiles.id
+                )
+              }
+            >
+              Quit Competition
+            </button>
+          </div>
         </div>
       ))}
     </div>

@@ -4,7 +4,6 @@ import DropdownMenuDemo from "@/components/CompetitionsActions"
 import { IoIosAdd } from "react-icons/io"
 import Link from "next/link"
 import Navigation from "@/components/Navigation"
-// import ProgressBarComp from "@/components/ProgressBar"
 import { createClient } from "@/utils/supabase/client"
 import { getRandomColor } from "@/app/functions"
 import { useRouter } from "next/navigation"
@@ -32,6 +31,24 @@ export default function CompetitionsPage() {
   if (error) return <div>Failed to load</div>
 
   if (isLoading) return <div>Loading...</div>
+
+  console.log("competitions", competitions)
+
+  // const {
+  //   data: competitionPlayers,
+  //   error: playersError,
+  //   isLoading: playersLoading,
+  // } = useSWR("/competition_players", () =>
+  //   supabase
+  //     .from("competition_players")
+  //     .select("*")
+  //     .then((res) => res.data.filter((player) => player.user_id === user.id))
+  // )
+
+  // if (playersError) return <div>Failed to load</div>
+  // if (playersLoading) return <div>Loading...</div>
+
+  // console.log("competitionPlayers", competitionPlayers)
 
   const handleCreateCompetition = () => {
     router.push("/competitions/create")
@@ -66,17 +83,6 @@ export default function CompetitionsPage() {
         <p className="text-sm text-gray-500">
           Here are your current standings in the active competitions
         </p>
-        {/* <div className="flex items-center justify-between mt-4">
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-snd-bkg rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-semibold">1</span>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-lg font-semibold">Competition 1</h3>
-              <p className="text-sm text-gray-500">You are currently 1st</p>
-            </div>
-          </div>
-        </div> */}
       </div>
       <h1 className="p-4 text-2xl font-semibold text-white">
         Active Competitions ({competitions.length})
@@ -107,7 +113,7 @@ export default function CompetitionsPage() {
 
               <Link
                 href={`/competitions/${result.id}`}
-                className={`ml-3 text-black hover:text-blue-800 font-medium ${
+                className={`ml-3 text-black hover:text-snd-bkg font-medium ${
                   handleExpiredCompeition(result.date_ending)
                     ? "text-red-500"
                     : ""

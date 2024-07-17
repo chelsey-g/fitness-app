@@ -22,6 +22,10 @@ export default function SavedRecipes() {
         .then((res) => res.data)
   )
 
+  const handleDeleteRecipe = async (recipeId) => {
+    await supabase.from("recipes").delete().eq("id", recipeId)
+  }
+
   return (
     <div>
       <Navigation />

@@ -6,11 +6,8 @@ import { useRouter } from "next/navigation"
 export default function BackButton() {
   const router = useRouter()
   return (
-    <div>
-      <IoArrowBack
-        className=" hover:opacity-90 rounded ml-auto cursor-pointer mr-4 mt-4"
-        onClick={() => router.back()}
-      ></IoArrowBack>
-    </div>
+    <button onClick={() => router.back()}>
+      <IoArrowBack className=" hover:opacity-90 rounded ml-auto cursor-pointer mr-4 mt-4"></IoArrowBack>
+    </button>
   )
 }
