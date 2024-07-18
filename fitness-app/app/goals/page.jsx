@@ -153,35 +153,35 @@ export default function ProfileGoals() {
       <div className="overflow-x-auto mt-4 bg-white rounded-lg shadow-md p-4">
         <h1 className="text-lg font-semibold text-center">Active Goals</h1>
         <table className="min-w-full">
-          <thead className="font-semibold items-center">
+          <thead className="font-semibold">
             <tr className="items-center">
-              <th className="p-4 text-sm">Goal Date</th>
-              <th className="p-4 text-sm">Goal Weight</th>
-              <th className="p-4 text-sm">Days Left</th>
-              <th className="p-4 text-sm">Weight Remaining</th>
-              <th className="p-4 text-sm"></th>
+              <th className="p-2 text-sm">Goal Date</th>
+              <th className="p-2 text-sm">Goal Weight</th>
+              <th className="p-2 text-sm">Days Left</th>
+              <th className="p-2 text-sm">Weight Remaining</th>
+              <th className="p-2 text-sm"></th>
             </tr>
           </thead>
           <tbody>
             {activeGoals?.map((goal) => (
               <tr key={goal.id}>
-                <td className="p-4 text-sm text-center">
+                <td className="p-2 text-sm text-center">
                   {handleDate(goal.goal_date)}
                 </td>
-                <td className="p-4 text-sm text-center">
+                <td className="p-2 text-sm text-center">
                   {goal.goal_weight} lbs
                 </td>
-                <td className="p-4 text-sm text-center">
+                <td className="p-2 text-sm text-center">
                   {calculateDaysLeft(goal.goal_date)}
                 </td>
-                <td className="p-4 text-sm text-center">
+                <td className="p-2 text-sm text-center">
                   {calculateWeightDifference(
                     goal.goal_weight,
                     weights?.[0]?.weight
                   )}{" "}
                   lbs
                 </td>
-                <td className="p-4 text-sm text-center">
+                <td className="p-2 text-sm text-center">
                   <GoalsDropdown
                     deleteGoals={() => handleDeleteGoal(goal.id)}
                   />

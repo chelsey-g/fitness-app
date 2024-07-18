@@ -23,7 +23,7 @@ import useSWR from "swr"
 export default function RecipeSearch() {
   const [recipes, setRecipes] = useState([])
   const [query, setQuery] = useState("chicken")
-  const [searchValue, setSearchValue] = useState("")
+  const [searchValue, setSearchValue] = useState("chicken")
   const router = useRouter()
   const supabase = createClient()
 
