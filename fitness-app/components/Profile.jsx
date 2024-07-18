@@ -47,7 +47,7 @@ export default function ProfileDropDown() {
   function handleSignOutUser() {
     const { error } = supabase.auth.signOut()
     if (error) console.error("Sign out error", error)
-    router.push("/home")
+    router.push("/")
   }
 
   return (

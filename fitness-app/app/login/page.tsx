@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Messages from "./messages"
 import Navigation from "@/components/Navigation"
 import { Suspense } from "react"
@@ -13,9 +14,16 @@ export default function Login() {
             action="/auth/sign-in"
             method="post"
           >
-            <h1 className="text-1xl text-center font-bold mb-2">
-              Welcome to HabitKick
-            </h1>
+            <div className="flex justify-center mb-4">
+              <Image
+                src="/images/text-logo.png"
+                alt="HabitKick Logo"
+                width={200}
+                height={200}
+                className="items-center"
+              />
+            </div>
+            <Messages />
             <label className="text-md" htmlFor="email">
               Email
             </label>
@@ -44,7 +52,6 @@ export default function Login() {
             >
               Sign Up
             </button>
-            <Messages />
           </form>
         </div>
       </Suspense>

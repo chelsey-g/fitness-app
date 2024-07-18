@@ -97,11 +97,7 @@ export default function UserDashboard() {
   )
 
   if (!user) {
-    return (
-      <div>
-        Please <Link href="/login">login</Link> to view your dashboard.
-      </div>
-    )
+    return <div>Loading...</div>
   }
 
   if (!profiles) return <div>Loading...</div>
@@ -116,9 +112,11 @@ export default function UserDashboard() {
       <Navigation />
 
       <div className="bg-white rounded-lg container mx-auto my-8 p-4 shadow-md">
-        <h1 className="text-4xl font-semibold text-gray-800 mb-4 text-center">
-          Welcome back, {profiles[0]?.first_name}!
-        </h1>
+        {profiles[0].first_name && (
+          <h1 className="text-4xl font-semibold text-gray-800 mb-4 text-center">
+            Welcome back, {profiles[0]?.first_name}!
+          </h1>
+        )}
         {quote && (
           <div className="bg-white p-6 rounded-lg opacity-90 my-4 mx-auto max-w-md flex flex-col items-center">
             <div className="flex items-center">
