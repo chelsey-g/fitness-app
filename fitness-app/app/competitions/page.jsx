@@ -73,7 +73,7 @@ export default function CompetitionsPage() {
   return (
     <div>
       <Navigation />
-      <h1 className="p-4 text-2xl font-semibold text-white">
+      {/* <h1 className="p-4 text-2xl font-semibold text-white">
         Your Current Standings
       </h1>
       <div className="bg-white p-4 rounded-lg shadow-md mb-4">
@@ -83,7 +83,7 @@ export default function CompetitionsPage() {
         <p className="text-sm text-gray-500">
           Here are your current standings in the active competitions
         </p>
-      </div>
+      </div> */}
       <h1 className="p-4 text-2xl font-semibold text-white">
         Active Competitions ({competitions.length})
       </h1>
