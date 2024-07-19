@@ -255,7 +255,7 @@ export default function Navigation() {
                   <MenuHandler>
                     <Typography
                       as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold"
+                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold text-sm"
                     >
                       <span>Tracker</span>
                       <IoIosArrowDown className="ml-1" />
@@ -284,7 +284,7 @@ export default function Navigation() {
                   <MenuHandler>
                     <Typography
                       as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold"
+                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold text-sm"
                     >
                       <span>Competitions</span>
                       <IoIosArrowDown className="ml-1" />
@@ -321,7 +321,7 @@ export default function Navigation() {
                   <MenuHandler>
                     <Typography
                       as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold"
+                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold text-sm"
                     >
                       <span>Workouts</span>
                       <IoIosArrowDown className="ml-1" />
@@ -350,7 +350,7 @@ export default function Navigation() {
                   <MenuHandler>
                     <Typography
                       as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold"
+                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold text-sm"
                     >
                       <span>Goals</span>
                       <IoIosArrowDown className="ml-1" />
@@ -371,7 +371,7 @@ export default function Navigation() {
                   <MenuHandler>
                     <Typography
                       as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold"
+                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold text-sm"
                     >
                       <span>Tools</span>
                       <IoIosArrowDown className="ml-1" />
@@ -409,7 +409,7 @@ export default function Navigation() {
                     <MenuItem>
                       <Typography
                         as="div"
-                        className="flex items-center py-2  cursor-pointer font-bold"
+                        className="flex items-center py-2  cursor-pointer font-bold text-sm"
                       >
                         <Link href="/profile" className="">
                           <span>Profile</span>
@@ -423,7 +423,7 @@ export default function Navigation() {
                     <MenuItem>
                       <Typography
                         as="div"
-                        className="flex items-center py-2  cursor-pointer font-bold"
+                        className="flex items-center py-2  cursor-pointer font-bold text-sm"
                       >
                         <button onClick={handleSignOutUser}>
                           <span>Logout</span>
@@ -439,7 +439,7 @@ export default function Navigation() {
                   <MenuHandler>
                     <Typography
                       as="div"
-                      className="flex items-center py-2 px-3 cursor-pointer font-bold"
+                      className="flex items-center py-2 px-3 cursor-pointer font-bold text-sm"
                     >
                       <MdContactSupport />
                       <Link
@@ -454,7 +454,7 @@ export default function Navigation() {
                   <MenuHandler>
                     <Typography
                       as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold"
+                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold text-sm"
                     >
                       <MdOutlineLogin />
                       <Link
