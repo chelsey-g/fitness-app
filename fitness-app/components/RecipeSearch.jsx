@@ -106,7 +106,7 @@ export default function RecipeSearch() {
   console.log(recipeList, "recipe list")
 
   const isRecipeInUserList = (recipe) => {
-    return recipeList.some(
+    return recipeList?.some(
       (userRecipe) => userRecipe.title === recipe.recipe.label
     )
   }

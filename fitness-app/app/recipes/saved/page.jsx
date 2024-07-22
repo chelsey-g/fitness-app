@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+import { MdDeleteForever } from "react-icons/md"
 import Navigation from "@/components/navigation"
 import { createClient } from "@/utils/supabase/client"
 import useSWR from "swr"
@@ -26,6 +28,19 @@ export default function SavedRecipes() {
     await supabase.from("recipes").delete().eq("id", recipeId)
   }
 
+  function capitalizeTitle(title) {
+    return title
+      .split(" ")
+      .map((word) => {
+        return word.charAt(0).toUpperCase() + word.slice(1)
+      })
+      .join(" ")
+  }
+
+  const handleSavedClick = (url) => {
+    window.open(url, "_blank")
+  }
+
   return (
     <div>
       <Navigation />
@@ -36,21 +51,24 @@ export default function SavedRecipes() {
         {recipeList && recipeList.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {recipeList.map((recipe, index) => (
+              // <button onClick={handleSavedClick(recipe.url)}>
               <div
                 key={index}
-                className="bg-white shadow-md p-4 rounded-lg cursor-pointer flex items-center"
+                className="bg-white shadow-md p-4 rounded-lg cursor-pointer relative flex justify-between "
               >
-                <div className="flex-grow">
-                  <h2 className="text-md font-bold text-gray-800">
-                    {recipe.title}
-                  </h2>
-                </div>
                 <img
                   src={recipe.image}
                   alt={recipe.title}
-                  className="h-24 w-24 object-cover rounded"
+                  className="h-24 w-24 object-cover rounded mb-2"
                 />
+                <h2 className="text-md font-bold text-gray-800 mb-2">
+                  {capitalizeTitle(recipe.title)}
+                </h2>
+                <button onClick={() => handleDeleteRecipe(recipe.id)}>
+                  <MdDeleteForever className="text-red-600" />
+                </button>
               </div>
+              // </button>
             ))}
           </div>
         ) : (
