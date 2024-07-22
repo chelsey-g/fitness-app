@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { MdDeleteForever } from "react-icons/md"
-import Navigation from "@/components/navigation"
+import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import useSWR from "swr"
 
