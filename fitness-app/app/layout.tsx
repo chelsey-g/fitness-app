@@ -4,7 +4,7 @@ import { Inter as FontSans } from "next/font/google"
 import { cn } from "@/lib/utils"
 
 export const metadata = {
-  title: "Fitness App",
+  title: "HabitKick",
   description: "Your one-stop destination for fitness and wellness.",
 }
 
