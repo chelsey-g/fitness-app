@@ -57,7 +57,7 @@ export default function Navigation() {
     <Navbar className="bg-trd-bkg dark:bg-trd-bkg mt-10 mb-10 p-4 border-trd-bkg">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto bg-trd-bkg border-trd-bkg">
         <Link
-          href={isLoggedIn ? "/dashboard" : "/home"}
+          href={isLoggedIn ? "/dashboard" : "/"}
           className="flex items-center space-x-3 rtl:space-x-reverse"
         >
           <img src="/images/text-logo.png" className="h-8" alt="Logo" />
