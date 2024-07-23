@@ -6,7 +6,6 @@ import * as Sentry from "@sentry/nextjs"
 
 Sentry.init({
   dsn: "https://2ebebd61ead2cdd4d2a6f816ec80438c@o4504181161656320.ingest.us.sentry.io/4507351787634688",
-  telemetry: false,
   // Adjust this value in production, or use tracesSampler for greater control
   tracesSampleRate: 1,
 
