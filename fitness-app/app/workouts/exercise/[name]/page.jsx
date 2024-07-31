@@ -62,9 +62,9 @@ export default function ExercisePage(props) {
   }
 
   return (
-    <>
+    <div>
       <Navigation />
-      <div className="container mx-auto p-6 rounded-lg container mx-auto m-4 p-4 max-w-xl">
+      <div className="p-6 rounded-lg container mx-auto m-4 p-4 max-w-xl">
         <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-6">
           <BackButton />
           <div className="flex flex-col md:flex-row">
@@ -104,6 +104,6 @@ export default function ExercisePage(props) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
