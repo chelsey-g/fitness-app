@@ -5,29 +5,34 @@ import React, { useState } from "react"
 import Navigation from "../../../components/Navigation"
 
 const CalorieCalculator = () => {
+  type CalorieData = {
+    level: string
+    multiplier: number
+    calories: number
+  }
+
   const [age, setAge] = useState("")
   const [gender, setGender] = useState("male")
-  const [weight, setWeight] = useState("")
+  const [weight, setWeight] = useState<number | string>("")
   const [heightFeet, setHeightFeet] = useState("")
   const [heightInches, setHeightInches] = useState("")
   const [activityLevel, setActivityLevel] = useState("1.2")
-  const [calories, setCalories] = useState(null)
-  const [calorieData, setCalorieData] = useState([])
+  const [calories, setCalories] = useState<number | null>(null)
+  const [calorieData, setCalorieData] = useState<CalorieData[]>([])
 
   const calculateCalories = () => {
     if (!age || !weight || !heightFeet || !heightInches) return
 
-    // Convert height to inches
     const height = parseInt(heightFeet) * 12 + parseInt(heightInches)
-
-    // Convert weight to kg
-    const weightKg = weight * 0.453592
+    const weightKg = Number(weight) * 0.453592
 
     let bmr
     if (gender === "male") {
-      bmr = 88.362 + 13.397 * weightKg + 4.799 * height * 2.54 - 5.677 * age
+      bmr =
+        88.362 + 13.397 * weightKg + 4.799 * height * 2.54 - 5.677 * Number(age)
     } else {
-      bmr = 447.593 + 9.247 * weightKg + 3.098 * height * 2.54 - 4.33 * age
+      bmr =
+        447.593 + 9.247 * weightKg + 3.098 * height * 2.54 - 4.33 * Number(age)
     }
 
     const totalCalories = Math.round(bmr * parseFloat(activityLevel))
