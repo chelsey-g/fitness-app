@@ -1,33 +1,44 @@
 "use client"
 
+import useSWR, { Fetcher } from "swr"
+
 import DropdownMenuDemo from "@/components/CompetitionsActions"
 import Link from "next/link"
 import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
-import useSWR from "swr"
 
 export default function CompetitionHistoryPage() {
   const supabase = createClient()
   const router = useRouter()
 
-  const today = new Date()
+  interface CompetitionHistory {
+    name: string
+    id: string
+    date_started: string
+    date_ending: string
+  }
+
+  const fetcher: Fetcher<CompetitionHistory[], string> = async (
+    url: string
+  ) => {
+    const today = new Date()
+    const { data, error } = await supabase
+      .from("competitions")
+      .select(`name, id, date_started, date_ending`)
+      .order("date_ending", { ascending: false })
+    if (error) {
+      throw new Error(error.message)
+    }
+    return data.filter((comp) => new Date(comp.date_ending) < today)
+  }
 
   const {
     data: competitions,
     error,
     isLoading,
-  } = useSWR("/competitionHistory", () =>
-    supabase
-      .from("competitions")
-      .select(`name, id, date_started, date_ending`)
-      .order("date_ending", { ascending: false })
-      .then((res) =>
-        res.data.filter((comp) => new Date(comp.date_ending) < today)
-      )
-  )
+  } = useSWR<CompetitionHistory[]>("/competitionHistory", fetcher)
   if (error) return <div>Failed to load</div>
-
   if (isLoading) return <div>Loading...</div>
 
   function getRandomColor() {
@@ -35,7 +46,7 @@ export default function CompetitionHistoryPage() {
     return colors[Math.floor(Math.random() * colors.length)]
   }
 
-  const handleDeleteCompetition = async (id) => {
+  const handleDeleteCompetition = async (id: string) => {
     let { error } = await supabase.from("competitions").delete().eq("id", id)
     if (error) {
       console.log("error", error)

@@ -1,5 +1,7 @@
 "use client"
 
+import useSWR, { Fetcher } from "swr"
+
 import DropdownMenuDemo from "@/components/CompetitionsActions"
 import { IoIosAdd } from "react-icons/io"
 import Link from "next/link"
@@ -7,61 +9,53 @@ import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { getRandomColor } from "@/app/functions"
 import { useRouter } from "next/navigation"
-import useSWR from "swr"
 
 export default function CompetitionsPage() {
   const supabase = createClient()
   const router = useRouter()
 
-  const today = new Date()
+  interface Competition {
+    name: string
+    id: string
+    date_started: string
+    date_ending: string
+  }
+
+  const fetcher: Fetcher<Competition[], string> = async (url: string) => {
+    const today = new Date()
+    const { data, error } = await supabase
+      .from("competitions")
+      .select(`name, id, date_started, date_ending`)
+      .order("date_ending", { ascending: false })
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    return data.filter((comp) => new Date(comp.date_ending) > today)
+  }
 
   const {
     data: competitions,
     error,
     isLoading,
-  } = useSWR("/competitions", () =>
-    supabase
-      .from("competitions")
-      .select(`name, id, date_started, date_ending`)
-      .order("date_ending", { ascending: false })
-      .then((res) =>
-        res.data.filter((comp) => new Date(comp.date_ending) > today)
-      )
-  )
+  } = useSWR<Competition[]>("/competitions", fetcher)
+
   if (error) return <div>Failed to load</div>
-
   if (isLoading) return <div>Loading...</div>
-
-  console.log("competitions", competitions)
-
-  // const {
-  //   data: competitionPlayers,
-  //   error: playersError,
-  //   isLoading: playersLoading,
-  // } = useSWR("/competition_players", () =>
-  //   supabase
-  //     .from("competition_players")
-  //     .select("*")
-  //     .then((res) => res.data.filter((player) => player.user_id === user.id))
-  // )
-
-  // if (playersError) return <div>Failed to load</div>
-  // if (playersLoading) return <div>Loading...</div>
-
-  // console.log("competitionPlayers", competitionPlayers)
 
   const handleCreateCompetition = () => {
     router.push("/competitions/create")
   }
 
-  const handleDeleteCompetition = async (id) => {
+  const handleDeleteCompetition = async (id: string) => {
     let { error } = await supabase.from("competitions").delete().eq("id", id)
     if (error) {
       console.log("error", error)
     }
   }
 
-  const handleExpiredCompeition = (endDate) => {
+  const handleExpiredCompeition = (endDate: string) => {
     const endDateTime = new Date(endDate).getTime()
     return endDateTime < new Date().getTime()
   }
@@ -73,19 +67,8 @@ export default function CompetitionsPage() {
   return (
     <div>
       <Navigation />
-      {/* <h1 className="p-4 text-2xl font-semibold text-white">
-        Your Current Standings
-      </h1>
-      <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-        <h2 className="text-lg font-semibold">
-          Rankings in Active Competitions
-        </h2>
-        <p className="text-sm text-gray-500">
-          Here are your current standings in the active competitions
-        </p>
-      </div> */}
       <h1 className="p-4 text-2xl font-semibold text-white">
-        Active Competitions ({competitions.length})
+        Active Competitions ({competitions?.length})
       </h1>
       <div className="flex justify-center">
         <button
