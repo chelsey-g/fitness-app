@@ -3,7 +3,7 @@
 import { getAwardColor, getOrdinalSuffix } from "@/app/functions"
 
 import BackButton from "@/components/BackButton"
-import CompetitionWeekTable from "@/components/CompetitionWeekTable"
+// import CompetitionWeekTable from "@/components/CompetitionWeekTable"
 import Navigation from "@/components/Navigation"
 import { TbAwardFilled } from "react-icons/tb"
 import { createClient } from "@/utils/supabase/client"
@@ -11,24 +11,25 @@ import { handleDate } from "@/app/functions"
 import useSWR from "swr"
 import { useState } from "react"
 
-export default function CompetitionPage(props) {
-  const [showQuitButton, setShowQuitButton] = useState(false)
+export default function CompetitionPage(props: any) {
+  // const [showQuitButton, setShowQuitButton] = useState(false)
+
   const supabase = createClient()
   const {
     data: competitionData,
     error,
     isLoading,
-  } = useSWR("/competitions/name", () =>
-    supabase
+  } = useSWR("/competitions/name", async () => {
+    const { data } = await supabase
       .from("competitions")
       .select(
         "*, competitions_players(*, profiles(id,first_name, last_name, weight_tracker(weight, date_entry)))"
       )
       .eq("id", props.params.id)
-      .then((res) => res.data)
-  )
+    return data
+  })
 
-  console.log(competitionData)
+  console.log(competitionData, "hi")
 
   if (error) return <div>Failed to load</div>
   if (isLoading)
@@ -38,40 +39,52 @@ export default function CompetitionPage(props) {
       </div>
     )
 
-  const handleDaysLeft = (date) => {
+  const handleDaysLeft = (date: any | number | Date) => {
     const today = new Date()
-    const competitionEndDate = new Date(date)
-    const timeDifference = competitionEndDate - today
+    const competitionEndDate: any = new Date(date)
+    const timeDifference = (competitionEndDate as any) - (today as any)
     const daysLeft = Math.ceil(timeDifference / (1000 * 3600 * 24))
     return daysLeft
   }
 
-  function getInitialWeight(player, competitionData) {
-    const closestInitialDate = player?.profiles.weight_tracker.reduce((a, b) =>
-      Math.abs(new Date(b.date_entry) - new Date(competitionData.date_ending)) <
-      Math.abs(new Date(a.date_entry) - new Date(competitionData.date_started))
-        ? a
-        : b
+  function getInitialWeight(player: any, competitionData: any) {
+    const closestInitialDate = player?.profiles.weight_tracker.reduce(
+      (a: any, b: any) =>
+        Math.abs(
+          (new Date(b.date_entry) as any) -
+            (new Date(competitionData.date_ending) as any)
+        ) <
+        Math.abs(
+          (new Date(a.date_entry) as any) -
+            (new Date(competitionData.date_started) as any)
+        )
+          ? a
+          : b
     )
     return closestInitialDate.weight
   }
 
-  function getCurrentWeight(player, competitionData) {
-    const closestCurrentDate = player.profiles.weight_tracker.reduce((a, b) =>
-      Math.abs(
-        new Date(b.date_entry) - new Date(competitionData.date_started)
-      ) <
-      Math.abs(new Date(a.date_entry) - new Date(competitionData.date_ending))
-        ? b
-        : a
+  function getCurrentWeight(player: any, competitionData: any) {
+    const closestCurrentDate = player.profiles.weight_tracker.reduce(
+      (a: any, b: any) =>
+        Math.abs(
+          (new Date(b.date_entry) as any) -
+            (new Date(competitionData.date_started) as any)
+        ) <
+        Math.abs(
+          (new Date(a.date_entry) as any) -
+            (new Date(competitionData.date_ending) as any)
+        )
+          ? b
+          : a
     )
     return closestCurrentDate.weight
   }
 
-  const difference = []
+  const difference: any | null = []
   if (competitionData) {
     competitionData.forEach((competition) => {
-      competition.competitions_players.forEach((player) => {
+      competition.competitions_players.forEach((player: any | null) => {
         const initialWeight = getInitialWeight(player, competitionData)
         const currentWeight = getCurrentWeight(player, competitionData)
         const weightChange = currentWeight - initialWeight
@@ -86,7 +99,7 @@ export default function CompetitionPage(props) {
     })
   }
 
-  function handleRemovePlayer(playerId) {
+  function handleRemovePlayer(playerId: number | null) {
     supabase
       .from("competitions_players")
       .delete()
@@ -172,8 +185,11 @@ export default function CompetitionPage(props) {
                 </thead>
                 <tbody>
                   {difference
-                    .sort((a, b) => b.percentageChange - a.percentageChange)
-                    .map((player, playerIndex) => (
+                    .sort(
+                      (a: any, b: any) =>
+                        b.percentageChange - a.percentageChange
+                    )
+                    .map((player: any, playerIndex: any) => (
                       <tr
                         key={playerIndex}
                         className={

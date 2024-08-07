@@ -3,7 +3,7 @@ import Navigation from "../../components/Navigation"
 
 export default function CalculatorPage() {
   return (
-    <div classname="">
+    <div>
       <Navigation />
       <BMICalculator />
     </div>

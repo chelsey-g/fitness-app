@@ -99,6 +99,8 @@ export default function CompetitionForm() {
     setAddPlayers(e.target.value === "yes")
   }
 
+  console.log("selectedPlayerIds", selectedPlayerIds)
+
   return (
     <>
       <div className="p-4 mb-5 mt-8 rounded-lg">

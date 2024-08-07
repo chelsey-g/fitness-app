@@ -26,7 +26,7 @@ const CalorieCalculator = () => {
     const height = parseInt(heightFeet) * 12 + parseInt(heightInches)
     const weightKg = Number(weight) * 0.453592
 
-    let bmr
+    let bmr: number
     if (gender === "male") {
       bmr =
         88.362 + 13.397 * weightKg + 4.799 * height * 2.54 - 5.677 * Number(age)
