@@ -3,6 +3,7 @@
 import { FaQuoteLeft, FaQuoteRight } from "react-icons/fa"
 import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
 import { useEffect, useState } from "react"
+import useSWR, { Fetcher } from "swr"
 
 import { FaCalculator } from "react-icons/fa"
 import { GiBodyHeight } from "react-icons/gi"
@@ -11,10 +12,29 @@ import Navigation from "@/components/Navigation"
 import ProgressTracker from "@/components/ProgressTracker"
 import { createClient } from "@/utils/supabase/client"
 import { handleDate } from "@/app/functions"
-import useSWR from "swr"
 
 export default function UserDashboard() {
-  const [quote, setQuote] = useState(null)
+  const [quote, setQuote] = useState<any | null>(null)
+
+  type Competition = {
+    id: number
+  }
+
+  type Profile = {
+    id: number
+    first_name: string
+  }
+
+  type Goals = {
+    id: number
+    goal_date: string
+    goal_weight: number
+  }
+
+  type Weight = {
+    created_by: number
+    weight: number
+  }
 
   const fetchQuote = async () => {
     try {
@@ -48,51 +68,80 @@ export default function UserDashboard() {
 
   let identityId = user?.identities?.[0]?.id || null
 
-  const { data: competitions } = useSWR(
+  const competitionFetcher = async (url: string) => {
+    const { data, error } = await supabase
+      .from("competitions_players")
+      .select("*")
+      .eq("player_id", identityId)
+
+    if (error) {
+      throw error
+    }
+
+    return data
+  }
+  const { data: competitions } = useSWR<Competition[]>(
     identityId ? "/competitions/" + identityId : null,
-    () =>
-      supabase
-        .from("competitions_players")
-        .select("*")
-        .eq("player_id", identityId)
-        .then((res) => res.data),
+    competitionFetcher,
     { revalidateOnFocus: false }
   )
 
-  const { data: profiles } = useSWR(
+  const profilesFetcher = async (url: string) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", identityId)
+
+    if (error) {
+      throw error
+    }
+
+    return data
+  }
+
+  const { data: profiles } = useSWR<Profile[]>(
     identityId ? "/profiles/" + identityId : null,
-    () =>
-      supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", identityId)
-        .then((res) => res.data),
+    profilesFetcher,
     { revalidateOnFocus: false }
   )
 
-  const { data: goals } = useSWR(
-    identityId ? "/profile_goals/" + identityId : null,
-    () =>
-      supabase
-        .from("profile_goals")
-        .select("*")
-        .eq("profile_id", identityId)
-        .then((res) => res.data),
+  const goalsFetcher = async (url: string) => {
+    const { data, error } = await supabase
+      .from("profile_goals")
+      .select("*")
+      .eq("profile_id", identityId)
+
+    if (error) {
+      throw error
+    }
+
+    return data
+  }
+
+  const { data: goals } = useSWR<Goals[]>(
+    identityId ? "/profile  goals/" + identityId : null,
+    goalsFetcher,
     { revalidateOnFocus: false }
   )
 
-  console.log("goals", goals)
+  const weightFetcher = async (url: string) => {
+    const { data, error } = await supabase
+      .from("weight_tracker")
+      .select("*")
+      .eq("created_by", identityId)
+      .order("created_at", { ascending: false })
+      .limit(1)
 
-  const { data: weights } = useSWR(
+    if (error) {
+      throw error
+    }
+
+    return data
+  }
+
+  const { data: weights } = useSWR<Weight[]>(
     identityId ? "/weights/" + identityId : null,
-    () =>
-      supabase
-        .from("weight_tracker")
-        .select("*")
-        .eq("created_by", identityId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .then((res) => res.data),
+    weightFetcher,
     { revalidateOnFocus: false }
   )
 
@@ -169,7 +218,7 @@ export default function UserDashboard() {
           </div>
         )}
 
-        {goals?.length > 0 && (
+        {((goals?.length ?? 0) > 0 && (
           <div className="mt-5 text-sm text-center">
             <h3 className="text-2xl font-semibold mb-5">Active Goals</h3>
             <div className="flex justify-around">
@@ -219,7 +268,24 @@ export default function UserDashboard() {
               </div>
             </div>
           </div>
+        )) || (
+          <div className="text-center mt-8">
+            <h3 className="text-2xl font-semibold text-gray-700 mb-4">
+              Stay Motivated!
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Set your fitness goals to start your journey towards a healthier
+              lifestyle.
+            </p>
+            <Link
+              href="/goals"
+              className="bg-snd-bkg hover:bg-opacity-90 text-white font-bold py-2 px-6 rounded items-center transition duration-300 ease-in-out mb-4 mt-4"
+            >
+              Set a New Goal
+            </Link>
+          </div>
         )}
+
         <div className="max-w-4xl mx-auto mt-10">
           <h2 className="text-2xl font-bold text-center mb-5 text-gray-800">
             Explore More Tools
