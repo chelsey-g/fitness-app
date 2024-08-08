@@ -7,7 +7,7 @@ import WorkoutActions from "@/components/WorkoutActions"
 import { cookies } from "next/headers"
 import { createClient } from "@/utils/supabase/server"
 
-export default async function ListPage(props) {
+export default async function ListPage(props: any) {
   const cookieStore = cookies()
   const supabase = createClient(cookieStore)
 
@@ -34,7 +34,7 @@ export default async function ListPage(props) {
         <div className="bg-white rounded pt-1 pb-4 px-4">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-3xl font-bold text-gray-800">
-              {listName[0].name}
+              {listName && listName[0]?.name}
             </h1>
             <BackButton />
           </div>

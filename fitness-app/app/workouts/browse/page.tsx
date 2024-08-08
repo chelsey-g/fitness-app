@@ -1,14 +1,15 @@
 "use client"
 
+import { SetStateAction, useState } from "react"
+
 import BrowseExercises from "@/components/BrowseExercises"
 import Navigation from "../../../components/Navigation"
 import SearchBar from "@/components/Search"
-import { useState } from "react"
 
 export default function BrowseExercisePage() {
-  const [searchResults, setSearchResults] = useState([])
+  const [searchResults, setSearchResults] = useState<string>("")
 
-  const handleSearchResults = (results) => {
+  const handleSearchResults = (results: SetStateAction<string>) => {
     setSearchResults(results)
   }
   return (

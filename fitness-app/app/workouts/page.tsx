@@ -7,9 +7,9 @@ import SearchBar from "@/components/Search"
 import WorkoutLists from "@/components/WorkoutLists"
 
 export default function WorkoutsPage() {
-  const [searchResults, setSearchResults] = useState([])
+  const [searchResults, setSearchResults] = useState<string>("")
 
-  const handleSearchResults = (results) => {
+  const handleSearchResults = (results: string) => {
     setSearchResults(results)
   }
 
