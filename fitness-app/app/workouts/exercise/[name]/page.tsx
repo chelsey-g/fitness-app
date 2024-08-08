@@ -8,16 +8,24 @@ import WorkOutModal from "@/components/WorkOutModal"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 
-export default function ExercisePage(props) {
+export default function ExercisePage(props: any) {
   const supabase = createClient()
 
-  const [exerciseData, setExerciseData] = useState([])
+  const [exerciseData, setExerciseData] = useState<
+    {
+      name: string
+      muscle: string
+      difficulty: string
+      equipment: string
+      instructions: string
+    }[]
+  >([])
   const [workouts, setWorkouts] = useState([])
   const [isWorkOutModalVisible, setIsWorkOutModalVisible] = useState(false)
 
   const router = useRouter()
 
-  const exercises = (searchValue) => {
+  const exercises = (searchValue: any) => {
     const url = `https://exercises-by-api-ninjas.p.rapidapi.com/v1/exercises?name=${searchValue}`
     const options = {
       method: "GET",
@@ -43,7 +51,7 @@ export default function ExercisePage(props) {
     exercises(props.params.name)
   }, [props.params.name])
 
-  const handleAddWorkout = async (event) => {
+  const handleAddWorkout = async (event: any) => {
     event.preventDefault()
     const { data, error } = await supabase
       .from("workouts")
@@ -53,7 +61,7 @@ export default function ExercisePage(props) {
     if (error) {
       console.error("Error adding workout!", error)
     } else {
-      setWorkouts(exerciseData.name)
+      setWorkouts(exerciseData[0]?.name)
     }
   }
 
