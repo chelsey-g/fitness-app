@@ -11,16 +11,16 @@ import React, { useState } from "react"
 const BMICalculator = () => {
   const [feet, setFeet] = useState("")
   const [inches, setInches] = useState("")
-  const [pounds, setPounds] = useState("")
-  const [bmi, setBMI] = useState(null)
+  const [pounds, setPounds] = useState<string>("")
+  const [bmi, setBMI] = useState<string | null>(null)
   const [message, setMessage] = useState("")
-  const [weightToLose, setWeightToLose] = useState(null)
+  const [weightToLose, setWeightToLose] = useState<string | null>(null)
 
   const calculateBMI = () => {
     if (feet && inches && pounds) {
       const heightInInches = parseInt(feet) * 12 + parseInt(inches)
       const heightInMeters = heightInInches * 0.0254
-      const weightInKg = pounds * 0.453592
+      const weightInKg = Number(pounds) * 0.453592
       const bmiValue = (weightInKg / (heightInMeters * heightInMeters)).toFixed(
         2
       )
@@ -28,13 +28,13 @@ const BMICalculator = () => {
       let bmiMessage = ""
       let targetBMI = null
 
-      if (bmiValue < 18.5) {
+      if (Number(bmiValue) < 18.5) {
         bmiMessage = "Underweight"
         targetBMI = 18.5
-      } else if (bmiValue >= 18.5 && bmiValue < 24.9) {
+      } else if (Number(bmiValue) >= 18.5 && Number(bmiValue) < 24.9) {
         bmiMessage = "Normal weight"
         targetBMI = 24.9
-      } else if (bmiValue >= 25 && bmiValue < 29.9) {
+      } else if (Number(bmiValue) >= 25 && Number(bmiValue) < 29.9) {
         bmiMessage = "Overweight"
         targetBMI = 24.9
       } else {
@@ -43,10 +43,10 @@ const BMICalculator = () => {
       }
       setMessage(bmiMessage)
 
-      if (targetBMI && targetBMI < bmiValue) {
+      if (targetBMI && Number(targetBMI) < Number(bmiValue)) {
         const targetWeightKg = targetBMI * (heightInMeters * heightInMeters)
         const targetWeightLbs = targetWeightKg / 0.453592
-        const weightToLoseLbs = (pounds - targetWeightLbs).toFixed(2)
+        const weightToLoseLbs = (Number(pounds) - targetWeightLbs).toFixed(2)
         setWeightToLose(weightToLoseLbs)
       } else {
         setWeightToLose(null)
