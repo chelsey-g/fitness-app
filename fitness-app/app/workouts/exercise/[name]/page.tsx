@@ -11,6 +11,20 @@ import { useRouter } from "next/navigation"
 export default function ExercisePage(props: any) {
   const supabase = createClient()
 
+  type ExerciseData = {
+    exerciseData: {
+      name: string
+
+      muscle: string
+
+      difficulty: string
+
+      equipment: string
+
+      instructions: string
+    }[]
+  }
+
   const [exerciseData, setExerciseData] = useState<
     {
       name: string
@@ -20,7 +34,7 @@ export default function ExercisePage(props: any) {
       instructions: string
     }[]
   >([])
-  const [workouts, setWorkouts] = useState([])
+  const [workouts, setWorkouts] = useState<string>("")
   const [isWorkOutModalVisible, setIsWorkOutModalVisible] = useState(false)
 
   const router = useRouter()
