@@ -5,10 +5,26 @@ import AddList from "@/components/AddList"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 
-const App = ({ exerciseData }) => {
+interface Exercise {
+  name: string
+  muscle: string
+  difficulty: string
+  equipment: string
+  instructions: string
+}
+
+interface WorkOutModalProps {
+  className?: string
+  isWorkOutModalVisible: boolean
+  handleOkButton: () => void
+  handleAddWorkout: (event: React.FormEvent) => Promise<void>
+  exerciseData: Exercise[]
+}
+
+const App = ({ exerciseData }: WorkOutModalProps) => {
   const [open, setOpen] = useState(false)
-  const [workout, setWorkout] = useState("")
-  const [list, setList] = useState("")
+  const [workout, setWorkout] = useState<any[] | null>(null)
+  const [list, setList] = useState<any[] | null>(null)
   const [listId, setListId] = useState("")
 
   const supabase = createClient()
@@ -17,11 +33,10 @@ const App = ({ exerciseData }) => {
   useEffect(() => {
     async function fetchUser() {
       const {
-        data: { user, error },
+        data: { user },
       } = await supabase.auth.getUser()
-      if (error) console.log("error", error)
-      if (user) {
-        console.log("fuck", user)
+      if (!user) {
+        router.push("/login")
       }
     }
     fetchUser()
@@ -45,7 +60,7 @@ const App = ({ exerciseData }) => {
     fetchWorkouts()
   }, [])
 
-  const handleAddExerciseToList = async (event) => {
+  const handleAddExerciseToList = async (event: any) => {
     const { data, error } = await supabase
       .from("workouts")
       .insert({ name: exerciseData[0].name, details: exerciseData[0] })
@@ -113,12 +128,11 @@ const App = ({ exerciseData }) => {
           <Form.Item name="list_id">
             <AddList
               exerciseData={exerciseData}
-              onChange={(val) => setListId(val)}
+              onChange={(val: any) => setListId(val)}
             />
           </Form.Item>
           <button
-            htmlType="submit"
-            type="primary"
+            type="submit"
             className="py-2 px-4 bg-snd-bkg hover:opacity-90 text-white rounded-md focus:outline-none mt-5 text-center"
           >
             Add Exercise

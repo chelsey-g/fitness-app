@@ -8,7 +8,11 @@ import {
 
 import { FaEllipsisH } from "react-icons/fa"
 
-export function DropdownMenuDemo({ deleteCompetition }) {
+export function DropdownMenuDemo({
+  deleteCompetition,
+}: {
+  deleteCompetition: () => void
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

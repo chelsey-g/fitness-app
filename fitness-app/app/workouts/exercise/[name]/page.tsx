@@ -8,7 +8,7 @@ import WorkOutModal from "@/components/WorkOutModal"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 
-export default function ExercisePage(props: any) {
+export default function ExercisePage(props: any, { WorkOutModalProps }: any) {
   const supabase = createClient()
 
   type ExerciseData = {

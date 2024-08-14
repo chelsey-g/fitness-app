@@ -3,21 +3,26 @@ import { getAwardColor, getOrdinalSuffix } from "@/app/functions"
 import { TbAwardFilled } from "react-icons/tb"
 import dayjs from "dayjs"
 
-export default function CompetitionWeekTable({ competitionData }) {
+export default function CompetitionWeekTable({
+  competitionData,
+}: {
+  competitionData: any
+}) {
   const startOfWeek = dayjs().startOf("week").format("YYYY-MM-DD")
   const endOfWeek = dayjs().endOf("week").format("YYYY-MM-DD")
 
-  function getInitialWeight(player) {
-    const closestInitialDate = player.profiles.weight_tracker.reduce((a, b) =>
-      Math.abs(new Date(b.date_entry) - new Date(endOfWeek)) <
-      Math.abs(new Date(a.date_entry) - new Date(startOfWeek))
-        ? b
-        : a
+  function getInitialWeight(player: any) {
+    const closestInitialDate = player.profiles.weight_tracker.reduce(
+      (a: any, b: any) =>
+        Math.abs(new Date(b.date_entry) - new Date(endOfWeek)) <
+        Math.abs(new Date(a.date_entry) - new Date(startOfWeek))
+          ? b
+          : a
     )
     return closestInitialDate.weight
   }
 
-  function getCurrentWeight(player) {
+  function getCurrentWeight(player: any) {
     const closestCurrentDate = player.profiles.weight_tracker.reduce((a, b) =>
       Math.abs(new Date(a.date_entry) - new Date(endOfWeek)) <
       Math.abs(new Date(b.date_entry) - new Date(startOfWeek))
