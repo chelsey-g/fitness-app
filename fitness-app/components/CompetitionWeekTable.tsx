@@ -11,11 +11,25 @@ export default function CompetitionWeekTable({
   const startOfWeek = dayjs().startOf("week").format("YYYY-MM-DD")
   const endOfWeek = dayjs().endOf("week").format("YYYY-MM-DD")
 
+  type differenceType = {
+    player: string
+    percentageChange: number
+  }
+
+  type profiles = {
+    first_name: string
+    last_name: string
+  }
+
   function getInitialWeight(player: any) {
     const closestInitialDate = player.profiles.weight_tracker.reduce(
       (a: any, b: any) =>
-        Math.abs(new Date(b.date_entry) - new Date(endOfWeek)) <
-        Math.abs(new Date(a.date_entry) - new Date(startOfWeek))
+        Math.abs(
+          new Date(b.date_entry).getTime() - new Date(endOfWeek).getTime()
+        ) <
+        Math.abs(
+          new Date(a.date_entry).getTime() - new Date(startOfWeek).getTime()
+        )
           ? b
           : a
     )
@@ -23,20 +37,25 @@ export default function CompetitionWeekTable({
   }
 
   function getCurrentWeight(player: any) {
-    const closestCurrentDate = player.profiles.weight_tracker.reduce((a, b) =>
-      Math.abs(new Date(a.date_entry) - new Date(endOfWeek)) <
-      Math.abs(new Date(b.date_entry) - new Date(startOfWeek))
-        ? a
-        : b
+    const closestCurrentDate = player.profiles.weight_tracker.reduce(
+      (a: any, b: any) =>
+        Math.abs(
+          new Date(a.date_entry).getTime() - new Date(endOfWeek).getTime()
+        ) <
+        Math.abs(
+          new Date(b.date_entry).getTime() - new Date(startOfWeek).getTime()
+        )
+          ? a
+          : b
     )
 
     return closestCurrentDate.weight
   }
 
-  const difference = []
+  const difference: differenceType[] = []
   if (competitionData) {
-    competitionData.forEach((competition) => {
-      competition.competitions_players.forEach((player) => {
+    competitionData.forEach((competition: any) => {
+      competition.competitions_players.forEach((player: any) => {
         const initialWeight = getInitialWeight(player)
         const currentWeight = getCurrentWeight(player)
         const weightChange = currentWeight - initialWeight
@@ -59,10 +78,10 @@ export default function CompetitionWeekTable({
       <h2 className="text-2xl font-bold mb-4">Current Week</h2>
       <table className="table-auto w-full">
         <tbody>
-          {competitionData.flatMap((competition) =>
+          {competitionData.flatMap((competition: any) =>
             competition.competitions_players
               .slice(0, 3)
-              .map((player, index) => (
+              .map((player: any, index: any) => (
                 <tr key={index}>
                   <td className="px-2 py-3 text-gray-700 font-semibold flex items-center">
                     <div
