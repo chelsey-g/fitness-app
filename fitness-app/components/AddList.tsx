@@ -4,19 +4,25 @@ import React, { useEffect, useRef, useState } from "react"
 import { PlusOutlined } from "@ant-design/icons"
 import { createClient } from "@/utils/supabase/client"
 
-const AddList = ({ exerciseData, onChange }) => {
-  const [items, setItems] = useState([])
+const AddList = ({
+  exerciseData,
+  onChange,
+}: {
+  exerciseData: any
+  onChange: any
+}) => {
+  const [items, setItems] = useState<any[] | null>(null)
   const [name, setName] = useState("")
-  const inputRef = useRef(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   const supabase = createClient()
 
   useEffect(() => {
     async function fetchUser() {
       const {
-        data: { user, error },
+        data: { user },
       } = await supabase.auth.getUser()
-      if (error) console.log("error", error)
+
       if (user) {
         console.log("userrrrrrrrr", user)
       }
@@ -32,17 +38,21 @@ const AddList = ({ exerciseData, onChange }) => {
     fetchLists()
   }, [])
 
-  const onNameChange = (event) => {
+  const onNameChange = (event: {
+    target: { value: React.SetStateAction<string> }
+  }) => {
     setName(event.target.value)
   }
-  const addItem = async (e) => {
+  const addItem = async (e: { preventDefault: () => void }) => {
     const { data, error } = await supabase
       .from("lists")
       .insert([{ name: name }])
       .select()
 
     e.preventDefault()
-    setItems([...items, data[0]])
+    if (data) {
+      setItems([...items, data[0]])
+    }
     setName("")
     setTimeout(() => {
       inputRef.current?.focus()
@@ -83,7 +93,7 @@ const AddList = ({ exerciseData, onChange }) => {
             </Space>
           </>
         )}
-        options={items.map((item) => ({
+        options={items?.map((item) => ({
           label: item.name,
           value: item.id,
         }))}

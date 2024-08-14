@@ -4,6 +4,11 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 
 export default function BrowseExercises() {
+  type exercise = {
+    name: string
+    difficulty: string
+  }
+
   const fetchExercises = async () => {
     const url = "https://exercises-by-api-ninjas.p.rapidapi.com/v1/exercises"
     const options = {
@@ -24,12 +29,12 @@ export default function BrowseExercises() {
     }
   }
 
-  const getRandomExercises = (exercises, count) => {
+  const getRandomExercises = (exercises: any, count: any) => {
     const shuffled = exercises.sort(() => 0.5 - Math.random())
     return shuffled.slice(0, count)
   }
 
-  const [exercises, setExercises] = useState([])
+  const [exercises, setExercises] = useState<exercise[]>([])
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -43,7 +48,7 @@ export default function BrowseExercises() {
 
   const [searchResults, setSearchResults] = useState([])
 
-  const handleSearchResults = (results) => {
+  const handleSearchResults = (results: any) => {
     setSearchResults(results)
   }
 

@@ -3,17 +3,26 @@ import { Select, Space } from "antd"
 
 import { createClient } from "@/utils/supabase/client"
 
-export default function AddPlayers({ selectPlayers }) {
+export default function AddPlayers({
+  selectPlayers,
+}: {
+  selectPlayers: (ids: any[]) => void
+}) {
   const supabase = createClient()
 
-  const [profiles, setProfiles] = useState([])
-  const [selectedPlayerIds, setSelectedPlayerIds] = useState([])
+  const [profiles, setProfiles] = useState<profiles[]>([])
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<any>([])
+
+  type profiles = {
+    id: string
+    first_name: string
+  }
 
   const options = profiles.map((profile) => ({
     label: `${profile.first_name}`,
     value: profile.id,
   }))
-  const handleChange = (selectedIds) => {
+  const handleChange = (selectedIds: any) => {
     setSelectedPlayerIds(selectedIds)
     selectPlayers(selectedIds)
   }
@@ -23,7 +32,9 @@ export default function AddPlayers({ selectPlayers }) {
       let { data: profiles, error } = await supabase
         .from("profiles")
         .select("*")
-      setProfiles(profiles)
+      if (profiles) {
+        setProfiles(profiles)
+      }
     }
     fetchProfiles()
   }, [])
