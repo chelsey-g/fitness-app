@@ -1,4 +1,4 @@
-import { Button, Divider, Input, Select, Space } from "antd"
+import { Button, Divider, Input, InputRef, Select, Space } from "antd"
 import React, { useEffect, useRef, useState } from "react"
 
 import { PlusOutlined } from "@ant-design/icons"
@@ -11,9 +11,9 @@ const AddList = ({
   exerciseData: any
   onChange: any
 }) => {
-  const [items, setItems] = useState<any[] | null>(null)
+  const [items, setItems] = useState<any[]>([])
   const [name, setName] = useState("")
-  const inputRef = useRef<HTMLInputElement | null>(null)
+  const inputRef = useRef<InputRef>(null)
 
   const supabase = createClient()
 
@@ -33,7 +33,9 @@ const AddList = ({
   useEffect(() => {
     async function fetchLists() {
       let { data: lists, error } = await supabase.from("lists").select("*")
-      setItems(lists)
+      if (lists) {
+        setItems(lists)
+      }
     }
     fetchLists()
   }, [])
@@ -51,7 +53,9 @@ const AddList = ({
 
     e.preventDefault()
     if (data) {
-      setItems([...items, data[0]])
+      if (items) {
+        setItems([...items, data[0]])
+      }
     }
     setName("")
     setTimeout(() => {
