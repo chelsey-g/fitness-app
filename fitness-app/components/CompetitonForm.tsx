@@ -20,7 +20,7 @@ export default function CompetitionForm() {
   })
   const [addPlayers, setAddPlayers] = useState(false)
   const [selectedPlayerIds, setSelectedPlayerIds] = useState([])
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<any | null>(null)
 
   useEffect(() => {
     const getUser = async () => {
@@ -35,15 +35,15 @@ export default function CompetitionForm() {
     getUser()
   }, [])
 
-  const handleSelectPlayers = (selectedPlayers) => {
+  const handleSelectPlayers = (selectedPlayers: any) => {
     setSelectedPlayerIds(selectedPlayers)
   }
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     setCompetitionData({ ...competitionData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault()
 
     if (!user) {
@@ -95,7 +95,7 @@ export default function CompetitionForm() {
     router.push("/competitions")
   }
 
-  const handleAddPlayers = (e) => {
+  const handleAddPlayers = (e: any) => {
     setAddPlayers(e.target.value === "yes")
   }
 

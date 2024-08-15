@@ -15,13 +15,13 @@ import { IoIosAdd } from "react-icons/io"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 
-export function CreateWorkout({ showAlert }) {
+export function CreateWorkout({ showAlert }: { showAlert: any }) {
   const [name, setName] = useState("")
   const inputRef = useRef(null)
   const supabase = createClient()
   const router = useRouter()
 
-  const onNameChange = (event) => {
+  const onNameChange = (event: any) => {
     setName(event.target.value)
   }
   const addWorkout = async () => {
@@ -31,7 +31,7 @@ export function CreateWorkout({ showAlert }) {
       dialogClose()
       showAlert()
       router.push("/workouts")
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding workout:", error.message)
     }
   }

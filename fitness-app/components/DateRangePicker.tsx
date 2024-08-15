@@ -13,7 +13,10 @@ export default function MonthDropdown({
     to: initialEndDate ? new Date(initialEndDate) : null,
   }
 
-  const [dateRange, setDateRange] = useState(initialRange)
+  const [dateRange, setDateRange] = useState<{
+    from: Date | null
+    to: Date | null
+  }>(initialRange)
 
   useEffect(() => {
     const { from, to } = dateRange
@@ -23,7 +26,7 @@ export default function MonthDropdown({
     ])
   }, [dateRange])
 
-  const handleChange = (value) => {
+  const handleChange = (value: any) => {
     setDateRange(value)
   }
 
