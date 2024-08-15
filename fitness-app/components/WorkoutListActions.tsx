@@ -17,11 +17,25 @@ import { Button } from "@/components/ui/button"
 import { FaEllipsisH } from "react-icons/fa"
 import { useState } from "react"
 
-export function DropdownMenuDemo({ deleteWeight }) {
+interface WorkoutDropdownProps {
+  deleteWorkout: () => void
+  showAlert: () => void
+}
+
+export function WorkoutDropdown({
+  deleteWorkout,
+  showAlert,
+}: WorkoutDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   const handleEditModal = () => {
     setIsOpen(true)
+  }
+
+  const handleDeleteAndClose = () => {
+    deleteWorkout()
+    setIsOpen(false)
+    showAlert()
   }
 
   return (
@@ -33,30 +47,30 @@ export function DropdownMenuDemo({ deleteWeight }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-auto min-w-full bg-white shadow-lg rounded-md overflow-hidden border border-gray-200">
         <DropdownMenuGroup className="py-1">
-          <Dialog>
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <button
                 onClick={handleEditModal}
                 className="text-sm px-4 py-2 text-snd-bkg"
               >
-                Delete
+                Delete Workout
               </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] bg-white">
               <DialogHeader>
-                <DialogTitle>Delete Weight Entry</DialogTitle>
+                <DialogTitle>Delete Workout Entry</DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="text-sm">
-                  Are you sure you wish to delete this weight entry? <br />
-                  This action cannot be undone.
+                  Are you sure you wish to delete this workout? <br />
+                  All exercises in this workout will be deleted.
                 </div>
               </div>
               <DialogFooter>
                 <Button
                   type="button"
                   className="bg-red-600 text-white"
-                  onClick={deleteWeight}
+                  onClick={handleDeleteAndClose}
                 >
                   Delete
                 </Button>
@@ -68,3 +82,5 @@ export function DropdownMenuDemo({ deleteWeight }) {
     </DropdownMenu>
   )
 }
+
+export default WorkoutDropdown

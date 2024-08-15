@@ -2,7 +2,7 @@ import { CChart } from "@coreui/react-chartjs"
 import React from "react"
 import { getStyle } from "@coreui/utils"
 
-export default function WeightGraph({ data }) {
+export default function WeightGraph({ data }: { data: any[] }) {
   return (
     <CChart
       type="line"

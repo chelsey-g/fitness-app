@@ -25,7 +25,7 @@ import useSWR from "swr"
 export default function UsernamePassword() {
   const supabase = createClient()
   const [isOpen, setIsOpen] = useState(false)
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState<string | undefined>("")
 
   const {
     data: user,
@@ -51,7 +51,7 @@ export default function UsernamePassword() {
         console.log("Email updated successfully!")
       }
     } catch (error) {
-      console.error("Error updating email:", error.message)
+      console.error("Error updating email:")
     }
   }
 
@@ -71,7 +71,7 @@ export default function UsernamePassword() {
         <div className="border-b pb-4 mb-4 flex justify-between items-center">
           <div>
             <p className="text-gray-700 font-semibold">Email:</p>
-            <p className="text-gray-700">{user.email}</p>
+            <p className="text-gray-700">{user?.email}</p>
           </div>
           <Dialog>
             <DialogTrigger asChild>
@@ -97,7 +97,7 @@ export default function UsernamePassword() {
                   </Label>
                   <Input
                     id="email"
-                    placeholder={user.email}
+                    placeholder={user?.email}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="col-span-3"

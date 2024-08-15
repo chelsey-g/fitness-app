@@ -1,5 +1,7 @@
 "use client"
 
+import useSWR, { Fetcher } from "swr"
+
 import CreateWorkout from "@/components/CreateWorkout"
 import DeleteWorkoutAlert from "@/components/DeleteWorkoutAlert"
 import Link from "next/link"
@@ -8,8 +10,18 @@ import { WorkoutDropdown } from "@/components/WorkoutListActions"
 import { createClient } from "@/utils/supabase/client"
 import { getRandomColor } from "@/app/functions"
 import { useRouter } from "next/navigation"
-import useSWR from "swr"
 import { useState } from "react"
+
+// type WorkoutList = {
+//   id: string
+//   name: string
+//   created_at: string
+//   workouts_lists: {
+//     workouts: {
+//       count: number
+//     }[]
+//   }
+// }
 
 export default function WorkoutLists() {
   const [showCreateAlert, setShowCreateAlert] = useState(false)
@@ -17,29 +29,34 @@ export default function WorkoutLists() {
   const supabase = createClient()
   const router = useRouter()
 
-  const {
-    data: listData,
-    error,
-    isLoading,
-  } = useSWR("/workouts", () =>
+  const fetcher: Fetcher = (url: string) =>
     supabase
       .from("lists")
       .select(`id, name, created_at, workouts_lists(workouts(count))`)
       .order("created_at", { ascending: false })
       .then((res) => res.data)
-  )
+
+  const {
+    data: listData,
+    error,
+    isLoading,
+  } = useSWR("/workouts", fetcher) as {
+    data: any[]
+    error: any
+    isLoading: boolean
+  }
 
   if (error) return <div>Failed to load</div>
 
   if (isLoading) return <div>Loading...</div>
 
-  const getTotalExerciseCount = (exercises) => {
+  const getTotalExerciseCount = (exercises: any) => {
     return exercises.reduce(
-      (total, exercise) => total + exercise.workouts.count,
+      (total: number, exercise: any) => total + exercise.workouts.count,
       0
     )
   }
-  const handleDeleteWorkoutList = async (id) => {
+  const handleDeleteWorkoutList = async (id: number) => {
     const { error } = await supabase.from("lists").delete().eq("id", id)
 
     if (error) {
@@ -68,7 +85,7 @@ export default function WorkoutLists() {
       <div>
         <h1 className="p-4 text-2xl font-semibold text-white">My Workouts</h1>
         <div className="p-4">
-          {listData?.map((list, index) => (
+          {listData?.map((list: any, index: number) => (
             <div
               key={index}
               className="flex items-center justify-between mb-4 p-2 pr-5 bg-white shadow-md rounded-lg hover:bg-gray-50"

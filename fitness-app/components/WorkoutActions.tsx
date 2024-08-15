@@ -23,12 +23,12 @@ import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
-export function WorkoutActions({ workoutId, listData }) {
+export function WorkoutActions({ workoutId }: { workoutId: number }) {
   const supabase = createClient()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
 
-  async function handleDeleteWorkout(id) {
+  async function handleDeleteWorkout(id: number) {
     const { data, error } = await supabase
       .from("workouts_lists")
       .delete()

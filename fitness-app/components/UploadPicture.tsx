@@ -6,7 +6,7 @@ import { useState } from "react"
 
 const UploadPhoto = () => {
   const supabase = createClient()
-  const [selectedFile, setSelectedFile] = useState(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const router = useRouter()
   const {
@@ -17,7 +17,7 @@ const UploadPhoto = () => {
     supabase.auth.getUser().then((res) => res.data.user)
   )
 
-  const handleFileChange = (event) => {
+  const handleFileChange = (event: any) => {
     setSelectedFile(event.target.files[0])
   }
 
@@ -30,7 +30,7 @@ const UploadPhoto = () => {
     setUploading(true)
 
     const avatarFile = selectedFile
-    const fileName = user?.id
+    const fileName = user?.id || "unknown-file-name"
     supabase.storage
       .from("habit-kick/profile-pictures")
       .upload(fileName, avatarFile)
