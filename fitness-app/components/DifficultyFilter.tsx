@@ -1,10 +1,16 @@
 import React, { useState } from "react"
 
-export default function DifficultyFilter({ difficulty, onChange }) {
+export default function DifficultyFilter({
+  difficulty,
+  onChange,
+}: {
+  difficulty: string
+  onChange: (value: string) => void
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const difficulties = ["", "beginner", "intermediate", "expert"]
 
-  const handleSelect = (value) => {
+  const handleSelect = (value: any) => {
     onChange(value)
     setIsOpen(false)
   }

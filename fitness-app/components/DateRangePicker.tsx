@@ -3,19 +3,26 @@ import React, { useEffect, useState } from "react"
 import { DateRangePicker } from "@tremor/react"
 import dayjs from "dayjs"
 
+interface DateRangeProps {
+  initialStartDate: string | undefined
+  initialEndDate: string | undefined
+  handleDateChange: (date: [string | null, string | null]) => void
+}
+
 export default function MonthDropdown({
   initialStartDate,
   initialEndDate,
   handleDateChange,
-}) {
+}: DateRangeProps) {
   const initialRange = {
-    from: initialStartDate ? new Date(initialStartDate) : null,
-    to: initialEndDate ? new Date(initialEndDate) : null,
+    from: initialStartDate ? new Date(initialStartDate) : undefined,
+    to: initialEndDate ? new Date(initialEndDate) : undefined,
   }
 
   const [dateRange, setDateRange] = useState<{
-    from: Date | null
-    to: Date | null
+    from?: Date | undefined
+    to?: Date | undefined
+    selectValue?: string | undefined
   }>(initialRange)
 
   useEffect(() => {
