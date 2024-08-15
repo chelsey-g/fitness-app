@@ -3,10 +3,22 @@ import { useEffect, useState } from "react"
 import { ProgressCircle } from "@tremor/react"
 import { createClient } from "@/utils/supabase/client"
 
-const ProgressCircleHero = (profileInfo) => {
+interface Weight {
+  id: number
+  weight: number
+  created_at: string
+  created_by: number
+}
+
+interface Goals {
+  id: number
+  goal_weight: number
+}
+
+const ProgressCircleHero = (profileInfo: any) => {
   const supabase = createClient()
-  const [goals, setGoals] = useState([])
-  const [weight, setWeight] = useState([])
+  const [goals, setGoals] = useState<Goals[]>([])
+  const [weight, setWeight] = useState<Weight[]>([])
   const [percentage, setPercentage] = useState(0)
 
   useEffect(() => {
@@ -39,8 +51,8 @@ const ProgressCircleHero = (profileInfo) => {
         } else {
           setWeight(weight)
           if (weight.length > 0) {
-            const currentWeight = weight[0].weight // Assuming weight is stored in a field named 'weight'
-            const goalWeight = goals.length > 0 ? goals[0].goal_weight : 0 // Assuming goal weight is stored in a field named 'goal_weight'
+            const currentWeight = weight[0].weight
+            const goalWeight = goals.length > 0 ? goals[0].goal_weight : 0
             const calculatedPercentage = weightPercentage(
               currentWeight,
               goalWeight
@@ -57,7 +69,7 @@ const ProgressCircleHero = (profileInfo) => {
     fetchWeight()
   }, [profileInfo.profileInfo.id])
 
-  const weightPercentage = (currentWeight, goalWeight) => {
+  const weightPercentage = (currentWeight: number, goalWeight: number) => {
     let calculatedPercentage = 0
     if (currentWeight >= goalWeight) {
       calculatedPercentage = 100
