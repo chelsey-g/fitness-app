@@ -47,8 +47,8 @@ export default function Navigation() {
     setIsMenuOpen(!isMenuOpen)
   }
 
-  function handleSignOutUser() {
-    const { error } = supabase.auth.signOut()
+  async function handleSignOutUser() {
+    const { error } = await supabase.auth.signOut()
     if (error) console.error("Sign out error", error)
     router.push("/")
   }

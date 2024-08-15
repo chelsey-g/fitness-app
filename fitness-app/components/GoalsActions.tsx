@@ -17,7 +17,11 @@ import { Button } from "@/components/ui/button"
 import { FaEllipsisH } from "react-icons/fa"
 import { useState } from "react"
 
-export default function GoalsDropdown({ deleteGoals }) {
+export default function GoalsDropdown({
+  deleteGoals,
+}: {
+  deleteGoals: () => Promise<void>
+}) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
   const handleDeleteAndClose = async () => {

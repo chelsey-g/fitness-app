@@ -11,6 +11,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import React, { useEffect, useState } from "react"
+import useSWR, { Fetcher } from "swr"
 
 import { AiOutlineEye } from "react-icons/ai"
 import { GiForkKnifeSpoon } from "react-icons/gi"
@@ -18,10 +19,19 @@ import { HiOutlineSave } from "react-icons/hi"
 import { IoIosClose } from "react-icons/io"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
-import useSWR from "swr"
+
+type Recipe = {
+  recipe: any
+  label: string
+  image: string
+  url: string
+  dietLabels: string[]
+  totalTime: number
+  title: string
+}
 
 export default function RecipeSearch() {
-  const [recipes, setRecipes] = useState([])
+  const [recipes, setRecipes] = useState<Recipe[]>([])
   const [query, setQuery] = useState("chicken")
   const [searchValue, setSearchValue] = useState("chicken")
   const router = useRouter()
@@ -57,7 +67,7 @@ export default function RecipeSearch() {
     fetchRecipes()
   }, [query])
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: any) => {
     e.preventDefault()
     if (searchValue) {
       setQuery(searchValue)
@@ -69,23 +79,27 @@ export default function RecipeSearch() {
     setRecipes([])
   }
 
-  const handleSearchClick = (recipe) => {
+  const handleSearchClick = (recipe: any) => {
     window.open(recipe.recipe.url, "_blank")
   }
 
   console.log(recipes)
 
+  const fetcher: Fetcher<Recipe[]> = async (url: string) => {
+    const { data } = await supabase
+      .from("recipes")
+      .select("*")
+      .eq("created_by", identityId)
+    const recipeList = data as Recipe[]
+    return recipeList
+  }
+
   const { data: recipeList } = useSWR(
     identityId ? "/recipes/" + identityId : null,
-    () =>
-      supabase
-        .from("recipes")
-        .select("*")
-        .eq("created_by", identityId)
-        .then((res) => res.data)
+    fetcher
   )
 
-  const handleAddRecipe = async (recipe) => {
+  const handleAddRecipe = async (recipe: any) => {
     const { data, error } = await supabase
       .from("recipes")
       .insert([
@@ -105,7 +119,7 @@ export default function RecipeSearch() {
 
   console.log(recipeList, "recipe list")
 
-  const isRecipeInUserList = (recipe) => {
+  const isRecipeInUserList = (recipe: any) => {
     return recipeList?.some(
       (userRecipe) => userRecipe.title === recipe.recipe.label
     )

@@ -8,7 +8,7 @@ import dayjs from "dayjs"
 
 export default function ProgressTracker() {
   const supabase = createClient()
-  const [weightDate, setWeightDate] = useState([])
+  const [weightDate, setWeightDate] = useState<string[]>([])
 
   useEffect(() => {
     const fetchWeight = async () => {
@@ -17,7 +17,7 @@ export default function ProgressTracker() {
         const { data, error } = await supabase
           .from("weight_tracker")
           .select("weight, date_entry")
-          .eq("created_by", user.data.user.id)
+          .eq("created_by", user.data.user?.id)
         if (error) {
           console.log("error", error)
         } else {

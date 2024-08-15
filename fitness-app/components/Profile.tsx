@@ -8,17 +8,22 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import useSWR, { Fetcher } from "swr"
 
 import ImageWithFallback from "@/components/ImageWithFallback"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
-import useSWR from "swr"
 import { useState } from "react"
+
+interface Profile {
+  first_name: string
+  last_name: string
+}
 
 export default function ProfileDropDown() {
   const router = useRouter()
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
   const supabase = createClient()
 
   const { data: user } = useSWR("/user", () =>
@@ -27,25 +32,28 @@ export default function ProfileDropDown() {
 
   let identityId = user?.identities?.[0]?.id || null
 
-  const { data: profiles } = useSWR(
-    identityId ? "/profiles/" + identityId : null,
-    () =>
-      supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", identityId)
-        .then((res) => res.data)
-  )
+  const fetcher: Fetcher<Profile[], string> = async (url: string) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", identityId)
+    if (error) {
+      throw new Error(error.message)
+    }
+    return data
+  }
 
-  const fileName = user?.id
+  const { data: profiles } = useSWR<Profile[]>("/profiles", fetcher)
+
+  const fileName = user?.id || "profile-image"
   const { data: name } = supabase.storage
     .from("habit-kick/profile-pictures")
     .getPublicUrl(fileName)
 
   const fallbackSrc = "/images/profile-stock.jpg"
 
-  function handleSignOutUser() {
-    const { error } = supabase.auth.signOut()
+  async function handleSignOutUser() {
+    const { error } = await supabase.auth.signOut()
     if (error) console.error("Sign out error", error)
     router.push("/")
   }
@@ -53,7 +61,7 @@ export default function ProfileDropDown() {
   return (
     <div className="flex items-center pl-4">
       <div className="relative inline-block text-left">
-        <DropdownMenu isOpen={isOpen} setIsOpen={setIsOpen}>
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
           <DropdownMenuTrigger>
             <ImageWithFallback
               key={name.publicUrl || ""}
@@ -81,7 +89,7 @@ export default function ProfileDropDown() {
                           {profiles[0]?.first_name} {profiles[0]?.last_name}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {user.email}
+                          {user?.email}
                         </div>
                       </div>
                     )}
