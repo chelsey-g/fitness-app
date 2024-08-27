@@ -11,7 +11,9 @@ export default function SubmitContactAlert() {
       <div className="flex items-center">
         <FaCheckCircle className="flex-shrink-0 w-4 h-4 text-green-500 mr-2" />
         <div>
-          <AlertTitle className="font-bold text-md">Form Submitted</AlertTitle>
+          <AlertTitle className="font-bold text-md" data-testid="green-check">
+            Form Submitted
+          </AlertTitle>
           <AlertDescription className="mt-1 text-sm">
             Your contact form has been submitted successfully.
           </AlertDescription>

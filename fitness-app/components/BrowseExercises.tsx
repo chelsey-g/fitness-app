@@ -67,6 +67,7 @@ export default function BrowseExercises() {
             {exercises.map((exercise, index) => (
               <div
                 key={index}
+                role="article"
                 className="bg-white shadow-md p-6 rounded-lg hover:shadow-lg transition duration-300 ease-in-out"
               >
                 <div className="flex items-center">

@@ -2,7 +2,7 @@ import { Button, Divider, Input, InputRef, Select, Space } from "antd"
 import React, { useEffect, useRef, useState } from "react"
 
 import { PlusOutlined } from "@ant-design/icons"
-import { createClient } from "@/utils/supabase/client"
+import { createClient } from "../utils/supabase/client"
 
 const AddList = ({
   exerciseData,

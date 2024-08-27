@@ -56,9 +56,9 @@ async function createCompetitionPlayer(competition, user) {
     throw new Error("Error fetching competition data")
   }
 
-  if (competitionData.created_by !== user.id) {
-    throw new Error("Permission denied")
-  }
+  // if (competitionData.created_by !== user.id) {
+  //   throw new Error("Permission denied")
+  // }
 
   const { data, error } = await supabaseAdmin
     .from("competitions_players")

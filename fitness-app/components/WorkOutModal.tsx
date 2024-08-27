@@ -1,8 +1,8 @@
 import { Button, Form, Modal } from "antd"
 import React, { use, useEffect, useState } from "react"
 
-import AddList from "@/components/AddList"
-import { createClient } from "@/utils/supabase/client"
+import AddList from "../components/AddList"
+import { createClient } from "../utils/supabase/client"
 import { useRouter } from "next/navigation"
 
 interface Exercise {
