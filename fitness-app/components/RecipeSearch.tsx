@@ -100,16 +100,14 @@ export default function RecipeSearch() {
   )
 
   const handleAddRecipe = async (recipe: any) => {
-    const { data, error } = await supabase
-      .from("recipes")
-      .insert([
-        {
-          title: recipe.recipe.label,
-          url: recipe.recipe.url,
-          image: recipe.recipe.image,
-        },
-      ])
-      .select()
+    const { data, error } = await supabase.from("recipes").insert([
+      {
+        title: recipe.recipe.label,
+        url: recipe.recipe.url,
+        image: recipe.recipe.image,
+      },
+    ])
+
     if (error) {
       console.error("Error adding recipe:", error.message)
     } else {
@@ -140,6 +138,7 @@ export default function RecipeSearch() {
             <button
               className="absolute inset-y-0 right-20 flex items-center pr-3 text-gray-500"
               onClick={handleClearSearch}
+              data-testid="clear-button"
             >
               <IoIosClose size={24} />
             </button>
@@ -187,6 +186,7 @@ export default function RecipeSearch() {
                 <div className="flex flex-col items-start space-y-4 items-center">
                   <button
                     onClick={() => handleSearchClick(recipe)}
+                    data-testid="view-button"
                     className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
                   >
                     <AiOutlineEye size={20} />
@@ -194,6 +194,7 @@ export default function RecipeSearch() {
                   </button>
                   <button
                     onClick={() => handleAddRecipe(recipe)}
+                    data-testid="save-button"
                     className="flex items-center space-x-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
                   >
                     <HiOutlineSave size={20} />
