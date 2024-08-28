@@ -55,7 +55,7 @@ export default function ProgressTracker() {
         In the last 30 days, you tracked your weight on the following days:
       </div>
       <div>
-        <Tracker data={handleGenerateDates()} />
+        <Tracker data={handleGenerateDates()} role="tracker" />
       </div>
     </div>
   )
