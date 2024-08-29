@@ -4,12 +4,22 @@ import DifficultyFilter from "@/components/DifficultyFilter"
 import { IoIosClose } from "react-icons/io"
 import { useRouter } from "next/navigation"
 
-export default function SearchBar({ onResultsChange }) {
+export default function SearchBar({
+  onResultsChange,
+}: {
+  onResultsChange: any
+}) {
   const [searchValue, setSearchValue] = useState("")
-  const [results, setResults] = useState([])
+  const [results, setResults] = useState<result[]>([])
   const [difficulty, setDifficulty] = useState("")
   const [type, setType] = useState("")
   const router = useRouter()
+
+  type result = {
+    name: string
+    type: string
+    difficulty: string
+  }
 
   const handleSearch = () => {
     if (searchValue) {
@@ -17,7 +27,7 @@ export default function SearchBar({ onResultsChange }) {
     }
   }
 
-  const searchExercise = (searchValue) => {
+  const searchExercise = (searchValue: string) => {
     let url = `https://exercises-by-api-ninjas.p.rapidapi.com/v1/exercises?name=${searchValue}`
     if (difficulty) {
       url += `&difficulty=${difficulty}`
@@ -55,16 +65,16 @@ export default function SearchBar({ onResultsChange }) {
     onResultsChange(results)
   }, [results, onResultsChange])
 
-  const handleSearchClick = (result) => {
+  const handleSearchClick = (result: any) => {
     debugger
-    router.push(`/workouts/exercise/${result.name}`)
+    router.push(`/workouts/exercise/${result}`)
   }
 
-  const handleDifficultyChange = (difficulty) => {
+  const handleDifficultyChange = (difficulty: any) => {
     setDifficulty(difficulty)
   }
 
-  const handleTypeChange = (type) => {
+  const handleTypeChange = (type: any) => {
     setType(type)
   }
 
@@ -106,7 +116,7 @@ export default function SearchBar({ onResultsChange }) {
           />
         )}
         <div className="container mx-auto">
-          {results.map((result, index) => (
+          {results.map((result: result, index) => (
             <div
               key={index}
               className="bg-white shadow-md p-4 mb-4 rounded-lg mt-5 cursor-pointer"
