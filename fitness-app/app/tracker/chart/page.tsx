@@ -14,10 +14,10 @@ import dayjs from "dayjs"
 export default function WeightChartPage() {
   const supabase = createClient()
 
-  const [weightData, setWeightData] = useState(null)
+  const [weightData, setWeightData] = useState<any>(null)
   const [loadedDates, setLoadedDates] = useState(null)
-  const [startDate, setStartDate] = useState(null)
-  const [endDate, setEndDate] = useState(null)
+  const [startDate, setStartDate] = useState<any>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
   const [showAlert, setShowAlert] = useState(false)
 
   useEffect(() => {
@@ -81,7 +81,7 @@ export default function WeightChartPage() {
   }, [startDate, endDate, supabase])
 
   useEffect(() => {
-    let timer
+    let timer: NodeJS.Timeout
     if (showAlert) {
       timer = setTimeout(() => {
         setShowAlert(false)
@@ -90,11 +90,11 @@ export default function WeightChartPage() {
     return () => clearTimeout(timer)
   }, [showAlert])
 
-  const handleFormattedDate = (date) => {
+  const handleFormattedDate = (date: any) => {
     return dayjs(date).format("MMMM DD, YYYY")
   }
 
-  const handleDeleteWeight = async (id) => {
+  const handleDeleteWeight = async (id: number) => {
     try {
       const { error } = await supabase
         .from("weight_tracker")
@@ -106,7 +106,7 @@ export default function WeightChartPage() {
       }
 
       console.log("Deleted weight entry:", id)
-      const updatedData = weightData?.filter((entry) => entry.id !== id)
+      const updatedData = weightData?.filter((entry: any) => entry.id !== id)
       setWeightData(updatedData)
       setShowAlert(true)
     } catch (error) {
@@ -143,7 +143,7 @@ export default function WeightChartPage() {
         <div className="flex justify-center mb-4">
           <DropdownMenu
             initialStartDate={startDate}
-            initialEndDate={endDate}
+            initialEndDate={endDate || ""}
             handleDateChange={(dates) => {
               setStartDate(dates[0])
               setEndDate(dates[1])
@@ -160,7 +160,7 @@ export default function WeightChartPage() {
             </thead>
             <tbody className="text-gray-600 text-sm font-light">
               {weightData && weightData.length > 0 ? (
-                weightData.map((data, index) => (
+                weightData.map((data: any, index: any) => (
                   <tr
                     key={index}
                     className="border-b border-gray-200 hover:bg-gray-100"
@@ -179,7 +179,7 @@ export default function WeightChartPage() {
               ) : (
                 <tr>
                   <td
-                    colSpan="3"
+                    colSpan={3}
                     className="py-3 px-6 text-center text-gray-500"
                   >
                     No data found

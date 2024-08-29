@@ -16,7 +16,7 @@ export default function TrackerPage() {
 
   const router = useRouter()
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault()
     const { data, error } = await supabase.from("weight_tracker").insert([
       {
