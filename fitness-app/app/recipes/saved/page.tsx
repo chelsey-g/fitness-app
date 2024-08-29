@@ -1,34 +1,51 @@
 "use client"
 
+import useSWR, { Fetcher } from "swr"
+
 import Link from "next/link"
 import { MdDeleteForever } from "react-icons/md"
 import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
-import useSWR from "swr"
 
 export default function SavedRecipes() {
   const supabase = createClient()
+
+  type recipe = {
+    id: number
+    title: string
+    image: string
+    url: string
+  }
 
   const { data: user } = useSWR("/user", () =>
     supabase.auth.getUser().then((res) => res.data.user)
   )
   let identityId = user?.identities?.[0]?.id || null
 
-  const { data: recipeList } = useSWR(
-    identityId ? "/recipes/" + identityId : null,
-    () =>
-      supabase
-        .from("recipes")
-        .select("*")
-        .eq("created_by", identityId)
-        .then((res) => res.data)
+  const recipeFetcher: Fetcher<recipe[]> = async () => {
+    const { data, error } = await supabase
+      .from("recipes")
+      .select("*")
+      .eq("created_by", identityId)
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    return data || []
+  }
+
+  const { data: recipeList = [] } = useSWR<recipe[]>(
+    identityId ? `/recipes/${identityId}` : null,
+    recipeFetcher,
+    { revalidateOnFocus: false }
   )
 
-  const handleDeleteRecipe = async (recipeId) => {
+  const handleDeleteRecipe = async (recipeId: number) => {
     await supabase.from("recipes").delete().eq("id", recipeId)
   }
 
-  function capitalizeTitle(title) {
+  function capitalizeTitle(title: string) {
     return title
       .split(" ")
       .map((word) => {
@@ -37,7 +54,7 @@ export default function SavedRecipes() {
       .join(" ")
   }
 
-  const handleSavedClick = (url) => {
+  const handleSavedClick = (url: string) => {
     window.open(url, "_blank")
   }
 
