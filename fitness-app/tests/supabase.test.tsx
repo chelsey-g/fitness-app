@@ -13,7 +13,36 @@ const supabaseServiceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey)
 
-async function createUser(user) {
+type users = {
+  userAnon: any
+  userA: any
+  userB: any
+  userC: any
+}
+
+type competitions = {
+  public: any
+  privateA: any
+  privateB: any
+  privateC: any
+}
+
+type competitionPlayers = {
+  PublicUserA: any
+  privateAUserA: any
+  privateBUserB: any
+  privateAUserB: any
+  privateAUserC: any
+  privateCUserC: any
+}
+
+type workoutLists = {
+  workoutA: any
+  workoutB: any
+  workoutC: any
+}
+
+async function createUser(user: any) {
   try {
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email: user.email,
@@ -26,13 +55,13 @@ async function createUser(user) {
       throw error
     }
     return { ...data.user, password: user.password }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating user:", error.message)
     throw error
   }
 }
 
-async function createCompetition(name, user) {
+async function createCompetition(name: string, user: any) {
   const { data, error } = await supabaseAdmin
     .from("competitions")
     .insert({
@@ -45,7 +74,7 @@ async function createCompetition(name, user) {
   return data
 }
 
-async function createCompetitionPlayer(competition, user) {
+async function createCompetitionPlayer(competition: any, user: any) {
   const { data: competitionData, error: fetchError } = await supabaseAdmin
     .from("competitions")
     .select("created_by")
@@ -79,7 +108,7 @@ async function createCompetitionPlayer(competition, user) {
   return data
 }
 
-async function createWorkoutList(list, user) {
+async function createWorkoutList(list: any, user: any) {
   const { data, error } = await supabaseAdmin
     .from("lists")
     .insert([
@@ -94,7 +123,12 @@ async function createWorkoutList(list, user) {
   return data
 }
 
-async function createGoal(created_at, goal_weight, user, date) {
+async function createGoal(
+  created_at: any,
+  goal_weight: number,
+  user: any,
+  date: any
+) {
   const { data, error } = await supabaseAdmin
     .from("profile_goals")
     .insert([
@@ -120,12 +154,12 @@ async function createGoal(created_at, goal_weight, user, date) {
 // }
 
 describe("Permissions Tests", () => {
-  let users = {}
-  let competitions = {}
-  let competitionPlayers = {}
+  let users: { [key: string]: any } = {}
+  let competitions: { [key: string]: any } = {}
+  let competitionPlayers: { [key: string]: any } = {}
   // let weightEntries = {}
-  let workoutLists = {}
-  let goals = {}
+  let workoutLists: { [key: string]: any } = {}
+  let goals: { [key: string]: any } = {}
 
   beforeAll(async () => {
     users.userAnon = await createUser({
@@ -238,7 +272,7 @@ describe("Permissions Tests", () => {
       try {
         // console.log("Deleting list:", list)
         await supabaseAdmin.from("lists").delete().match({ id: list.id })
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error deleting workout list:", error.message)
       }
     }
@@ -292,13 +326,13 @@ describe("Permissions Tests", () => {
     const { data, error } = await supabase.from("competitions").select("*")
     expect(error).toBeNull()
     // console.log("Fetched Competitions for userA:", data)
-    expect(data.map((comp) => comp.name)).toEqual(
+    expect(data.map((comp: any) => comp.name)).toEqual(
       expect.arrayContaining([
         "Public Competition",
         "Private Competition (User A)",
       ])
     )
-    expect(data.map((comp) => comp.name)).not.toEqual(
+    expect(data.map((comp: any) => comp.name)).not.toEqual(
       expect.arrayContaining(["Private Competition (User B)"])
     )
 
@@ -316,13 +350,13 @@ describe("Permissions Tests", () => {
     const { data, error } = await supabase.from("competitions").select("*")
     // console.log("Fetched Competitions for userB:", data)
     expect(error).toBeNull()
-    expect(data.map((comp) => comp.name)).toEqual(
+    expect(data.map((comp: any) => comp.name)).toEqual(
       expect.arrayContaining([
         "Private Competition (User A)",
         "Private Competition (User B)",
       ])
     )
-    expect(data.map((comp) => comp.name)).not.toEqual(
+    expect(data.map((comp: any) => comp.name)).not.toEqual(
       expect.arrayContaining(["Private Competition (User C)"])
     )
 
@@ -340,13 +374,13 @@ describe("Permissions Tests", () => {
     const { data, error } = await supabase.from("competitions").select("*")
     // console.log("Fetched Competitions for userC:", data)
     expect(error).toBeNull()
-    expect(data.map((comp) => comp.name)).toEqual(
+    expect(data.map((comp: any) => comp.name)).toEqual(
       expect.arrayContaining([
         "Private Competition (User A)",
         "Private Competition (User C)",
       ])
     )
-    expect(data.map((comp) => comp.name)).not.toEqual(
+    expect(data.map((comp: any) => comp.name)).not.toEqual(
       expect.arrayContaining(["Private Competition (User B)"])
     )
 
@@ -355,17 +389,16 @@ describe("Permissions Tests", () => {
 
   test("user can only access their workout lists"),
     async () => {
-      const { data: session, error: signIn } =
-        await supabase.auth.signInWithPassword({
-          email: users.userA.email,
-          password: users.userA.password,
-        })
+      const { data, error: signIn } = await supabase.auth.signInWithPassword({
+        email: users.userA.email,
+        password: users.userA.password,
+      })
       if (signIn) throw signIn
       expect(signIn).toBeNull()
-      expect(data.map((list) => list.name)).toEqual(
+      expect(data.map((list: any) => list.name)).toEqual(
         expect.arrayContaining(["List A"])
       )
-      expect(data.map((list) => list.name)).not.toEqual(
+      expect(data.map((list: any) => list.name)).not.toEqual(
         expect.arrayContaining(["List B", "List C"])
       )
       await supabase.auth.signOut()
@@ -380,10 +413,10 @@ describe("Permissions Tests", () => {
         })
       if (signIn) throw signIn
       expect(signIn).toBeNull()
-      expect(data.map((goal) => goal.goal_weight)).toEqual(
+      expect(session.map((goal: any) => goal.goal_weight)).toEqual(
         expect.arrayContaining([60])
       )
-      expect(data.map((goal) => goal.goal_weight)).not.toEqual(
+      expect(session.map((goal: any) => goal.goal_weight)).not.toEqual(
         expect.arrayContaining([70, 80])
       )
 
