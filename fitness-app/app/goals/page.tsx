@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { FaCheckCircle, FaTrashAlt } from "react-icons/fa"
 import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
+import useSWR, { Fetcher } from "swr"
 
 import { Button } from "@/components/ui/button"
 import GoalsDropdown from "@/components/GoalsActions"
@@ -20,7 +21,6 @@ import { Label } from "@/components/ui/label"
 import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { handleDate } from "@/app/functions"
-import useSWR from "swr"
 import { useState } from "react"
 
 export default function ProfileGoals() {
@@ -31,33 +31,61 @@ export default function ProfileGoals() {
   const [GoalSubmitAlert, setGoalSubmitAlert] = useState(false)
   const [deleteAlert, setDeleteAlert] = useState(false)
 
+  type goal = {
+    id: number
+    goal_weight: number
+    goal_date: string
+  }
+
+  type weight = {
+    id: number
+    weight: any
+    created_at: string
+  }
+
   const { data: user } = useSWR("/users", () =>
     supabase.auth.getUser().then((res) => res.data.user)
   )
 
-  let identityId = user?.identities?.[0]?.id || null
+  let identityId: string | null = user?.identities?.[0]?.id || null
 
-  console.log(identityId, "identityId")
-  const { data: userGoals, mutate: mutateUserGoals } = useSWR(
-    () => (identityId ? "/profile_goals/" + identityId : null),
-    () =>
-      supabase
-        .from("profile_goals")
-        .select("*")
-        .eq("profile_id", identityId)
-        .then((res) => res.data)
+  const goalsFetcher: Fetcher<goal[]> = async () => {
+    const { data, error } = await supabase
+      .from("profile_goals")
+      .select("*")
+      .eq("profile_id", identityId)
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    return data || []
+  }
+
+  const { data: userGoals = [], mutate: mutateUserGoals } = useSWR<goal[]>(
+    identityId ? `/goals/${identityId}` : null,
+    goalsFetcher,
+    { revalidateOnFocus: false }
   )
 
-  const { data: weights } = useSWR(
+  const weightsFetcher: Fetcher<weight[]> = async () => {
+    const { data, error } = await supabase
+      .from("weight_tracker")
+      .select("*")
+      .eq("created_by", identityId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    return data || []
+  }
+
+  const { data: weights } = useSWR<weight[]>(
     identityId ? "/weights/" + identityId : null,
-    () =>
-      supabase
-        .from("weight_tracker")
-        .select("*")
-        .eq("created_by", identityId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .then((res) => res.data),
+    weightsFetcher,
     { revalidateOnFocus: false }
   )
 
@@ -65,7 +93,7 @@ export default function ProfileGoals() {
     setIsOpen(true)
   }
 
-  const handleGoalSubmit = async (e) => {
+  const handleGoalSubmit = async (e: any) => {
     e.preventDefault()
 
     const { data: goal, error } = await supabase
@@ -95,10 +123,10 @@ export default function ProfileGoals() {
 
   const currentDate = new Date()
   const activeGoals = userGoals?.filter(
-    (goal) => new Date(goal.goal_date) >= currentDate
+    (goal: any) => new Date(goal.goal_date) >= currentDate
   )
 
-  const handleDeleteGoal = async (id) => {
+  const handleDeleteGoal = async (id: number) => {
     const { error } = await supabase.from("profile_goals").delete().eq("id", id)
     if (error) {
       console.error(error)
