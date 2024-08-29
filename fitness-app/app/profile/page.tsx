@@ -49,12 +49,14 @@ export default function ProfileDashboard() {
     error: profilesError,
     isLoading: profilesLoading,
   } = useSWR("/profiles", () =>
-    supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userInfo.identities[0].id)
-      .single()
-      .then((res) => res.data)
+    userInfo && userInfo.identities
+      ? supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", userInfo.identities[0].id)
+          .single()
+          .then((res) => res.data)
+      : null
   )
 
   const handleEditModal = () => {
@@ -65,7 +67,7 @@ export default function ProfileDashboard() {
     setIsOpen(true)
   }
 
-  const handleProfileUpdate = async (e) => {
+  const handleProfileUpdate = async (e: any) => {
     e.preventDefault()
     const { data, error } = await supabase
       .from("profiles")
@@ -73,7 +75,7 @@ export default function ProfileDashboard() {
         first_name: firstName,
         last_name: lastName,
       })
-      .eq("id", userInfo.id)
+      .eq("id", userInfo?.id)
     if (error) {
       console.error("Error updating profile:", error.message)
     } else {

@@ -46,6 +46,7 @@ export default function MonthDropdown({
           value={dateRange}
           placeholder="Filter Date"
           selectPlaceholder="Range"
+          data-testid="date-range-picker"
         />
       </div>
     </div>
