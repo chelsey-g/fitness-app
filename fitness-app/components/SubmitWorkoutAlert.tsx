@@ -9,7 +9,10 @@ export default function SubmitWorkoutAlert() {
       role="alert"
     >
       <div className="flex items-center">
-        <FaCheckCircle className="flex-shrink-0 w-4 h-4 text-green-500 mr-2" />
+        <FaCheckCircle
+          role="img"
+          className="flex-shrink-0 w-4 h-4 text-green-500 mr-2"
+        />
         <div>
           <AlertTitle className="font-bold text-md">Workout Created</AlertTitle>
           <AlertDescription className="mt-1 text-sm">
