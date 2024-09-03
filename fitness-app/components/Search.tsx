@@ -66,7 +66,6 @@ export default function SearchBar({
   }, [results, onResultsChange])
 
   const handleSearchClick = (result: any) => {
-    debugger
     router.push(`/workouts/exercise/${result}`)
   }
 
@@ -96,6 +95,7 @@ export default function SearchBar({
           />
           {results.length > 0 && (
             <button
+              aria-label="Close"
               className="absolute inset-y-0 right-20 flex items-center pr-3 text-gray-500"
               onClick={handleClearSearch}
             >
