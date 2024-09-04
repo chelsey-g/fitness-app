@@ -57,7 +57,10 @@ export function WorkoutActions({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="text-snd-bkg hover:text-snd-bkg rounded-full p-2 bg-gray-200 hover:bg-gray-300 transition-colors duration-150 ease-in-out">
+          <button
+            data-testid="delete-button"
+            className="text-snd-bkg hover:text-snd-bkg rounded-full p-2 bg-gray-200 hover:bg-gray-300 transition-colors duration-150 ease-in-out"
+          >
             <FaEllipsisH />
           </button>
         </DropdownMenuTrigger>
@@ -73,7 +76,7 @@ export function WorkoutActions({
         </DropdownMenuContent>
       </DropdownMenu>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
+        <DialogTrigger asChild data-testid="delete-workout-entry">
           <div />
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px] bg-white">
@@ -87,9 +90,9 @@ export function WorkoutActions({
           </div>
           <DialogFooter>
             <Button
-              type="button"
               className="bg-red-600 text-white"
               onClick={handleDeleteAndClose}
+              data-testid="delete-confirm-button"
             >
               Delete
             </Button>
