@@ -49,7 +49,7 @@ const AddList = ({
     const { data, error } = await supabase
       .from("lists")
       .insert([{ name: name }])
-      .select()
+    // .select()
 
     e.preventDefault()
     if (data) {
@@ -88,6 +88,7 @@ const AddList = ({
                 placeholder="Please enter item"
                 ref={inputRef}
                 value={name}
+                data-testid="text"
                 onChange={onNameChange}
                 onKeyDown={(e) => e.stopPropagation()}
               />
