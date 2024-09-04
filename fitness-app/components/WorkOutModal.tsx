@@ -64,8 +64,8 @@ const App = ({ exerciseData }: WorkOutModalProps) => {
     const { data, error } = await supabase
       .from("workouts")
       .insert({ name: exerciseData[0].name, details: exerciseData[0] })
-      .select()
-      .single()
+    // .select()
+    // .single()
     if (error) {
       console.log("Error inserting data into Supabase:", error)
     } else {
@@ -75,9 +75,9 @@ const App = ({ exerciseData }: WorkOutModalProps) => {
 
     const { data: data1, error: error1 } = await supabase
       .from("workouts_lists")
-      .insert({ workout_id: data.id, list_id: event.list_id })
-      .select()
-      .single()
+      .insert({ workout_id: (data as any)?.id, list_id: event.list_id })
+    // .select()
+    // .single()
     console.log("data1", data1)
     if (error1) {
       console.log("Error inserting data into Supabase:", error1)
@@ -113,6 +113,7 @@ const App = ({ exerciseData }: WorkOutModalProps) => {
         title="Add Workout To Workout List"
         open={open}
         onCancel={handleCancel}
+        data-testid="Cancel"
         footer={null}
       >
         <Form
@@ -133,6 +134,7 @@ const App = ({ exerciseData }: WorkOutModalProps) => {
           </Form.Item>
           <button
             type="submit"
+            data-testid="submit"
             className="py-2 px-4 bg-snd-bkg hover:opacity-90 text-white rounded-md focus:outline-none mt-5 text-center"
           >
             Add Exercise
