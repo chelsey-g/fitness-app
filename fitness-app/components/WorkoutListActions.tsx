@@ -41,7 +41,11 @@ export function WorkoutDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="text-snd-bkg hover:text-red-900 rounded-full p-2 bg-gray-200 hover:bg-gray-300 transition-colors duration-150 ease-in-out">
+        <button
+          aria-expanded={isOpen ? "true" : "false"}
+          className="text-snd-bkg hover:text-red-900 rounded-full p-2 bg-gray-200 hover:bg-gray-300 transition-colors duration-150 ease-in-out"
+          data-testid="delete-workout"
+        >
           <FaEllipsisH />
         </button>
       </DropdownMenuTrigger>
@@ -66,7 +70,7 @@ export function WorkoutDropdown({
                   All exercises in this workout will be deleted.
                 </div>
               </div>
-              <DialogFooter>
+              <DialogFooter data-testid="delete-button">
                 <Button
                   type="button"
                   className="bg-red-600 text-white"
