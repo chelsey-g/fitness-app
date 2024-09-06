@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 
 import { DropdownMenuDemo } from "./TrackerActions"
+import userEvent from "@testing-library/user-event"
 
 describe("DropdownMenuDemo Component", () => {
   const deleteWeightMock = vi.fn()
@@ -16,8 +17,10 @@ describe("DropdownMenuDemo Component", () => {
     expect(dropdownTrigger).toBeInTheDocument()
 
     // Click or mouse down to open the dropdown
-    fireEvent.mouseDown(dropdownTrigger)
-    fireEvent.keyDown(dropdownTrigger, { key: "Enter", code: "Enter" })
+    // fireEvent.mouseDown(dropdownTrigger)
+    // fireEvent.keyDown(dropdownTrigger, { key: "Enter", code: "Enter" })
+
+    userEvent.click(dropdownTrigger)
 
     screen.debug()
 
