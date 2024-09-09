@@ -61,7 +61,7 @@ const UploadPhoto = () => {
         />
         <div className="flex items-center justify-center bg-snd-bkg text-white px-4 py-2 rounded-md">
           <GoPlus className="mr-1" />
-          <span>Choose Photo</span>
+          <span aria-label="Choose Photo">Choose Photo</span>
         </div>
       </label>
       <span className="block text-sm text-gray-500 mt-2 text-center">
@@ -69,6 +69,7 @@ const UploadPhoto = () => {
       </span>
       <button
         onClick={handleUpload}
+        data-testid="upload-button"
         disabled={!selectedFile || uploading}
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md disabled:bg-gray-400 text-center justify-center flex"
       >
