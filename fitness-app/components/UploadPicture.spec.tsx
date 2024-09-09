@@ -6,7 +6,6 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import UploadPhoto from "@/components/UploadPicture"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
-import userEvent from "@testing-library/user-event"
 
 // Mock the necessary modules
 vi.mock("react-icons/go", () => ({
@@ -86,14 +85,6 @@ describe("UploadPhoto Component", () => {
 
     // Check that the uploading state is displayed
     expect(screen.getByTestId("upload-button")).toBeInTheDocument()
-
-    // Wait for the upload to complete
-    // await waitFor(() => {
-    //   expect(mockSupabase.storage.from().upload).toHaveBeenCalledWith(
-    //     "123",
-    //     file
-    //   )
-    // })
 
     // Check that the upload button is not in the uploading state after upload
     await waitFor(() => {

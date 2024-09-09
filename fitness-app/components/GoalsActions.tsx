@@ -43,6 +43,8 @@ export default function GoalsDropdown({
               <button
                 onClick={() => setIsDeleteOpen(true)}
                 className="text-sm px-4 py-2 text-snd-bkg"
+                data-testid="delete-button"
+                aria-label="delete-button"
               >
                 Delete
               </button>
@@ -51,7 +53,7 @@ export default function GoalsDropdown({
               <DialogHeader>
                 <DialogTitle>Delete Goal</DialogTitle>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
+              <div className="grid gap-4 py-4" aria-label="delete-dialog">
                 <div className="text-sm">
                   Are you sure you wish to delete this goal entry? <br />
                   This action cannot be undone.
@@ -62,6 +64,7 @@ export default function GoalsDropdown({
                   type="button"
                   className="bg-red-600 text-white"
                   onClick={handleDeleteAndClose}
+                  data-testid="delete-dialog"
                 >
                   Delete
                 </Button>
