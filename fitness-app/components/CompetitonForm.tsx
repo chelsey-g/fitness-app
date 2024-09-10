@@ -159,7 +159,7 @@ export default function CompetitionForm() {
             </label>
           </div>
           {addPlayers && (
-            <div className="mb-4">
+            <div className="mb-4" data-testid="add-players">
               <AddPlayers selectPlayers={handleSelectPlayers} />
             </div>
           )}
