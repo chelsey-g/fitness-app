@@ -65,6 +65,7 @@ export default function Navigation() {
         <div className="lg:hidden">
           <IconButton
             onClick={toggleMenu}
+            data-testid="menu-toggle"
             className="bg-trd-bkg shadow-none hover:shadow-none mb-5"
           >
             {isMenuOpen ? (
@@ -83,6 +84,7 @@ export default function Navigation() {
                     <Typography
                       as="div"
                       className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold"
+                      data-testid="tracker-menu"
                     >
                       <span>Tracker</span>
                       <IoIosArrowDown className="ml-1" />
@@ -425,8 +427,11 @@ export default function Navigation() {
                         as="div"
                         className="flex items-center py-2  cursor-pointer font-bold text-sm"
                       >
-                        <button onClick={handleSignOutUser}>
-                          <span>Logout</span>
+                        <button
+                          onClick={handleSignOutUser}
+                          data-testid="logout"
+                        >
+                          <span data-testid="logout">Logout</span>
                         </button>
                       </Typography>
                     </MenuItem>
