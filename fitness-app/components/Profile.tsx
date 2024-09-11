@@ -60,7 +60,10 @@ export default function ProfileDropDown() {
 
   return (
     <div className="flex items-center pl-4">
-      <div className="relative inline-block text-left">
+      <div
+        className="relative inline-block text-left"
+        data-testid="profile-dropdown"
+      >
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
           <DropdownMenuTrigger>
             <ImageWithFallback
@@ -80,6 +83,7 @@ export default function ProfileDropDown() {
                       src={name.publicUrl || ""}
                       key={name.publicUrl || ""}
                       alt="profile picture"
+                      aria-label="profile picture"
                       fallbackSrc={fallbackSrc}
                       className="w-10 h-10 rounded-full mr-3"
                     />
