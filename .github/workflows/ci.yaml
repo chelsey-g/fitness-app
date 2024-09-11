@@ -35,4 +35,9 @@ jobs:
 
       - name: Run Vitest tests
         working-directory: fitness-app  # Ensure tests are run in the correct directory
+        env: 
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}  # Your actual Supabase URL
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}  # Your actual Supabase Key
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }} # Your actual Resend Key
         run: npm run test  # Run the Vitest tests (invoked via `package.json` scripts)
+        
