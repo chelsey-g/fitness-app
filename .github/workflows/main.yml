@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]  # You can specify the Node.js versions to test
+        node-version: [18.x, 20.x]  # Test on Node 18 and 20
 
     steps:
       - uses: actions/checkout@v3  # Checkout the repository
