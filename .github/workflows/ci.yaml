@@ -25,8 +25,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Change directory to fitness-app (if package.json is in subdirectory)
+        working-directory: fitness-app  # Update this to the correct subdirectory
+        run: pwd  # Print working directory to verify
+
       - name: Install dependencies
+        working-directory: fitness-app  # Ensure the working directory is correct
         run: npm install  # Install the project dependencies
 
       - name: Run Vitest tests
-        run: npm run test:coverage  # Run the Vitest tests (invoked via `package.json` scripts)
+        working-directory: fitness-app  # Ensure tests are run in the correct directory
+        run: npm run test  # Run the Vitest tests (invoked via `package.json` scripts)
