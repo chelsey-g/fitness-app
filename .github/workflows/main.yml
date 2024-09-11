@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]  # You can specify the Node.js versions to test
+
+    steps:
+      - uses: actions/checkout@v3  # Checkout the repository
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3  # Set up Node.js
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: npm install  # Install dependencies
+
+      - run: npm run test  # Run the tests
