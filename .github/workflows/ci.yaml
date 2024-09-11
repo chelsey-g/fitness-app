@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]  # Test on Node.js versions 18 and 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3  # Check out the repository code
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3  # Set up Node.js versions (18 and 20)
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install  # Install the project dependencies
+
+      - name: Run Vitest tests
+        run: npm run test:coverage  # Run the Vitest tests (invoked via `package.json` scripts)
