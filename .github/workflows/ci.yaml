@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x]  # Test on Node.js versions 18 and 20
+        node-version: [18.x, 20.x]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -25,16 +25,19 @@ jobs:
 
       - name: Install dependencies
         working-directory: fitness-app
-        run: npm ci  # Use 'npm ci' for cleaner, more reliable installs in CI environments
+        run: npm ci
 
       - name: Run Vitest tests
         working-directory: fitness-app
         env: 
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_SERVICE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_SERVICE_KEY }}
+          NEXT_PUBLIC_RECIPE_API_KEY: ${{ secrets.NEXT_PUBLIC_RECIPE_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: npm test
 
-      - name: Build project  # Added build step
+      - name: Build project
         working-directory: fitness-app
         run: npm run build
