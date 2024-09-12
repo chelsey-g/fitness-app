@@ -11,33 +11,30 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [18.x, 20.x]  # Test on Node.js versions 18 and 20
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3  # Check out the repository code
+        uses: actions/checkout@v3
 
       - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3  # Set up Node.js versions (18 and 20)
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Change directory to fitness-app (if package.json is in subdirectory)
-        working-directory: fitness-app  # Update this to the correct subdirectory
-        run: pwd  # Print working directory to verify
-
       - name: Install dependencies
-        working-directory: fitness-app  # Ensure the working directory is correct
-        run: npm install  # Install the project dependencies
+        working-directory: fitness-app
+        run: npm ci  # Use 'npm ci' for cleaner, more reliable installs in CI environments
 
       - name: Run Vitest tests
-        working-directory: fitness-app  # Ensure tests are run in the correct directory
+        working-directory: fitness-app
         env: 
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}  # Your actual Supabase URL
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}  # Your actual Supabase Key
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }} # Your actual Resend Key
-        run: npm run test  # Run the Vitest tests (invoked via `package.json` scripts)
-        
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: npm test
+
+      - name: Build project  # Added build step
+        working-directory: fitness-app
+        run: npm run build
