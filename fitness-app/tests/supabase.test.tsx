@@ -423,31 +423,6 @@ describe("Permissions Tests", () => {
       await supabase.auth.signOut()
     }
 
-  // this test violates the RLS policy and will fail, needs to be fixed
-
-  // test.only("user can only load their own weight_tracker", async () => {
-  //   const { data: session, error: signInError } =
-  //     await supabase.auth.signInWithPassword({
-  //       email: users.userA.email,
-  //       password: users.userA.password,
-  //     })
-
-  //   if (signInError) throw signInError
-  //   expect(signInError).toBeNull()
-
-  //   const { data, error } = await supabase.from("weight_tracker").select("*")
-  //   expect(error).toBeNull()
-
-  //   expect(data.map((entry) => entry.weight)).toEqual(
-  //     expect.arrayContaining([60])
-  //   )
-  //   expect(data.map((entry) => entry.weight)).not.toEqual(
-  //     expect.arrayContaining([70, 80])
-  //   )
-
-  //   await supabase.auth.signOut()
-  // })
-
   test("a user adding a competition player when they did not create it", async () => {
     const { data: session, error: signInError } =
       await supabase.auth.signInWithPassword({
