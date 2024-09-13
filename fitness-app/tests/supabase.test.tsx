@@ -42,8 +42,22 @@ type workoutLists = {
   workoutC: any
 }
 
+async function deleteUserIfExists(email: string) {
+  try {
+    const { data: user } = await supabaseAdmin.auth.admin.listUsers()
+    const existingUser = user.find((u: any) => u.email === email)
+
+    if (existingUser) {
+      await supabaseAdmin.auth.admin.deleteUser(existingUser.id)
+    }
+  } catch (error: any) {
+    console.error("Error checking or deleting existing user:", error.message)
+  }
+}
+
 async function createUser(user: any) {
   try {
+    await deleteUserIfExists(user.email)
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email: user.email,
       password: user.password,
