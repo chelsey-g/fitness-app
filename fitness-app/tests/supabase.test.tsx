@@ -448,7 +448,7 @@ describe("Permissions Tests", () => {
   //   await supabase.auth.signOut()
   // })
 
-  test.only("a user adding a competition player when they did not create it", async () => {
+  test("a user adding a competition player when they did not create it", async () => {
     const { data: session, error: signInError } =
       await supabase.auth.signInWithPassword({
         email: users.userA.email,
