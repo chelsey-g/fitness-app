@@ -176,21 +176,25 @@ describe("Permissions Tests", () => {
     users.userAnon = await createUser({
       email: "anon@example.com",
       password: "password123",
+      email_confirm: true,
     })
 
     users.userA = await createUser({
       email: "userA@example.com",
       password: "password123",
+      email_confirm: true,
     })
 
     users.userB = await createUser({
       email: "userB@example.com",
       password: "password123",
+      email_confirm: true,
     })
 
     users.userC = await createUser({
       email: "userC@example.com",
       password: "password123",
+      email_confirm: true,
     })
 
     // console.log("user check", users)
