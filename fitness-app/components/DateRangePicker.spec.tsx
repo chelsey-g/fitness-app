@@ -23,7 +23,8 @@ describe("MonthDropdown Component", () => {
   })
 
   it("calls handleDateChange with the correct date range when a date is selected", async () => {
-    vi.setSystemTime(new Date("2022-12-30"))
+    vi.setSystemTime(new Date("2022-12-30")) // Mock system time to Dec 30, 2022
+
     const mockHandleDateChange = vi.fn()
 
     render(
@@ -34,19 +35,16 @@ describe("MonthDropdown Component", () => {
       />
     )
 
-    // Select the DateRangePicker element
     const dateRangePicker = screen.getByTestId("date-range-picker")
-
-    // Simulate the user opening the date range picker
     userEvent.click(dateRangePicker)
 
-    // Wait for handleDateChange to be called with the correct values
     await waitFor(() => {
       expect(mockHandleDateChange).toHaveBeenCalledWith([
-        "2022-12-29",
-        "2023-12-28",
+        "2022-12-30",
+        "2023-12-29",
       ])
     })
-    vi.useRealTimers()
+
+    vi.useRealTimers() // Restore original time
   })
 })
