@@ -39,7 +39,3 @@ jobs:
           TZ: UTC 
 
         run: npm test
-
-      - name: Build project
-        working-directory: fitness-app
-        run: npm run build
