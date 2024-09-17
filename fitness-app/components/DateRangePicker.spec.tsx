@@ -23,6 +23,7 @@ describe("MonthDropdown Component", () => {
   })
 
   it("calls handleDateChange with the correct date range when a date is selected", async () => {
+    vi.setSystemTime(new Date("2022-12-30"))
     const mockHandleDateChange = vi.fn()
 
     render(
@@ -46,5 +47,6 @@ describe("MonthDropdown Component", () => {
         "2023-12-28",
       ])
     })
+    vi.useRealTimers()
   })
 })
