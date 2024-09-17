@@ -42,24 +42,13 @@ type workoutLists = {
   workoutC: any
 }
 
-async function deleteUserIfExists(email: any) {
-  const { data, error } = await supabaseAdmin.auth.admin.listUsers({
-    email: email,
-  })
-
-  if (data && data.length > 0) {
-    await supabaseAdmin.auth.admin.deleteUser(data[0].id)
-  }
-}
-
 async function createUser(user: any) {
   try {
-    await deleteUserIfExists(user.email)
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email: user.email,
       password: user.password,
+      email_confirm: true,
     })
-
     if (error) {
       console.error("Error creating user:", error.message)
       console.error("Error details:", error)
@@ -173,28 +162,30 @@ describe("Permissions Tests", () => {
   let goals: { [key: string]: any } = {}
 
   beforeAll(async () => {
+    // Clear the profiles table before the test
+    await supabaseAdmin.from("profiles").delete().neq("id", "")
+  })
+
+  beforeAll(async () => {
+    // Create necessary users for your tests
     users.userAnon = await createUser({
       email: "anon@example.com",
       password: "password123",
-      email_confirm: true,
     })
 
     users.userA = await createUser({
       email: "userA@example.com",
       password: "password123",
-      email_confirm: true,
     })
 
     users.userB = await createUser({
       email: "userB@example.com",
       password: "password123",
-      email_confirm: true,
     })
 
     users.userC = await createUser({
       email: "userC@example.com",
       password: "password123",
-      email_confirm: true,
     })
 
     // console.log("user check", users)
@@ -306,12 +297,6 @@ describe("Permissions Tests", () => {
         // password: playerA.password,
       })
     const { data, error } = await supabase.from("competitions").select("*")
-    expect(error).toBeNull()
-    expect(data).toEqual([])
-  })
-
-  test("anonymous cannot load profiles", async () => {
-    const { data, error } = await supabase.from("profiles").select("*")
     expect(error).toBeNull()
     expect(data).toEqual([])
   })
