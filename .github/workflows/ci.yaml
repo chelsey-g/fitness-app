@@ -36,6 +36,8 @@ jobs:
           NEXT_PUBLIC_RECIPE_API_KEY: ${{ secrets.NEXT_PUBLIC_RECIPE_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          TZ: UTC 
+
         run: npm test
 
       - name: Build project
