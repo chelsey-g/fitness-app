@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss"
 import colors from "tailwindcss/colors"
 
 const config: Config = {
-  darkMode: "class", // Correctly set as a string
+  darkMode: "class",
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
@@ -21,6 +21,7 @@ const config: Config = {
         "prm-bkg": "#5A7C6A",
         "snd-bkg": "#003D33",
         "button-bkg": "#a3e96c",
+        "button-hover": "#E8F5E9",
         "button-text": "#B2E77C",
         "nav-bkg": "#123438",
         "logo-green": "#64b77d",
