@@ -1,8 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
-
-import { IoClose } from "react-icons/io5"
+import { useState } from "react"
 import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
@@ -39,9 +37,9 @@ export default function TrackerPage() {
   }
 
   return (
-    <div className=" p-4">
+    <div className="w-full">
       <Navigation />
-      <div className="bg-white rounded-lg p-8 shadow-lg relative">
+      <div className="max-w-4xl mx-auto bg-white rounded-lg p-8 shadow-lg mt-8">
         <div className="mb-4">
           <h2 className="text-xl font-semibold text-black mb-2">
             Weight Tracker
@@ -79,9 +77,10 @@ export default function TrackerPage() {
           <div className="flex justify-center">
             <button
               type="submit"
-              className="bg-snd-bkg hover:opacity-90 text-white py-3 px-6 rounded-full focus:outline-none"
+              className="relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
             >
-              Submit
+              Add Weight
+              <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
             </button>
           </div>
         </form>
