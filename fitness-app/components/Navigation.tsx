@@ -1,33 +1,21 @@
 "use client"
 
-import {
-  Collapse,
-  IconButton,
-  List,
-  ListItem,
-  Menu,
-  MenuHandler,
-  MenuItem,
-  MenuList,
-  Navbar,
-  Typography,
-} from "@material-tailwind/react"
 import { FiMenu, FiX } from "react-icons/fi"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 
 import { IoIosArrowDown } from "react-icons/io"
 import Link from "next/link"
-import { MdContactSupport } from "react-icons/md"
-import { MdOutlineLogin } from "react-icons/md"
 import Profile from "@/components/Profile"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 
 export default function Navigation() {
   const supabase = createClient()
+  const router = useRouter()
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const router = useRouter()
+  const [isDropdownOpen, setIsDropdownOpen] = useState(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -46,6 +34,26 @@ export default function Navigation() {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
   }
+  const toggleDropdown = (menu) => {
+    setIsDropdownOpen((prev) => (prev === menu ? null : menu))
+  }
+  const closeDropdown = () => {
+    setIsDropdownOpen(null)
+  }
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        closeDropdown()
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick)
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick)
+    }
+  }, [])
 
   async function handleSignOutUser() {
     const { error } = await supabase.auth.signOut()
@@ -54,428 +62,258 @@ export default function Navigation() {
   }
 
   return (
-    <Navbar className="bg-trd-bkg dark:bg-trd-bkg mt-10 mb-10 p-4 border-trd-bkg">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto bg-trd-bkg border-trd-bkg">
+    <nav className="bg-nav-bkg text-white p-4 font-sans font-bold">
+      {/* border-b border-footer-bkg */}
+      <div className="max-w-screen-xl mx-auto flex items-center justify-between">
         <Link
           href={isLoggedIn ? "/dashboard" : "/"}
-          className="flex items-center space-x-3 rtl:space-x-reverse"
+          className="flex items-center space-x-3"
         >
-          <img src="/images/text-logo.png" className="h-8" alt="Logo" />
+          <img src="/images/text-logo.png" alt="Logo" className="h-8" />
         </Link>
         <div className="lg:hidden">
-          <IconButton
-            onClick={toggleMenu}
-            data-testid="menu-toggle"
-            className="bg-trd-bkg shadow-none hover:shadow-none mb-5"
-          >
+          <button onClick={toggleMenu}>
             {isMenuOpen ? (
               <FiX className="w-6 h-6" />
             ) : (
               <FiMenu className="w-6 h-6" />
             )}
-          </IconButton>
+          </button>
         </div>
-        <div className="hidden lg:flex lg:items-center lg:w-auto w-full lg:space-x-6">
-          <List className="flex flex-col lg:flex-row lg:space-x-6">
-            {isLoggedIn ? (
-              <>
-                <Menu>
-                  <MenuHandler>
-                    <Typography
-                      as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold"
-                      data-testid="tracker-menu"
-                    >
-                      <span>Tracker</span>
-                      <IoIosArrowDown className="ml-1" />
-                    </Typography>
-                  </MenuHandler>
-                  <MenuList>
-                    <MenuItem>
-                      <Link
-                        href="/tracker"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        Enter New Weight
-                      </Link>
-                    </MenuItem>
-                    <MenuItem>
-                      <Link
-                        href="/tracker/chart"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        View Weight Log
-                      </Link>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-                <Menu>
-                  <MenuHandler>
-                    <Typography
-                      as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold"
-                    >
-                      <span>Competitions</span>
-                      <IoIosArrowDown className="ml-1" />
-                    </Typography>
-                  </MenuHandler>
-                  <MenuList>
-                    <MenuItem>
-                      <Link
-                        href="/competitions/create"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        Create New Competition
-                      </Link>
-                    </MenuItem>
-                    <MenuItem>
-                      <Link
-                        href="/competitions"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        View Active Competitions
-                      </Link>
-                    </MenuItem>
-                    <MenuItem>
-                      <Link
-                        href="/competitions/history"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        View Competition History
-                      </Link>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-                <Menu>
-                  <MenuHandler>
-                    <Typography
-                      as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold"
-                    >
-                      <span>Workouts</span>
-                      <IoIosArrowDown className="ml-1" />
-                    </Typography>
-                  </MenuHandler>
-                  <MenuList>
-                    <MenuItem>
-                      <Link
-                        href="/workouts/browse"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        Browse Exercises
-                      </Link>
-                    </MenuItem>
-                    <MenuItem>
-                      <Link
-                        href="/workouts"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        View Workouts
-                      </Link>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-                <Menu>
-                  <MenuHandler>
-                    <Typography
-                      as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold"
-                    >
-                      <span>Goals</span>
-                      <IoIosArrowDown className="ml-1" />
-                    </Typography>
-                  </MenuHandler>
-                  <MenuList>
-                    <MenuItem>
-                      <Link
-                        href="/goals"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        View Active Goals
-                      </Link>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-                <Menu>
-                  <MenuHandler>
-                    <Typography
-                      as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold"
-                    >
-                      <span>Tools</span>
-                      <IoIosArrowDown className="ml-1" />
-                    </Typography>
-                  </MenuHandler>
-                  <MenuList>
-                    <MenuItem>
-                      <Link
-                        href="/calculator"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        BMI Calculator
-                      </Link>
-                    </MenuItem>
-                    <MenuItem>
-                      <Link
-                        href="/calculator/calorie"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        Calorie Calculator
-                      </Link>
-                    </MenuItem>
-                    <MenuItem>
-                      <Link
-                        href="/recipes"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        Recipe Finder
-                      </Link>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-                <div className="hidden lg:block">
-                  <Profile />
-                </div>
-              </>
-            ) : (
-              <ListItem className="flex space-x-4 items-center font-bold font-sans">
-                <Link href="/contact" className="text-white hover:opacity-80">
-                  Contact
-                </Link>
-                <Link href="/login" className="text-white hover:opacity-80">
-                  Login
-                </Link>
-              </ListItem>
-            )}
-          </List>
-        </div>
-        <Collapse open={isMenuOpen} className="lg:hidden w-full">
-          <List className="flex flex-col space-y-4">
-            {isLoggedIn ? (
-              <>
-                <Menu>
-                  <MenuHandler>
-                    <Typography
-                      as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold text-sm"
-                    >
-                      <span>Tracker</span>
-                      <IoIosArrowDown className="ml-1" />
-                    </Typography>
-                  </MenuHandler>
-                  <MenuList>
-                    <MenuItem>
-                      <Link
-                        href="/tracker"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        Enter New Weight
-                      </Link>
-                    </MenuItem>
-                    <MenuItem>
-                      <Link
-                        href="/tracker/chart"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        View Weight Log
-                      </Link>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-                <Menu>
-                  <MenuHandler>
-                    <Typography
-                      as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold text-sm"
-                    >
-                      <span>Competitions</span>
-                      <IoIosArrowDown className="ml-1" />
-                    </Typography>
-                  </MenuHandler>
-                  <MenuList>
-                    <MenuItem>
-                      <Link
-                        href="/competitions/create"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        Create New Competition
-                      </Link>
-                    </MenuItem>
-                    <MenuItem>
-                      <Link
-                        href="/competitions"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        View Active Competitions
-                      </Link>
-                    </MenuItem>
-                    <MenuItem>
-                      <Link
-                        href="/competitions/history"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        View Competition History
-                      </Link>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-                <Menu>
-                  <MenuHandler>
-                    <Typography
-                      as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold text-sm"
-                    >
-                      <span>Workouts</span>
-                      <IoIosArrowDown className="ml-1" />
-                    </Typography>
-                  </MenuHandler>
-                  <MenuList>
-                    <MenuItem>
-                      <Link
-                        href="/workouts/browse"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        Browse Exercises
-                      </Link>
-                    </MenuItem>
-                    <MenuItem>
-                      <Link
-                        href="/workouts"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        View Workouts
-                      </Link>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-                <Menu>
-                  <MenuHandler>
-                    <Typography
-                      as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold text-sm"
-                    >
-                      <span>Goals</span>
-                      <IoIosArrowDown className="ml-1" />
-                    </Typography>
-                  </MenuHandler>
-                  <MenuList>
-                    <MenuItem>
-                      <Link
-                        href="/goals"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        View Active Goals
-                      </Link>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-                <Menu>
-                  <MenuHandler>
-                    <Typography
-                      as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold text-sm"
-                    >
-                      <span>Tools</span>
-                      <IoIosArrowDown className="ml-1" />
-                    </Typography>
-                  </MenuHandler>
-                  <MenuList>
-                    <MenuItem>
-                      <Link
-                        href="/calculator"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        BMI Calculator
-                      </Link>
-                    </MenuItem>
-                    <MenuItem>
-                      <Link
-                        href="/calculator/calorie"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        Calorie Calculator
-                      </Link>
-                    </MenuItem>
-                    <MenuItem>
-                      <Link
-                        href="/recipes"
-                        className="block px-1 py-1 text-sm hover:bg-gray-100 hover:rounded"
-                      >
-                        Recipe Finder
-                      </Link>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-                <Menu>
-                  <MenuHandler>
-                    <MenuItem>
-                      <Typography
-                        as="div"
-                        className="flex items-center py-2  cursor-pointer font-bold text-sm"
-                      >
-                        <Link href="/profile" className="">
-                          <span>Profile</span>
-                        </Link>
-                      </Typography>
-                    </MenuItem>
-                  </MenuHandler>
-                </Menu>
-                <Menu>
-                  <MenuHandler>
-                    <MenuItem>
-                      <Typography
-                        as="div"
-                        className="flex items-center py-2  cursor-pointer font-bold text-sm"
-                      >
-                        <button
-                          onClick={handleSignOutUser}
-                          data-testid="logout"
-                        >
-                          <span data-testid="logout">Logout</span>
-                        </button>
-                      </Typography>
-                    </MenuItem>
-                  </MenuHandler>
-                </Menu>
-              </>
-            ) : (
-              <Collapse open={isMenuOpen} className="lg:hidden w-full">
-                <Menu>
-                  <MenuHandler>
-                    <Typography
-                      as="div"
-                      className="flex items-center py-2 px-3 cursor-pointer font-bold text-sm"
-                    >
-                      <MdContactSupport />
-                      <Link
-                        href="/contact"
-                        className="text-white hover:opacity-80 ml-2"
-                      >
-                        <span>Contact</span>
-                      </Link>
-                    </Typography>
-                  </MenuHandler>
 
-                  <MenuHandler>
-                    <Typography
-                      as="div"
-                      className="flex items-center space-x-2 py-2 px-3 cursor-pointer font-bold text-sm"
+        <div
+          className={`lg:flex items-center space-x-6 hidden font-sans`}
+          ref={dropdownRef}
+        >
+          {isLoggedIn ? (
+            <>
+              <div className="relative">
+                <button
+                  onClick={() => toggleDropdown("tracker")}
+                  className="flex items-center space-x-2"
+                >
+                  <span>Tracker</span>
+                  <IoIosArrowDown />
+                </button>
+                {isDropdownOpen === "tracker" && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 shadow-lg z-10 text-sm rounded">
+                    <Link
+                      href="/tracker"
+                      className="block px-4 py-2 hover:bg-gray-100 hover:rounded"
                     >
-                      <MdOutlineLogin />
-                      <Link
-                        href="/login"
-                        className="text-white hover:opacity-80"
-                      >
-                        <span>Login</span>
-                      </Link>
-                    </Typography>
-                  </MenuHandler>
-                </Menu>
-              </Collapse>
-            )}
-          </List>
-        </Collapse>
+                      Enter New Weight
+                    </Link>
+                    <Link
+                      href="/tracker/chart"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      Weight Log
+                    </Link>
+                  </div>
+                )}
+              </div>
+              <div className="relative">
+                <button
+                  onClick={() => toggleDropdown("competitions")}
+                  className="flex items-center space-x-2"
+                >
+                  <span>Competitions</span>
+                  <IoIosArrowDown />
+                </button>
+                {isDropdownOpen === "competitions" && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 shadow-lg z-10 text-sm rounded">
+                    <Link
+                      href="/competitions/create"
+                      className="block px-4 py-2 hover:bg-gray-100 hover:rounded"
+                    >
+                      Create Competition
+                    </Link>
+                    <Link
+                      href="/competitions"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      Active Competitions
+                    </Link>
+                    <Link
+                      href="/competitions/history"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      Competition History
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              <div className="relative">
+                <button
+                  onClick={() => toggleDropdown("workouts")}
+                  className="flex items-center space-x-2"
+                >
+                  <span>Workouts</span>
+                  <IoIosArrowDown />
+                </button>
+                {isDropdownOpen === "workouts" && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-md shadow-lg z-10 text-sm">
+                    <Link
+                      href="/workouts/browse"
+                      className="block px-4 py-2 hover:bg-gray-100 hover:rounded"
+                    >
+                      Browse Exercises
+                    </Link>
+                    <Link
+                      href="/workouts"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      View Workouts
+                    </Link>
+                  </div>
+                )}
+              </div>
+              <div className="relative">
+                <button
+                  onClick={() => toggleDropdown("tools")}
+                  className="flex items-center space-x-2"
+                >
+                  <span>Tools</span>
+                  <IoIosArrowDown />
+                </button>
+                {isDropdownOpen === "tools" && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 shadow-lg z-10 text-sm rounded">
+                    <Link
+                      href="/calculator"
+                      className="block px-4 py-2 hover:bg-gray-100 hover:rounded"
+                    >
+                      BMI Calculator
+                    </Link>
+                    <Link
+                      href="/calculator/calorie"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      Calorie Calculator
+                    </Link>
+                    <Link
+                      href="/recipes"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      Recipe Finder
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              <div className="relative">
+                <button>
+                  <Link href="/goals" className="block px-4 py-2">
+                    Goals
+                  </Link>
+                </button>
+              </div>
+              <Profile />
+            </>
+          ) : (
+            <div className="flex space-x-4">
+              <Link href="/contact" className="hover:underline">
+                Contact
+              </Link>
+              <Link href="/login" className="hover:underline">
+                Login
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
-    </Navbar>
+      {isMenuOpen && (
+        <div className="lg:hidden mt-4 space-y-2">
+          {isLoggedIn ? (
+            <>
+              <div>
+                <button
+                  onClick={() => toggleDropdown("tracker")}
+                  className="flex items-center justify-between w-full px-4 py-2 bg-gray-700 text-left"
+                >
+                  <span>Tracker</span>
+                  <IoIosArrowDown />
+                </button>
+                {isDropdownOpen === "tracker" && (
+                  <div className="mt-2 space-y-1 bg-gray-700">
+                    <Link
+                      href="/tracker"
+                      className="block px-4 py-2 text-sm hover:bg-gray-600"
+                    >
+                      Enter New Weight
+                    </Link>
+                    <Link
+                      href="/tracker/chart"
+                      className="block px-4 py-2 text-sm hover:bg-gray-600"
+                    >
+                      View Weight Log
+                    </Link>
+                  </div>
+                )}
+              </div>
+              <div>
+                <button
+                  onClick={() => toggleDropdown("competitions")}
+                  className="flex items-center justify-between w-full px-4 py-2 bg-gray-700 text-left"
+                >
+                  <span>Competitions</span>
+                  <IoIosArrowDown />
+                </button>
+                {isDropdownOpen === "competitions" && (
+                  <div className="mt-2 space-y-1 bg-gray-700">
+                    <Link
+                      href="/competitions/create"
+                      className="block px-4 py-2 text-sm hover:bg-gray-600"
+                    >
+                      Create New Competition
+                    </Link>
+                    <Link
+                      href="/competitions"
+                      className="block px-4 py-2 text-sm hover:bg-gray-600"
+                    >
+                      View Active Competitions
+                    </Link>
+                    <Link
+                      href="/competitions/history"
+                      className="block px-4 py-2 text-sm hover:bg-gray-600"
+                    >
+                      View Competition History
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              <Link
+                href="/profile"
+                className="block px-4 py-2 bg-gray-700 text-left hover:bg-gray-600"
+              >
+                Profile
+              </Link>
+              <button
+                onClick={handleSignOutUser}
+                className="block px-4 py-2 bg-gray-700 text-left hover:bg-gray-600"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/contact"
+                className="block px-4 py-2 bg-gray-700 text-left hover:bg-gray-600"
+              >
+                Contact
+              </Link>
+              <Link
+                href="/login"
+                className="block px-4 py-2 bg-gray-700 text-left hover:bg-gray-600"
+              >
+                Login
+              </Link>
+            </>
+          )}
+        </div>
+      )}
+    </nav>
   )
 }

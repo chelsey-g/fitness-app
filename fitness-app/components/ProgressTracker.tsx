@@ -42,7 +42,7 @@ export default function ProgressTracker() {
       const currentDate = today.subtract(i, "day")
       const dateStr = currentDate.format("MM-DD-YYYY")
       const color =
-        i === 0 ? "gray" : weightDate.includes(dateStr) ? "green" : "gray"
+        i === 0 ? "gray" : weightDate.includes(dateStr) ? "logo-green" : "gray"
       const tooltipText = dateStr
       dates.push({ color, tooltip: tooltipText })
     }
@@ -55,7 +55,11 @@ export default function ProgressTracker() {
         In the last 30 days, you tracked your weight on the following days:
       </div>
       <div>
-        <Tracker data={handleGenerateDates()} role="tracker" />
+        <Tracker
+          data={handleGenerateDates()}
+          role="tracker"
+          className="button-text"
+        />
       </div>
     </div>
   )
