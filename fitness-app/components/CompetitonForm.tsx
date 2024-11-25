@@ -103,8 +103,10 @@ export default function CompetitionForm() {
 
   return (
     <>
-      <div className="p-4 mb-5 mt-8 rounded-lg">
+      <div className="w-full">
         <Navigation />
+      </div>
+      <div className="max-w-5xl mx-auto mt-6 bg-white rounded">
         <form
           onSubmit={handleSubmit}
           className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"

@@ -117,7 +117,7 @@ export default function WeightChartPage() {
   return (
     <div className="w-full">
       <Navigation />
-      <div className="max-w-5xl mx-auto p-4">
+      <div className="max-w-5xl mx-auto">
         {showAlert && (
           <Alert
             className="bg-red-100 border-l-4 border-red-500 text-red-700 p-2 rounded-md shadow-md"
@@ -137,10 +137,17 @@ export default function WeightChartPage() {
           </Alert>
         )}
 
-        <div className="bg-white shadow-md rounded-lg my-6 p-4">
-          <h2 className="text-lg font-semibold mb-4 text-snd-bkg">
-            Weight History
-          </h2>
+        <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg">
+          <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
+            <h2 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
+              Weight History
+            </h2>
+            <p className="text-lg text-gray-700">
+              Track your progress and review your past entries to stay on top of
+              your fitness goals.
+            </p>
+          </div>
+
           <div className="flex justify-center mb-4">
             <DropdownMenu
               initialStartDate={startDate}
