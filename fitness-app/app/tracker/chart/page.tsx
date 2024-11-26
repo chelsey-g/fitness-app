@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import DropdownMenu from "@/components/DateRangePicker"
 import { DeleteWeight } from "@/components/TrackerActions"
 import { FaTrashAlt } from "react-icons/fa"
+import { IoMdAdd } from "react-icons/io"
 import Link from "next/link"
 import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
@@ -137,7 +138,17 @@ export default function WeightChartPage() {
           </Alert>
         )}
 
-        <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg">
+        <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg relative">
+          <div className="absolute top-6 right-6">
+            <Link href="/tracker">
+              <button className="relative flex items-center bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <IoMdAdd className="mr-2 text-lg" />
+                Add Weight
+                <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
+              </button>
+            </Link>
+          </div>
+
           <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
             <h2 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
               Weight History
@@ -159,7 +170,7 @@ export default function WeightChartPage() {
             />
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full table-auto">
+            <table className="min-w-full table-auto mb-6">
               <thead>
                 <tr className="bg-white text-gray-600 uppercase text-sm leading-normal">
                   <th className="py-3 px-6 text-left">Date</th>
@@ -193,14 +204,6 @@ export default function WeightChartPage() {
                 )}
               </tbody>
             </table>
-          </div>
-          <div className="flex justify-center mt-4">
-            <Link href="/tracker">
-              <button className="relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 m-5">
-                Add Weight
-                <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
-              </button>
-            </Link>
           </div>
         </div>
       </div>

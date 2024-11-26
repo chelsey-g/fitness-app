@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from "react"
 
 import AddPlayers from "@/components/AddPlayers"
-import BackButton from "@/components/BackButton"
 import Navigation from "./Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
+import BackButton from "./BackButton"
 
 export default function CompetitionForm() {
   const supabase = createClient()
@@ -99,130 +99,125 @@ export default function CompetitionForm() {
     setAddPlayers(e.target.value === "yes")
   }
 
-  console.log("selectedPlayerIds", selectedPlayerIds)
-
   return (
-    <>
-      <div className="w-full">
-        <Navigation />
-      </div>
-      <div className="max-w-5xl mx-auto mt-6 bg-white rounded">
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-        >
+    <div className="w-full">
+      <Navigation />
+      <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg relative">
           <BackButton />
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="name"
-            >
-              Name of Competition
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-grey-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="name"
-              type="text"
-              placeholder="Competition Name"
-              name="name"
-              value={competitionData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="selectPlayers"
-            >
-              Select Players
-            </label>
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              <input
-                className="mr-2"
-                type="radio"
-                name="selectPlayers"
-                value="yes"
-                onChange={handleAddPlayers}
-                checked={addPlayers === true}
-              />
-              Yes
-            </label>
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              <input
-                className="mr-2"
-                type="radio"
-                name="selectPlayers"
-                value="no"
-                onChange={handleAddPlayers}
-                checked={addPlayers === false}
-              />
-              No
-            </label>
-          </div>
-          {addPlayers && (
-            <div className="mb-4" data-testid="add-players">
-              <AddPlayers selectPlayers={handleSelectPlayers} />
-            </div>
-          )}
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2 mt-4"
-              htmlFor="date_started"
-            >
-              Start Date
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="date_started"
-              type="date"
-              name="date_started"
-              value={competitionData.date_started}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="date_ending"
-            >
-              End Date
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="date_ending"
-              type="date"
-              name="date_ending"
-              value={competitionData.date_ending}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="rules"
-            >
-              Rules
-            </label>
-            <textarea
-              className="shadow appearance-none border rounded w-3/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="rules"
-              name="rules"
-              value={competitionData.rules}
-              onChange={handleChange}
-              rows={4}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <button
-              className="bg-snd-bkg hover:opacity-90 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
-            >
+          <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
+            <h2 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
               Create Competition
-            </button>
+            </h2>
+            <p className="text-lg text-gray-700">
+              Set up a new competition and invite players to join the fun.
+            </p>
           </div>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-6 px-6 pb-6">
+            <div className="flex flex-col">
+              <label className="text-gray-600 mb-1" htmlFor="name">
+                Name of Competition
+              </label>
+              <input
+                type="text"
+                id="name"
+                placeholder="Competition Name"
+                name="name"
+                value={competitionData.name}
+                onChange={handleChange}
+                required
+                className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-gray-600 mb-1">Select Players</label>
+              <div className="flex items-center">
+                <label className="flex items-center mr-4">
+                  <input
+                    type="radio"
+                    name="selectPlayers"
+                    value="yes"
+                    onChange={handleAddPlayers}
+                    checked={addPlayers === true}
+                    className="mr-2"
+                  />
+                  Yes
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="selectPlayers"
+                    value="no"
+                    onChange={handleAddPlayers}
+                    checked={addPlayers === false}
+                    className="mr-2"
+                  />
+                  No
+                </label>
+              </div>
+            </div>
+
+            {addPlayers && (
+              <div className="mb-4" data-testid="add-players">
+                <AddPlayers selectPlayers={handleSelectPlayers} />
+              </div>
+            )}
+
+            <div className="flex flex-col">
+              <label className="text-gray-600 mb-1" htmlFor="date_started">
+                Start Date
+              </label>
+              <input
+                type="date"
+                id="date_started"
+                name="date_started"
+                value={competitionData.date_started}
+                onChange={handleChange}
+                className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-gray-600 mb-1" htmlFor="date_ending">
+                End Date
+              </label>
+              <input
+                type="date"
+                id="date_ending"
+                name="date_ending"
+                value={competitionData.date_ending}
+                onChange={handleChange}
+                className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-gray-600 mb-1" htmlFor="rules">
+                Rules
+              </label>
+              <textarea
+                id="rules"
+                name="rules"
+                value={competitionData.rules}
+                onChange={handleChange}
+                rows={4}
+                className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div className="flex justify-center">
+              <button
+                type="submit"
+                className="relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              >
+                Create Competition
+                <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </>
+    </div>
   )
 }

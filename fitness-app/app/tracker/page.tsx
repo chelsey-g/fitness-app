@@ -4,7 +4,7 @@ import { useState } from "react"
 import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
-import { IoMdArrowRoundBack } from "react-icons/io"
+import BackButton from "@/components/BackButton"
 
 export default function TrackerPage() {
   const [date, setDate] = useState(new Date().toISOString().substr(0, 10))
@@ -33,21 +33,12 @@ export default function TrackerPage() {
     }
   }
 
-  const handleChartButton = () => {
-    router.push("/tracker/chart")
-  }
-
   return (
     <div className="w-full">
       <Navigation />
       <div className="max-w-5xl mx-auto">
         <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg relative">
-          <button
-            onClick={handleChartButton}
-            className="absolute top-6 right-6 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800 font-bold py-2 px-4 rounded-full shadow transition duration-300"
-          >
-            <IoMdArrowRoundBack className="text-nav-bkg" />
-          </button>
+          <BackButton />
 
           <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
             <h2 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
