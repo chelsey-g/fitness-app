@@ -4,6 +4,7 @@ import { useState } from "react"
 import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
+import { IoMdArrowRoundBack } from "react-icons/io"
 
 export default function TrackerPage() {
   const [date, setDate] = useState(new Date().toISOString().substr(0, 10))
@@ -39,51 +40,61 @@ export default function TrackerPage() {
   return (
     <div className="w-full">
       <Navigation />
-      <div className="max-w-4xl mx-auto bg-white rounded-lg p-8 shadow-lg mt-8">
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold text-black mb-2">
-            Weight Tracker
-          </h2>
-          <h3 className="text-sm font-semibold text-gray-600">
-            Submitting will automatically update your progress in any ongoing
-            competitions.
-          </h3>
+      <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg relative">
+          <button
+            onClick={handleChartButton}
+            className="absolute top-6 right-6 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800 font-bold py-2 px-4 rounded-full shadow transition duration-300"
+          >
+            <IoMdArrowRoundBack className="text-nav-bkg" />
+          </button>
+
+          <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
+            <h2 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
+              Weight History
+            </h2>
+            <p className="text-lg text-gray-700">
+              Track your progress and review your past entries to stay on top of
+              your fitness goals.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6 px-6 pb-6">
+            <div className="flex flex-col">
+              <label htmlFor="date" className="text-gray-600 mb-1">
+                Date:
+              </label>
+              <input
+                type="date"
+                id="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="weight" className="text-gray-600 mb-1">
+                Weight (lbs):
+              </label>
+              <input
+                type="number"
+                id="weight"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <div className="flex justify-center">
+              <button
+                type="submit"
+                className="relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              >
+                Add Weight
+                <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
+              </button>
+            </div>
+          </form>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-col">
-            <label htmlFor="date" className="text-gray-600 mb-1">
-              Date:
-            </label>
-            <input
-              type="date"
-              id="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-            />
-          </div>
-          <div className="flex flex-col">
-            <label htmlFor="weight" className="text-gray-600 mb-1">
-              Weight (lbs):
-            </label>
-            <input
-              type="number"
-              id="weight"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-            />
-          </div>
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              className="relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
-            >
-              Add Weight
-              <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   )
