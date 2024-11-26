@@ -17,7 +17,7 @@ export function getOrdinalSuffix(number: number) {
 }
 
 export function getRandomColor() {
-  const colors = ["bg-snd-bkg", "bg-trd-bkg", "bg-nav-bkg"]
+  const colors = ["bg-nav-bkg", "bg-logo-bkg", "bg-prm-bkg"]
   return colors[Math.floor(Math.random() * colors.length)]
 }
 

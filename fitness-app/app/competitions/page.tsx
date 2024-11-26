@@ -55,11 +55,6 @@ export default function CompetitionsPage() {
     }
   }
 
-  const handleExpiredCompetition = (endDate: string) => {
-    const endDateTime = new Date(endDate).getTime()
-    return endDateTime < new Date().getTime()
-  }
-
   const handleShowExpiredCompetitions = () => {
     router.push("/competitions/history")
   }
@@ -68,7 +63,7 @@ export default function CompetitionsPage() {
       <Navigation />
 
       <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg">
-        {competitions?.length > 0 && (
+        {(competitions?.length ?? 0) > 0 && (
           <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
             <h1 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
               Active Competitions
@@ -98,31 +93,27 @@ export default function CompetitionsPage() {
               key={index}
               className="flex items-center justify-between mb-4 p-2 pr-5 bg-white rounded-lg hover:bg-gray-100 group"
             >
-              <div className="flex items-center">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${getRandomColor()}`}
-                >
-                  <span className="text-white text-sm font-semibold">
-                    {result.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <Link
-                  href={`/competitions/${result.id}`}
-                  className={`ml-3 text-black hover:text-snd-bkg font-medium ${
-                    handleExpiredCompetition(result.date_ending)
-                      ? "text-red-500"
-                      : ""
-                  }`}
-                >
-                  {result.name}
-                  {handleExpiredCompetition(result.date_ending) && (
-                    <span className="text-xs ml-2">
-                      (This competition has ended)
+              <div className="flex items-center justify-between w-full border-b pb-4">
+                <div className="flex items-center">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${getRandomColor()}`}
+                  >
+                    <span className="text-white text-sm font-semibold">
+                      {result.name.charAt(0).toUpperCase()}
                     </span>
-                  )}
-                </Link>
+                  </div>
+                  <Link
+                    href={`/competitions/${result.id}`}
+                    className="ml-3 text-black hover:text-snd-bkg font-medium"
+                  >
+                    {result.name}
+                  </Link>
+                </div>
+                <span className="text-gray-500 text-sm ml-auto text-right">
+                  End Date: {new Date(result.date_ending).toLocaleDateString()}
+                </span>
               </div>
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center ml-4">
                 <DeleteCompetition
                   deleteCompetition={() => handleDeleteCompetition(result.id)}
                 />
@@ -141,7 +132,7 @@ export default function CompetitionsPage() {
             </div>
           )}
 
-          <div className="flex justify-center border-t border-gray-100">
+          <div className="flex justify-center">
             <button
               className="mt-5 relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
               onClick={handleShowExpiredCompetitions}

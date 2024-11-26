@@ -169,10 +169,7 @@ export default function WeightChartPage() {
               <tbody className="text-gray-600 text-sm font-light">
                 {weightData && weightData.length > 0 ? (
                   weightData.map((data: any, index: any) => (
-                    <tr
-                      key={index}
-                      className="border-b border-gray-200 hover:bg-gray-100 group"
-                    >
+                    <tr key={index} className="hover:bg-gray-100 group">
                       <td className="py-3 px-6 text-left">
                         {handleFormattedDate(data.date_entry)}
                       </td>
@@ -199,7 +196,7 @@ export default function WeightChartPage() {
           </div>
           <div className="flex justify-center mt-4">
             <Link href="/tracker">
-              <button className="relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <button className="relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 m-5">
                 Add Weight
                 <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
               </button>
