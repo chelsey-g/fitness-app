@@ -6,15 +6,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 import { Button } from "@/components/ui/button"
-import { FaEllipsisH } from "react-icons/fa"
+import { MdDeleteOutline } from "react-icons/md"
 import { useState } from "react"
 
 export default function GoalsDropdown({
@@ -22,57 +16,51 @@ export default function GoalsDropdown({
 }: {
   deleteGoals: () => Promise<void>
 }) {
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleEditModal = () => {
+    setIsOpen(true)
+  }
 
   const handleDeleteAndClose = async () => {
     await deleteGoals()
-    setIsDeleteOpen(false)
+    setIsOpen(false)
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="text-snd-bkg hover:text-red-900 rounded-full p-2 bg-gray-200 hover:bg-gray-300 transition-colors duration-150 ease-in-out">
-          <FaEllipsisH />
+    <Dialog onOpenChange={setIsOpen}>
+      <DialogTrigger>
+        <button
+          type="button"
+          className="flex items-center justify-center p-2"
+          onClick={handleEditModal}
+        >
+          <MdDeleteOutline className="w-5 h-5 text-red-600" />
         </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-auto min-w-full bg-white shadow-lg rounded-md overflow-hidden border border-gray-200">
-        <DropdownMenuGroup className="py-1">
-          <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-            <DialogTrigger asChild>
-              <button
-                onClick={() => setIsDeleteOpen(true)}
-                className="text-sm px-4 py-2 text-snd-bkg"
-                data-testid="delete-button"
-                aria-label="delete-button"
-              >
-                Delete
-              </button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-white">
-              <DialogHeader>
-                <DialogTitle>Delete Goal</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4" aria-label="delete-dialog">
-                <div className="text-sm">
-                  Are you sure you wish to delete this goal entry? <br />
-                  This action cannot be undone.
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  className="bg-red-600 text-white"
-                  onClick={handleDeleteAndClose}
-                  data-testid="delete-dialog"
-                >
-                  Delete
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px] bg-white rounded-lg shadow-lg p-6">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-semibold text-gray-900">
+            Delete Goal
+          </DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="text-sm text-gray-700">
+            Are you sure you wish to delete this goal? <br />
+            This action cannot be undone.
+          </div>
+        </div>
+        <DialogFooter className="flex justify-end space-x-4">
+          <Button
+            type="button"
+            data-testid="confirm-delete"
+            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+            onClick={handleDeleteAndClose}
+          >
+            Delete
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+// import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { FaCheckCircle, FaTrashAlt } from "react-icons/fa"
+// import { FaCheckCircle } from "react-icons/fa"
 import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
 import useSWR, { Fetcher } from "swr"
 
@@ -140,103 +140,32 @@ export default function ProfileGoals() {
   }
 
   return (
-    <div className="p-4">
+    <div className="w-full">
       <Navigation />
-      {GoalSubmitAlert && (
-        <Alert
-          className="bg-green-100 border-l-4 border-green-500 text-green-700 p-2 rounded-md shadow-md"
-          role="alert"
-        >
-          <div className="flex items-center">
-            <FaCheckCircle className="flex-shrink-0 w-4 h-4 text-green-500 mr-2" />
-            <div>
-              <AlertTitle className="font-bold text-md">
-                Goal Created
-              </AlertTitle>
-              <AlertDescription className="mt-1 text-sm">
-                Your goal has been created successfully. Good luck!
-              </AlertDescription>
-            </div>
-          </div>
-        </Alert>
-      )}
-      {deleteAlert && (
-        <Alert
-          className="bg-red-100 border-l-4 border-red-500 text-red-700 p-2 rounded-md shadow-md"
-          role="alert"
-        >
-          <div className="flex items-center">
-            <FaTrashAlt className="flex-shrink-0 w-4 h-4 text-red-500 mr-2" />
-            <div>
-              <AlertTitle className="font-bold text-md">
-                Goal Deleted
-              </AlertTitle>
-              <AlertDescription className="mt-1 text-sm">
-                Your goal has been deleted successfully.
-              </AlertDescription>
-            </div>
-          </div>
-        </Alert>
-      )}
-      <div className="overflow-x-auto mt-4 bg-white rounded-lg shadow-md p-4">
-        <h1 className="text-lg font-semibold text-center">Active Goals</h1>
-        <table className="min-w-full">
-          <thead className="font-semibold">
-            <tr className="items-center">
-              <th className="p-2 text-sm">Goal Date</th>
-              <th className="p-2 text-sm">Goal Weight</th>
-              <th className="p-2 text-sm">Days Left</th>
-              <th className="p-2 text-sm">Weight Remaining</th>
-              <th className="p-2 text-sm"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {activeGoals?.map((goal) => (
-              <tr key={goal.id}>
-                <td className="p-2 text-sm text-center">
-                  {handleDate(goal.goal_date)}
-                </td>
-                <td className="p-2 text-sm text-center">
-                  {goal.goal_weight} lbs
-                </td>
-                <td className="p-2 text-sm text-center">
-                  {calculateDaysLeft(goal.goal_date)}
-                </td>
-                <td className="p-2 text-sm text-center">
-                  {calculateWeightDifference(
-                    goal.goal_weight,
-                    weights?.[0]?.weight
-                  )}{" "}
-                  lbs
-                </td>
-                <td className="p-2 text-sm text-center">
-                  <GoalsDropdown
-                    deleteGoals={() => handleDeleteGoal(goal.id)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="mt-4 text-center">
+      <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg shadow-md relative">
+        <div className="absolute top-6 right-6">
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <button
                 onClick={handleEditModal}
-                className="text-sm px-4 py-2 bg-snd-bkg text-white rounded hover:bg-gray-600"
+                className="relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
               >
                 Add New Goal
+                <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
               </button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-white">
+            <DialogContent className="sm:max-w-[425px] bg-white rounded-lg shadow-lg p-6">
               <DialogHeader>
-                <DialogTitle>Add New Goal</DialogTitle>
+                <DialogTitle className="text-xl font-semibold text-gray-900">
+                  Add New Goal
+                </DialogTitle>
                 <DialogDescription>
-                  Add a new personal goal here. Click save when you're done.
+                  Enter your goal details below and click save to add your new
+                  goal.
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="flex flex-col sm:flex-row items-center gap-4">
+              <form onSubmit={handleGoalSubmit} className="space-y-4">
+                <div className="flex flex-col">
                   <Label
                     htmlFor="goal_weight"
                     className="block text-sm font-medium text-gray-700"
@@ -249,10 +178,11 @@ export default function ProfileGoals() {
                     id="goal_weight"
                     value={goalWeight}
                     onChange={(e) => setGoalWeight(e.target.value)}
-                    className="focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm sm:text-sm border-gray-300 rounded-md w-full sm:w-60"
+                    className="focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    required
                   />
                 </div>
-                <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="flex flex-col">
                   <Label
                     htmlFor="goal_date"
                     className="block text-sm font-medium text-gray-700"
@@ -265,20 +195,85 @@ export default function ProfileGoals() {
                     id="goal_date"
                     value={goalDate}
                     onChange={(e) => setGoalDate(e.target.value)}
-                    className="focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm sm:text-sm border-gray-300 rounded-md w-full sm:w-60"
+                    className="focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    required
                   />
                 </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  className="mt-4 bg-snd-bkg hover:bg-snd-bkg text-white py-3 px-6 rounded-full focus:outline-none"
-                  onClick={handleGoalSubmit}
-                >
-                  Save
-                </Button>
-              </DialogFooter>
+                <DialogFooter>
+                  <Button
+                    type="submit"
+                    className="relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                  >
+                    Save
+                  </Button>
+                </DialogFooter>
+              </form>
             </DialogContent>
           </Dialog>
+        </div>
+
+        <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
+          <h1 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
+            Active Goals
+          </h1>
+          <p className="text-lg text-gray-700">
+            Track your progress and stay focused on your fitness journey.
+          </p>
+        </div>
+        <div className="p-6">
+          <div className="overflow-x-auto">
+            {activeGoals.length > 0 && (
+              <table className="min-w-full table-auto">
+                <thead className="font-semibold text-gray-700 uppercase">
+                  <tr>
+                    <th className="p-2 text-sm text-left">Goal Date</th>
+                    <th className="p-2 text-sm text-left">Goal Weight</th>
+                    <th className="p-2 text-sm text-left">Days Left</th>
+                    <th className="p-2 text-sm text-left">Weight Remaining</th>
+                    <th className="p-2 text-sm text-left"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activeGoals?.map((goal) => (
+                    <tr
+                      key={goal.id}
+                      className={`border-b border-gray-200 hover:bg-gray-50 group`}
+                    >
+                      <td className="p-2 text-sm">
+                        {handleDate(goal.goal_date)}
+                      </td>
+                      <td className="p-2 text-sm">{goal.goal_weight} lbs</td>
+                      <td className="p-2 text-sm">
+                        {calculateDaysLeft(goal.goal_date)}
+                      </td>
+                      <td className="p-2 text-sm">
+                        {calculateWeightDifference(
+                          goal.goal_weight,
+                          weights?.[0]?.weight
+                        )}{" "}
+                        lbs
+                      </td>
+                      <td className="p-2 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                        <GoalsDropdown
+                          deleteGoals={() => handleDeleteGoal(goal.id)}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+          {activeGoals?.length === 0 && (
+            <div className="text-center py-10">
+              <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+                No Active Goals
+              </h2>
+              <p className="text-gray-500 text-lg mb-6">
+                You haven’t set any goals yet. Start now to stay motivated!
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

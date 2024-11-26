@@ -42,7 +42,7 @@ export default function TrackerPage() {
 
           <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
             <h2 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
-              Weight History
+              Record Weight
             </h2>
             <p className="text-lg text-gray-700">
               Track your progress and review your past entries to stay on top of
