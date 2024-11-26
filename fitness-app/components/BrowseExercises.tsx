@@ -54,13 +54,6 @@ export default function BrowseExercises() {
 
   return (
     <div className="bg-white rounded pt-1 pb-4 px-4">
-      <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Browse Exercises</h1>
-        <p className="text-lg text-gray-600 mt-2">
-          Explore the exercises below to get started, or use the search to find
-          specific ones!
-        </p>
-      </div>
       <div className="container mx-auto">
         {exercises.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -71,7 +64,7 @@ export default function BrowseExercises() {
                 className="bg-white shadow-md p-6 rounded-lg hover:shadow-lg transition duration-300 ease-in-out"
               >
                 <div className="flex items-center">
-                  <FaDumbbell className="text-gray-800 mr-2" />
+                  <FaDumbbell className="text-nav-bkg mr-2" />
                   <h2 className="text-lg font-bold text-gray-800 cursor-pointer hover:opacity-80 transition duration-300 ease-in-out">
                     <Link href={`exercise/${exercise.name}`}>
                       {exercise.name}
@@ -79,7 +72,7 @@ export default function BrowseExercises() {
                   </h2>
                 </div>
                 <div className="flex mt-4 items-center">
-                  <FaWeightHanging className="text-gray-600 mr-2" />
+                  <FaWeightHanging className="text-logo-green mr-2" />
                   <div className="flex">
                     <h3 className="text-gray-600 font-bold mr-2">
                       Difficulty:

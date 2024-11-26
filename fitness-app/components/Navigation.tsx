@@ -100,7 +100,9 @@ export default function Navigation() {
                     <Link
                       href="/tracker"
                       className="block px-4 py-2 hover:bg-gray-100 hover:rounded"
-                    ></Link>
+                    >
+                      Weight Log
+                    </Link>
                     <Link
                       href="/tracker/chart"
                       className="block px-4 py-2 hover:bg-gray-100"

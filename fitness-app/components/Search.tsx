@@ -103,10 +103,11 @@ export default function SearchBar({
             </button>
           )}
           <button
-            className="ml-2 py-2 px-4 bg-snd-bkg text-white rounded-md focus:outline-none"
+            className="relative flex items-center bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 ml-2"
             onClick={handleSearch}
           >
             Search
+            <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
           </button>
         </div>
         {results.length > 0 && (

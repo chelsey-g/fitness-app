@@ -1,7 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
-
+import { useState } from "react"
 import Navigation from "../../../components/Navigation"
 
 const CalorieCalculator = () => {
@@ -53,86 +52,101 @@ const CalorieCalculator = () => {
   }
 
   return (
-    <div>
+    <div className="w-full">
       <Navigation />
-      <div className="mx-auto bg-white shadow-lg rounded-lg p-8">
-        <h1 className="text-2xl font-bold mb-4 text-center">
-          Calorie Calculator
-        </h1>
-        <div className="mb-4">
-          <label className="block text-gray-700">Age:</label>
-          <input
-            type="number"
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            value={age}
-            onChange={(e) => setAge(e.target.value)}
-          />
+      <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg shadow-md p-6">
+        <div className="border-b-2 border-snd-bkg pb-4 mb-6">
+          <h1 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
+            Calorie Calculator
+          </h1>
+          <p className="text-lg text-gray-700">
+            Calculate your daily calorie needs based on your activity level.
+          </p>
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Gender:</label>
-          <select
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-          >
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Weight (lbs):</label>
-          <input
-            type="number"
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Height:</label>
-          <div className="flex space-x-2">
+
+        <form className="space-y-6">
+          <div>
+            <label className="block text-gray-600 mb-1">Age:</label>
             <input
               type="number"
-              className="w-1/2 p-2 border border-gray-300 rounded mt-1"
-              placeholder="Feet"
-              value={heightFeet}
-              onChange={(e) => setHeightFeet(e.target.value)}
-            />
-            <input
-              type="number"
-              className="w-1/2 p-2 border border-gray-300 rounded mt-1"
-              placeholder="Inches"
-              value={heightInches}
-              onChange={(e) => setHeightInches(e.target.value)}
+              className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 w-full"
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              placeholder="Enter your age"
             />
           </div>
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Activity Level:</label>
-          <select
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            value={activityLevel}
-            onChange={(e) => setActivityLevel(e.target.value)}
-          >
-            <option value="1.2">Sedentary: little or no exercise</option>
-            <option value="1.375">Light: exercise 1-3 times/week</option>
-            <option value="1.55">Moderate: exercise 4-5 times/week</option>
-            <option value="1.725">
-              Active: daily exercise or intense exercise 3-4 times/week
-            </option>
-            <option value="1.9">
-              Very Active: intense exercise 6-7 times/week
-            </option>
-          </select>
-        </div>
-        <button
-          className="w-full bg-snd-bkg text-white p-2 rounded mt-4"
-          onClick={calculateCalories}
-        >
-          Calculate
-        </button>
+          <div>
+            <label className="block text-gray-600 mb-1">Gender:</label>
+            <select
+              className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 w-full"
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+            >
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-gray-600 mb-1">Weight (lbs):</label>
+            <input
+              type="number"
+              className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 w-full"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              placeholder="Enter your weight"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-600 mb-1">Height:</label>
+            <div className="flex space-x-2">
+              <input
+                type="number"
+                className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 w-1/2"
+                placeholder="Feet"
+                value={heightFeet}
+                onChange={(e) => setHeightFeet(e.target.value)}
+              />
+              <input
+                type="number"
+                className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 w-1/2"
+                placeholder="Inches"
+                value={heightInches}
+                onChange={(e) => setHeightInches(e.target.value)}
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-gray-600 mb-1">Activity Level:</label>
+            <select
+              className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 w-full"
+              value={activityLevel}
+              onChange={(e) => setActivityLevel(e.target.value)}
+            >
+              <option value="1.2">Sedentary: little or no exercise</option>
+              <option value="1.375">Light: exercise 1-3 times/week</option>
+              <option value="1.55">Moderate: exercise 4-5 times/week</option>
+              <option value="1.725">
+                Active: daily exercise or intense exercise 3-4 times/week
+              </option>
+              <option value="1.9">
+                Very Active: intense exercise 6-7 times/week
+              </option>
+            </select>
+          </div>
+          <div className="flex justify-center">
+            <button
+              type="button"
+              className="relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              onClick={calculateCalories}
+            >
+              Calculate Calories
+              <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
+            </button>
+          </div>
+        </form>
+
         {calories && (
-          <div className="mt-4 p-4 bg-green-100 border border-green-400 rounded">
+          <div className="mt-6 p-4 bg-green-100 rounded-lg shadow-md border border-green-400">
             <h2 className="text-xl font-bold text-green-700">
               Your Daily Calorie Needs:
             </h2>
@@ -140,21 +154,24 @@ const CalorieCalculator = () => {
           </div>
         )}
       </div>
+
       {calorieData.length > 0 && (
-        <div className="mt-8 mx-auto bg-white shadow-lg rounded-lg p-8">
-          <h2 className="text-2xl font-bold mb-4 text-center">
-            Calorie Needs Based on Activity Level
-          </h2>
-          <table className="w-full table-auto">
+        <div className="max-w-5xl mx-auto mt-8 bg-white rounded-lg shadow-md p-6">
+          <div className="border-b-2 border-snd-bkg pb-4 mb-4">
+            <h2 className="text-2xl font-extrabold text-nav-bkg tracking-tight">
+              Calorie Needs Based on Activity Level
+            </h2>
+          </div>
+          <table className="min-w-full table-auto border-collapse border border-gray-200">
             <thead>
-              <tr>
+              <tr className="bg-gray-100">
                 <th className="px-4 py-2 border">Activity Level</th>
                 <th className="px-4 py-2 border">Calories Needed</th>
               </tr>
             </thead>
             <tbody>
               {calorieData.map((row, index) => (
-                <tr key={index}>
+                <tr key={index} className="hover:bg-gray-50">
                   <td className="px-4 py-2 border">{row.level}</td>
                   <td className="px-4 py-2 border">{row.calories}</td>
                 </tr>
