@@ -58,49 +58,73 @@ export default function CompetitionHistoryPage() {
   }
 
   return (
-    <div>
+    <div className="w-full">
       <Navigation />
-      <h1 className="p-4 text-2xl font-semibold text-white">
-        Competition History
-      </h1>
-      <div className="p-4">
-        {competitions?.map((result, index) => (
-          <div
-            key={index}
-            className="flex items-center justify-between mb-4 p-2 pr-5 bg-white shadow-md rounded-lg hover:bg-gray-50"
-          >
-            <div className="flex items-center">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${getRandomColor()}`}
-              >
-                <span className="text-white text-sm font-semibold">
-                  {result.name.charAt(0).toUpperCase()}
+      <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg shadow-md">
+        <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
+          <h1 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
+            Competition History
+          </h1>
+          <p className="text-lg text-gray-700">
+            Review your past competitions and see how far you've come.
+          </p>
+        </div>
+
+        <div className="p-4">
+          {competitions?.map((result, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between mb-4 p-2 pr-5 bg-white rounded-lg hover:bg-gray-100 group"
+            >
+              <div className="flex items-center justify-between w-full border-b pb-4">
+                <div className="flex items-center">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${getRandomColor()}`}
+                  >
+                    <span className="text-white text-sm font-semibold">
+                      {result.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <Link
+                    href={`/competitions/${result.id}`}
+                    className="ml-3 text-black hover:text-snd-bkg font-medium"
+                  >
+                    {result.name}
+                  </Link>
+                </div>
+                <span className="text-gray-500 text-sm ml-auto text-right">
+                  End Date: {new Date(result.date_ending).toLocaleDateString()}
                 </span>
               </div>
-
-              <Link
-                href={`/competitions/${result.name}`}
-                className="ml-3 text-black hover:text-blue-800 font-medium flex items-center"
-              >
-                {result.name}
-                <div className="text-gray-500 text-sm ml-4">
-                  (Ended on: {new Date(result.date_ending).toLocaleDateString()}
-                  )
-                </div>
-              </Link>
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center ml-4">
+                <DropdownMenuDemo
+                  deleteCompetition={() => handleDeleteCompetition(result.id)}
+                />
+              </div>
             </div>
-            <DropdownMenuDemo
-              deleteCompetition={() => handleDeleteCompetition(result.id)}
-            />
+          ))}
+
+          {competitions?.length === 0 && (
+            <div className="text-center py-10">
+              <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+                No Active Competitions
+              </h2>
+              <p className="text-gray-500 text-lg mb-6">
+                You haven’t joined or created any competitions yet. Start one
+                today to stay motivated!
+              </p>
+            </div>
+          )}
+
+          <div className="flex justify-center">
+            <button
+              className="mt-5 relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              onClick={handleShowActiveCompetitions}
+            >
+              Competition History
+              <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
+            </button>
           </div>
-        ))}
-        <div className="flex justify-center">
-          <button
-            className="bg-snd-bkg hover:opacity-90 text-white font-bold py-2 px-4 mb-10 mt-5 rounded flex items-center"
-            onClick={handleShowActiveCompetitions}
-          >
-            View Active Competitions
-          </button>
         </div>
       </div>
     </div>

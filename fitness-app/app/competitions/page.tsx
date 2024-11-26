@@ -62,7 +62,15 @@ export default function CompetitionsPage() {
     <div className="w-full">
       <Navigation />
 
-      <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg">
+      <div className="relative max-w-5xl mx-auto mt-6 bg-white rounded-lg">
+        <button
+          className="absolute top-6 right-6 bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center"
+          onClick={handleCreateCompetition}
+        >
+          <IoIosAdd className="mr-2 text-lg" />
+          Create
+        </button>
+
         {(competitions?.length ?? 0) > 0 && (
           <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
             <h1 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
@@ -77,15 +85,6 @@ export default function CompetitionsPage() {
             </p>
           </div>
         )}
-        <div className="flex justify-end p-5">
-          <button
-            className="bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center"
-            onClick={handleCreateCompetition}
-          >
-            <IoIosAdd className="mr-2 text-lg" />
-            Create
-          </button>
-        </div>
 
         <div className="p-4">
           {competitions?.map((result, index) => (
@@ -120,6 +119,7 @@ export default function CompetitionsPage() {
               </div>
             </div>
           ))}
+
           {competitions?.length === 0 && (
             <div className="text-center py-10">
               <h2 className="text-2xl font-semibold text-gray-700 mb-4">
