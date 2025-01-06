@@ -1,6 +1,4 @@
 "use client"
-
-import { FiMenu, FiX } from "react-icons/fi"
 import React, { useEffect, useState, useRef } from "react"
 
 import { IoIosArrowDown } from "react-icons/io"
@@ -8,6 +6,7 @@ import Link from "next/link"
 import Profile from "@/components/Profile"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
+import DarkModeToggle from "@/components/DarkModeToggle"
 
 export default function Navigation() {
   const supabase = createClient()
@@ -62,23 +61,22 @@ export default function Navigation() {
   }
 
   return (
-    <nav className="bg-nav-bkg text-white p-4 font-sans font-bold">
-      {/* border-b border-footer-bkg */}
-      <div className="max-w-screen-xl mx-auto flex items-center justify-between">
+    <nav className="bg-mint-cream dark:bg-black dark:text-white p-4 font-sans font-bold shadow-md border-b border-gray-600/75">
+      <div className="max-w-screen-lg mx-auto flex items-center justify-between">
         <Link
           href={isLoggedIn ? "/dashboard" : "/"}
           className="flex items-center space-x-3"
         >
           <img src="/images/text-logo.png" alt="Logo" className="h-8" />
         </Link>
-        <div className="lg:hidden">
-          <button onClick={toggleMenu}>
-            {isMenuOpen ? (
-              <FiX className="w-6 h-6" />
-            ) : (
-              <FiMenu className="w-6 h-6" />
-            )}
-          </button>
+        <div className="lg:hidden flex items-center space-x-4">
+          <Link
+            href="/login"
+            className="block px-4 py-2 text-left hover:bg-gray-600"
+          >
+            Login
+          </Link>
+          <DarkModeToggle />
         </div>
 
         <div
@@ -209,15 +207,23 @@ export default function Navigation() {
                 </button>
               </div>
               <Profile />
+              <DarkModeToggle />
             </>
           ) : (
-            <div className="flex space-x-4">
-              <Link href="/contact" className="hover:underline">
-                Contact
+            <div className="flex space-x-4 items-center">
+              <Link
+                href="/login"
+                className="px-4 py-2 rounded-md bg-logo-green text-black font-medium hover:bg-logo-green-dark transition"
+              >
+                Get Started
               </Link>
-              <Link href="/login" className="hover:underline">
+              <Link
+                href="/login"
+                className="dark:text-white hover:text-white border border-dashed border-logo-green rounded-md px-4 py-2"
+              >
                 Login
               </Link>
+              <DarkModeToggle />
             </div>
           )}
         </div>
@@ -299,14 +305,8 @@ export default function Navigation() {
           ) : (
             <>
               <Link
-                href="/contact"
-                className="block px-4 py-2 bg-gray-700 text-left hover:bg-gray-600"
-              >
-                Contact
-              </Link>
-              <Link
                 href="/login"
-                className="block px-4 py-2 bg-gray-700 text-left hover:bg-gray-600"
+                className="block px-4 py-2 bg-logo-green text-left hover:bg-gray-600"
               >
                 Login
               </Link>

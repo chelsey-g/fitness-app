@@ -23,7 +23,7 @@ const config: Config = {
         "button-bkg": "#a3e96c",
         "button-hover": "#E8F5E9",
         "button-text": "#B2E77C",
-        "nav-bkg": "#123438",
+        "mint-cream": "#f1f7f2",
         "logo-green": "#64b77d",
         "footer-bkg": "#c9f2a6",
         "header-text-bkg": "#ebfbdf",
