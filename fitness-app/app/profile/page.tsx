@@ -29,26 +29,17 @@ import { useState } from "react"
 
 export default function ProfileDashboard() {
   const supabase = createClient()
-  const [user, setUser] = useState(null)
   const [selectedProfileCard, setSelectedProfileCard] =
     useState("Account Settings")
   const [isOpen, setIsOpen] = useState(false)
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
 
-  const {
-    data: userInfo,
-    error: userError,
-    isLoading: userLoading,
-  } = useSWR("/user", () =>
+  const { data: userInfo } = useSWR("/user", () =>
     supabase.auth.getUser().then((res) => res.data.user)
   )
 
-  const {
-    data: profiles,
-    error: profilesError,
-    isLoading: profilesLoading,
-  } = useSWR("/profiles", () =>
+  const { data: profile } = useSWR("/profile", () =>
     userInfo && userInfo.identities
       ? supabase
           .from("profiles")
@@ -60,67 +51,68 @@ export default function ProfileDashboard() {
   )
 
   const handleEditModal = () => {
-    if (profiles && profiles[0]) {
-      setFirstName(profiles[0].first_name)
-      setLastName(profiles[0].last_name)
+    if (profile) {
+      setFirstName(profile.first_name)
+      setLastName(profile.last_name)
     }
     setIsOpen(true)
   }
 
   const handleProfileUpdate = async (e: any) => {
     e.preventDefault()
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("profiles")
       .update({
         first_name: firstName,
         last_name: lastName,
       })
       .eq("id", userInfo?.id)
+
     if (error) {
       console.error("Error updating profile:", error.message)
     } else {
-      console.log("Profile updated successfully:", data)
+      setIsOpen(false)
     }
-    setIsOpen(false)
   }
 
-  let cardContent
-  if (selectedProfileCard === "Account Settings") {
-    cardContent = (
-      <Card className="border rounded-lg shadow-md">
+  const cardContent =
+    selectedProfileCard === "Account Settings" ? (
+      <Card className="border rounded-lg shadow-lg">
         <CardHeader className="bg-gray-100 py-4 px-6">
-          <CardTitle className="text-xl font-semibold text-gray-800">
+          <CardTitle className="text-2xl font-bold text-nav-bkg">
             Account Settings
           </CardTitle>
-          <CardDescription className="text-gray-600">
-            Edit your personal information and preferences
+          <CardDescription className="text-gray-700">
+            Edit your personal information and preferences.
           </CardDescription>
         </CardHeader>
-
         <CardContent className="py-6 px-6">
-          {profiles && (
+          {profile && (
             <>
               <div className="border-b pb-4 mb-4 flex justify-between items-center">
-                <div className="flex">
-                  <p className="text-gray-700 font-semibold pr-4">Name:</p>
-                  <p className="text-gray-700">
-                    {profiles?.first_name} {profiles?.last_name}
+                <div>
+                  <p className="text-gray-600">Name:</p>
+                  <p className="font-semibold text-gray-800">
+                    {profile.first_name} {profile.last_name}
                   </p>
                 </div>
                 <Dialog open={isOpen} onOpenChange={setIsOpen}>
                   <DialogTrigger asChild>
                     <button
                       onClick={handleEditModal}
-                      className="text-sm px-4 py-2 bg-snd-bkg text-white rounded hover:bg-gray-600"
+                      className="relative bg-button-bkg text-nav-bkg font-bold py-2 px-4 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
                     >
                       Edit
+                      <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
                     </button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px] bg-white">
+                  <DialogContent className="sm:max-w-[425px] bg-white rounded-lg shadow-lg p-6">
                     <DialogHeader>
-                      <DialogTitle>Edit Name</DialogTitle>
-                      <DialogDescription>
-                        Click save when you're done.
+                      <DialogTitle className="text-xl font-semibold text-gray-900">
+                        Edit Name
+                      </DialogTitle>
+                      <DialogDescription className="text-gray-600">
+                        Make changes to your name and click save.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -152,7 +144,7 @@ export default function ProfileDashboard() {
                     <DialogFooter>
                       <Button
                         type="button"
-                        className="bg-snd-bkg text-white"
+                        className="relative bg-button-bkg text-nav-bkg font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
                         onClick={handleProfileUpdate}
                       >
                         Save
@@ -168,50 +160,36 @@ export default function ProfileDashboard() {
           )}
         </CardContent>
       </Card>
-    )
-  } else if (selectedProfileCard === "Login & Security") {
-    cardContent = (
-      <Card>
+    ) : (
+      <Card className="border rounded-lg shadow-lg">
         <UsernamePassword />
       </Card>
     )
-  }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="w-full min-h-screen">
       <Navigation />
-      <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-row gap-4 bg-white rounded-lg p-4 md:gap-8 md:p-10">
-        <div className="flex flex-col w-1/4">
-          <nav className="flex flex-col gap-4 text-sm text-muted-foreground">
-            <button
-              className={`font-semibold text-left ${
-                selectedProfileCard === "Account Settings" ? "text-primary" : ""
-              }`}
-              onClick={() => setSelectedProfileCard("Account Settings")}
-            >
-              Account Settings
-            </button>
-            <button
-              className={`text-left ${
-                selectedProfileCard === "Login & Security" ? "text-primary" : ""
-              }`}
-              onClick={() => setSelectedProfileCard("Login & Security")}
-            >
-              Login & Security
-            </button>
-          </nav>
-        </div>
-        <div className="flex flex-col w-3/4">
-          <div className="grid w-full max-w-6xl">
-            {profiles && profiles[0] && (
-              <h1 className="text-3xl font-semibold">
-                {profiles[0]?.first_name} {profiles[0]?.last_name}
-              </h1>
-            )}
-          </div>
-          <div className="grid gap-6">{cardContent}</div>
-        </div>
-      </main>
+      <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg shadow-lg p-6 flex gap-8">
+        <nav className="flex flex-col gap-4 w-1/4">
+          <button
+            className={`font-semibold text-left ${
+              selectedProfileCard === "Account Settings" ? "text-snd-bkg" : ""
+            }`}
+            onClick={() => setSelectedProfileCard("Account Settings")}
+          >
+            Account Settings
+          </button>
+          <button
+            className={`text-left ${
+              selectedProfileCard === "Login & Security" ? "text-snd-bkg" : ""
+            }`}
+            onClick={() => setSelectedProfileCard("Login & Security")}
+          >
+            Login & Security
+          </button>
+        </nav>
+        <div className="flex flex-col w-3/4">{cardContent}</div>
+      </div>
     </div>
   )
 }
