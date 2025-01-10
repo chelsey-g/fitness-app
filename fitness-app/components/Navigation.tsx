@@ -61,7 +61,7 @@ export default function Navigation() {
   }
 
   return (
-    <nav className="bg-mint-cream dark:bg-black dark:text-white p-4 font-sans font-bold shadow-md border-b border-gray-600/75">
+    <nav className="bg-mint-cream dark:bg-black dark:text-white p-4 font-sans font-bold shadow-md border-b">
       <div className="max-w-screen-lg mx-auto flex items-center justify-between">
         <Link
           href={isLoggedIn ? "/dashboard" : "/"}
@@ -72,7 +72,7 @@ export default function Navigation() {
         <div className="lg:hidden flex items-center space-x-4">
           <Link
             href="/login"
-            className="block px-4 py-2 text-left hover:bg-gray-600"
+            className="block px-4 py-2 text-left hover:text-opacity-90 border border-dashed border-logo-green rounded-md"
           >
             Login
           </Link>
@@ -212,14 +212,14 @@ export default function Navigation() {
           ) : (
             <div className="flex space-x-4 items-center">
               <Link
-                href="/login"
-                className="px-4 py-2 rounded-md bg-logo-green text-black font-medium hover:bg-logo-green-dark transition"
+                href="/signup"
+                className="px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90"
               >
                 Get Started
               </Link>
               <Link
                 href="/login"
-                className="dark:text-white hover:text-white border border-dashed border-logo-green rounded-md px-4 py-2"
+                className="font-medium dark:text-white hover:opacity-90 border border-dashed border-logo-green rounded-md px-4 py-2"
               >
                 Login
               </Link>
@@ -306,7 +306,7 @@ export default function Navigation() {
             <>
               <Link
                 href="/login"
-                className="block px-4 py-2 bg-logo-green text-left hover:bg-gray-600"
+                className="block px-4 py-2 bg-logo-green text-left hover:text-opacity-25 text-black font-medium"
               >
                 Login
               </Link>
