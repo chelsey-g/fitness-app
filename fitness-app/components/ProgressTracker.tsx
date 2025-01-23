@@ -51,9 +51,9 @@ export default function ProgressTracker() {
 
   return (
     <div className="mx-auto max-w-md">
-      <div className="text-sm mb-5">
+      {/* <div className="text-sm mb-5">
         In the last 30 days, you tracked your weight on the following days:
-      </div>
+      </div> */}
       <div>
         <Tracker
           data={handleGenerateDates()}

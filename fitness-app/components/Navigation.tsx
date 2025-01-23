@@ -1,12 +1,41 @@
 "use client"
 import React, { useEffect, useState, useRef } from "react"
-
-import { IoIosArrowDown } from "react-icons/io"
+import { IoIosArrowDown, IoLogoGithub } from "react-icons/io"
+import { RxHamburgerMenu } from "react-icons/rx"
 import Link from "next/link"
 import Profile from "@/components/Profile"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 import DarkModeToggle from "@/components/DarkModeToggle"
+
+const DROPDOWN_ITEMS = [
+  {
+    id: "tracker",
+    label: "Tracker",
+    links: [
+      { href: "/tracker", label: "Weight Log" },
+      { href: "/tracker/chart", label: "Weight Tracker" },
+    ],
+  },
+  {
+    id: "competitions",
+    label: "Competitions",
+    links: [
+      { href: "/competitions/create", label: "Create Competition" },
+      { href: "/competitions", label: "Active Competitions" },
+      { href: "/competitions/history", label: "Competition History" },
+    ],
+  },
+  {
+    id: "tools",
+    label: "Tools",
+    links: [
+      { href: "/calculator", label: "BMI Calculator" },
+      { href: "/calculator/calorie", label: "Calorie Calculator" },
+      { href: "/recipes", label: "Recipe Finder" },
+    ],
+  },
+]
 
 export default function Navigation() {
   const supabase = createClient()
@@ -14,7 +43,7 @@ export default function Navigation() {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(null)
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -31,28 +60,22 @@ export default function Navigation() {
   }, [supabase])
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
-  const toggleDropdown = (menu) => {
-    setIsDropdownOpen((prev) => (prev === menu ? null : menu))
-  }
-  const closeDropdown = () => {
-    setIsDropdownOpen(null)
+    setIsMenuOpen((prev) => !prev)
   }
 
-  useEffect(() => {
-    const handleOutsideClick = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        closeDropdown()
-      }
+  const handleMouseEnter = (id: string) => {
+    if (window.innerWidth >= 1024) setOpenDropdown(id)
+  }
+
+  const handleMouseLeave = () => {
+    if (window.innerWidth >= 1024) setOpenDropdown(null)
+  }
+
+  const handleDropdownToggle = (id: string) => {
+    if (window.innerWidth < 1024) {
+      setOpenDropdown((prev) => (prev === id ? null : id))
     }
-
-    document.addEventListener("mousedown", handleOutsideClick)
-
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick)
-    }
-  }, [])
+  }
 
   async function handleSignOutUser() {
     const { error } = await supabase.auth.signOut()
@@ -69,145 +92,65 @@ export default function Navigation() {
         >
           <img src="/images/text-logo.png" alt="Logo" className="h-8" />
         </Link>
+
+        {/* Mobile Menu Button */}
         <div className="lg:hidden flex items-center space-x-4">
-          <Link
-            href="/login"
-            className="block px-4 py-2 text-left hover:text-opacity-90 border border-dashed border-logo-green rounded-md"
-          >
-            Login
+          <button onClick={toggleMenu} className="text-xl">
+            <RxHamburgerMenu />
+          </button>
+          <Link href="https://github.com/chelsey-g/fitness-app">
+            <IoLogoGithub className="w-5 h-5 text-gray-600 dark:text-gray-200 cursor-pointer" />
           </Link>
           <DarkModeToggle />
         </div>
 
+        {/* Desktop View */}
         <div
-          className={`lg:flex items-center space-x-6 hidden font-sans`}
+          className="lg:flex items-center space-x-6 hidden font-sans"
           ref={dropdownRef}
         >
           {isLoggedIn ? (
             <>
-              <div className="relative">
-                <button
-                  onClick={() => toggleDropdown("tracker")}
-                  className="flex items-center space-x-2"
+              {DROPDOWN_ITEMS.map((dropdown) => (
+                <div
+                  className="relative"
+                  key={dropdown.id}
+                  onMouseEnter={() => handleMouseEnter(dropdown.id)}
+                  onMouseLeave={handleMouseLeave}
                 >
-                  <span>Tracker</span>
-                  <IoIosArrowDown />
-                </button>
-                {isDropdownOpen === "tracker" && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 shadow-lg z-10 text-sm rounded">
-                    <Link
-                      href="/tracker"
-                      className="block px-4 py-2 hover:bg-gray-100 hover:rounded"
-                    >
-                      Weight Log
-                    </Link>
-                    <Link
-                      href="/tracker/chart"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                    >
-                      Weight Tracker
-                    </Link>
-                  </div>
-                )}
-              </div>
-              <div className="relative">
-                <button
-                  onClick={() => toggleDropdown("competitions")}
-                  className="flex items-center space-x-2"
-                >
-                  <span>Competitions</span>
-                  <IoIosArrowDown />
-                </button>
-                {isDropdownOpen === "competitions" && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 shadow-lg z-10 text-sm rounded">
-                    <Link
-                      href="/competitions/create"
-                      className="block px-4 py-2 hover:bg-gray-100 hover:rounded"
-                    >
-                      Create Competition
-                    </Link>
-                    <Link
-                      href="/competitions"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                    >
-                      Active Competitions
-                    </Link>
-                    <Link
-                      href="/competitions/history"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                    >
-                      Competition History
-                    </Link>
-                  </div>
-                )}
-              </div>
+                  <button
+                    onClick={() => handleDropdownToggle(dropdown.id)}
+                    className="flex items-center space-x-2"
+                  >
+                    <span>{dropdown.label}</span>
+                    <IoIosArrowDown />
+                  </button>
+                  {openDropdown === dropdown.id && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 shadow-lg z-10 text-sm rounded transition duration-00 ease-in-out transform scale-95">
+                      {dropdown.links.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          className="block px-4 py-2 hover:bg-gray-100"
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
 
               <div className="relative">
-                <button
-                  onClick={() => toggleDropdown("workouts")}
-                  className="flex items-center space-x-2"
-                >
-                  <span>Workouts</span>
-                  <IoIosArrowDown />
-                </button>
-                {isDropdownOpen === "workouts" && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-md shadow-lg z-10 text-sm">
-                    <Link
-                      href="/workouts/browse"
-                      className="block px-4 py-2 hover:bg-gray-100 hover:rounded"
-                    >
-                      Browse Exercises
-                    </Link>
-                    <Link
-                      href="/workouts"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                    >
-                      View Workouts
-                    </Link>
-                  </div>
-                )}
+                <Link href="/goals" className="block px-4 py-2">
+                  Goals
+                </Link>
               </div>
-              <div className="relative">
-                <button
-                  onClick={() => toggleDropdown("tools")}
-                  className="flex items-center space-x-2"
-                >
-                  <span>Tools</span>
-                  <IoIosArrowDown />
-                </button>
-                {isDropdownOpen === "tools" && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 shadow-lg z-10 text-sm rounded">
-                    <Link
-                      href="/calculator"
-                      className="block px-4 py-2 hover:bg-gray-100 hover:rounded"
-                    >
-                      BMI Calculator
-                    </Link>
-                    <Link
-                      href="/calculator/calorie"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                    >
-                      Calorie Calculator
-                    </Link>
-                    <Link
-                      href="/recipes"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                    >
-                      Recipe Finder
-                    </Link>
-                  </div>
-                )}
+              <div className="flex items-center space-x-4">
+                <IoLogoGithub className="w-5 h-5 text-gray-600 dark:text-gray-200 cursor-pointer" />
+                <Profile />
+                <DarkModeToggle />
               </div>
-
-              <div className="relative">
-                <button>
-                  <Link href="/goals" className="block px-4 py-2">
-                    Goals
-                  </Link>
-                </button>
-              </div>
-              <Profile />
-              <DarkModeToggle />
             </>
           ) : (
             <div className="flex space-x-4 items-center">
@@ -224,77 +167,43 @@ export default function Navigation() {
                 Login
               </Link>
               <DarkModeToggle />
+              <Link href="https://github.com/chelsey-g/fitness-app">
+                <IoLogoGithub className="w-8 h-8 text-gray-600 dark:text-gray-200 cursor-pointer" />
+              </Link>
             </div>
           )}
         </div>
       </div>
+
+      {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="lg:hidden mt-4 space-y-2">
           {isLoggedIn ? (
             <>
-              <div>
-                <button
-                  onClick={() => toggleDropdown("tracker")}
-                  className="flex items-center justify-between w-full px-4 py-2 bg-gray-700 text-left"
-                >
-                  <span>Tracker</span>
-                  <IoIosArrowDown />
-                </button>
-                {isDropdownOpen === "tracker" && (
-                  <div className="mt-2 space-y-1 bg-gray-700">
-                    <Link
-                      href="/tracker"
-                      className="block px-4 py-2 text-sm hover:bg-gray-600"
-                    >
-                      Enter New Weight
-                    </Link>
-                    <Link
-                      href="/tracker/chart"
-                      className="block px-4 py-2 text-sm hover:bg-gray-600"
-                    >
-                      View Weight Log
-                    </Link>
-                  </div>
-                )}
-              </div>
-              <div>
-                <button
-                  onClick={() => toggleDropdown("competitions")}
-                  className="flex items-center justify-between w-full px-4 py-2 bg-gray-700 text-left"
-                >
-                  <span>Competitions</span>
-                  <IoIosArrowDown />
-                </button>
-                {isDropdownOpen === "competitions" && (
-                  <div className="mt-2 space-y-1 bg-gray-700">
-                    <Link
-                      href="/competitions/create"
-                      className="block px-4 py-2 text-sm hover:bg-gray-600"
-                    >
-                      Create New Competition
-                    </Link>
-                    <Link
-                      href="/competitions"
-                      className="block px-4 py-2 text-sm hover:bg-gray-600"
-                    >
-                      View Active Competitions
-                    </Link>
-                    <Link
-                      href="/competitions/history"
-                      className="block px-4 py-2 text-sm hover:bg-gray-600"
-                    >
-                      View Competition History
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              <Link
-                href="/profile"
-                className="block px-4 py-2 bg-gray-700 text-left hover:bg-gray-600"
-              >
-                Profile
-              </Link>
+              {DROPDOWN_ITEMS.map((dropdown) => (
+                <div key={dropdown.id}>
+                  <button
+                    onClick={() => handleDropdownToggle(dropdown.id)}
+                    className="flex items-center justify-between w-full px-4 py-2 bg-gray-700 text-left"
+                  >
+                    <span>{dropdown.label}</span>
+                    <IoIosArrowDown />
+                  </button>
+                  {openDropdown === dropdown.id && (
+                    <div className="mt-2 space-y-1 bg-gray-700">
+                      {dropdown.links.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          className="block px-4 py-2 text-sm hover:bg-gray-600"
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
               <button
                 onClick={handleSignOutUser}
                 className="block px-4 py-2 bg-gray-700 text-left hover:bg-gray-600"
@@ -303,14 +212,12 @@ export default function Navigation() {
               </button>
             </>
           ) : (
-            <>
-              <Link
-                href="/login"
-                className="block px-4 py-2 bg-logo-green text-left hover:text-opacity-25 text-black font-medium"
-              >
-                Login
-              </Link>
-            </>
+            <Link
+              href="/login"
+              className="block px-4 py-2 bg-logo-green text-left hover:text-opacity-25 text-black font-medium"
+            >
+              Login
+            </Link>
           )}
         </div>
       )}

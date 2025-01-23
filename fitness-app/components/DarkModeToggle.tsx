@@ -40,13 +40,13 @@ export default function DarkModeToggle() {
   return (
     <button
       onClick={toggleDarkMode}
-      className="flex items-center justify-center p-2 rounded-full border bg-mint-cream dark:bg-black hover:bg-gray-200 dark:hover:bg-gray-800"
+      className="flex items-center justify-center bg-mint-cream dark:bg-black hover:text-gray-200"
       aria-label="Dark mode toggle"
     >
       {isDarkMode ? (
-        <FiMoon className="text-gray-600 dark:text-gray-200 w-5 h-5" />
-      ) : (
         <FiSun className="text-yellow-400 w-5 h-5" />
+      ) : (
+        <FiMoon className="text-logo-green w-5 h-5" />
       )}
     </button>
   )

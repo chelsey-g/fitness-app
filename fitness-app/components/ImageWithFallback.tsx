@@ -4,13 +4,12 @@ import Image, { ImageProps } from "next/image"
 import { useEffect, useState } from "react"
 
 type ImageWithFallbackProps = ImageProps & {
-  fallbackSrc: string
+  fallbackSrc: React.ReactNode
 }
 
 const ImageWithFallback = ({
   src,
   alt = "",
-
   fallbackSrc,
   ...props
 }: ImageWithFallbackProps) => {
@@ -20,16 +19,17 @@ const ImageWithFallback = ({
     setError(false)
   }, [src])
 
-  return (
-    <Image
-      alt={alt}
-      width={40}
-      height={40}
-      {...props}
-      src={error ? fallbackSrc : src}
-      onError={() => setError(true)}
-    />
-  )
+  if (error) {
+    return typeof fallbackSrc === "string" ? (
+      <Image alt={alt} {...props} src={fallbackSrc as string} />
+    ) : (
+      <div className="w-10 h-10 flex items-center justify-center">
+        {fallbackSrc}
+      </div>
+    )
+  }
+
+  return <Image alt={alt} {...props} src={src} onError={() => setError(true)} />
 }
 
 export default ImageWithFallback

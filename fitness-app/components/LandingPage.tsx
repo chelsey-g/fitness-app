@@ -1,5 +1,6 @@
 import Footer from "./Footer"
 import Link from "next/link"
+import { CgArrowRight } from "react-icons/cg"
 
 export default function LandingPage() {
   return (
@@ -17,10 +18,16 @@ export default function LandingPage() {
             </p>
             <div className="flex space-x-4">
               <Link
-                className="px-6 py-3 bg-logo-green dark:bg-snd-bkg font-semibold rounded-md hover:bg-opacity-90 transition duration-300"
+                className="px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90"
                 href="/signup"
               >
-                Get Started
+                Try for free
+              </Link>
+              <Link
+                className="flex items-center px-4 py-2 rounded-md border border-dashed border-logo-green text-black dark:text-white font-medium hover:opacity-90"
+                href="/signup"
+              >
+                Learn more <CgArrowRight className="ml-1" />
               </Link>
             </div>
           </div>
