@@ -1,16 +1,32 @@
 "use client"
 
-import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
+import {
+  calculateDaysLeft,
+  calculateWeightDifference,
+  calculateWeightDifferenceSinceMonthStart,
+} from "@/app/functions"
 import useSWR from "swr"
 import Footer from "@/components/Footer"
-import { FaCalculator } from "react-icons/fa"
-import { GiBodyHeight } from "react-icons/gi"
-import { BiFoodMenu } from "react-icons/bi"
+import { GiBodyHeight, GiStairsGoal } from "react-icons/gi"
+import { HiOutlineLightBulb } from "react-icons/hi"
+import { IoFootstepsOutline } from "react-icons/io5"
+import { LuAward } from "react-icons/lu"
+import { LuGlassWater } from "react-icons/lu"
+import { FaRunning } from "react-icons/fa"
 import Link from "next/link"
 import Navigation from "@/components/Navigation"
+import CarouselOrientation from "@/components/CompetitionsCarousel"
 import ProgressTracker from "@/components/ProgressTracker"
 import { createClient } from "@/utils/supabase/client"
 import { handleDate } from "@/app/functions"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function UserDashboard() {
   type Competition = {
@@ -39,6 +55,23 @@ export default function UserDashboard() {
     weight: number
   }
 
+  const triviaFetcher = (url: string) =>
+    fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY || "",
+      },
+    }).then((res) => {
+      if (!res.ok) {
+        throw new Error("Failed to fetch")
+      }
+      return res.json()
+    })
+
+  const { data: foodTrivia, error: foodError } = useSWR(
+    "https://api.spoonacular.com/food/trivia/random",
+    triviaFetcher
+  )
   const supabase = createClient()
   const {
     data: user,
@@ -82,12 +115,12 @@ export default function UserDashboard() {
   console.log(competitions, "hi")
 
   const profilesFetcher = async (url: string) => {
-    const { data, error } = await supabase
+    const { data, error: profilesError } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", identityId)
 
-    if (error) {
+    if (profilesError) {
       throw error
     }
 
@@ -101,12 +134,12 @@ export default function UserDashboard() {
   )
 
   const goalsFetcher = async (url: string) => {
-    const { data, error } = await supabase
+    const { data, error: goalsError } = await supabase
       .from("profile_goals")
       .select("*")
       .eq("profile_id", identityId)
 
-    if (error) {
+    if (goalsError) {
       throw error
     }
 
@@ -119,15 +152,17 @@ export default function UserDashboard() {
     { revalidateOnFocus: false }
   )
 
+  console.log(goals, "goals")
+
   const weightFetcher = async (url: string) => {
-    const { data, error } = await supabase
+    const { data, error: weightError } = await supabase
       .from("weight_tracker")
       .select("*")
       .eq("created_by", identityId)
       .order("created_at", { ascending: false })
       .limit(1)
 
-    if (error) {
+    if (weightError) {
       throw error
     }
 
@@ -152,212 +187,175 @@ export default function UserDashboard() {
   )
 
   return (
-    <div className="w-full">
+    <>
       <Navigation />
-      <section className="py-12 bg-nav-bkg">
-        {profiles[0]?.first_name && (
-          <h1
-            className="text-4xl md:text-5xl lg:text-6xl font-bold pt-10 mb-10 ml-20 text-center 
-             text-header-text-bkg relative"
-          >
-            <span className="relative z-10">
-              Welcome back,{" "}
-              <span className="text-logo-green">
-                {profiles[0]?.first_name}!
-              </span>
-            </span>
-            <span
-              className="absolute inset-0 blur-sm text-logo-green opacity-40"
-              aria-hidden="true"
-            >
-              Welcome back, {profiles[0]?.first_name}!
-            </span>
-          </h1>
-        )}
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-button-text mb-6">
-            Your Progress
-          </h2>
-          <div className="bg-gray-50 shadow-lg rounded-lg p-6">
-            <ProgressTracker />
-            <p className="text-sm text-gray-600 mt-4 text-center">
-              Want to check detailed progress?{" "}
-              <Link
-                href="/tracker/chart"
-                className="text-green-600 font-semibold hover:underline"
-              >
-                View charts here
-              </Link>
-            </p>
-          </div>
-        </div>
-      </section>
-      <section className="py-12 bg-nav-bkg">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-            <div className="flex flex-col">
-              <h3 className="text-2xl font-semibold text-button-text mb-4">
-                Active Goals
-              </h3>
-              <div className="flex-1">
-                {activeGoals?.length ? (
-                  <div className="grid grid-cols-1 gap-6">
-                    {activeGoals.map((goal) => (
-                      <div
-                        key={goal.id}
-                        className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition duration-300 flex flex-col h-full"
-                      >
-                        <h4 className="text-lg font-semibold text-gray-700 mb-2">
-                          {handleDate(goal.goal_date)}
-                        </h4>
-                        <p className="text-gray-600">
-                          Goal Weight: {goal.goal_weight} lbs
-                        </p>
-                        <p className="text-gray-600">
-                          Remaining:{" "}
-                          {calculateWeightDifference(
-                            goal.goal_weight,
-                            weights?.[0]?.weight || 0
-                          )}{" "}
-                          lbs
-                        </p>
-                        <div className="mt-auto">
-                          <div className="h-2 bg-gray-200 rounded-full">
-                            <div
-                              className="h-2 bg-blue-500 rounded-full"
-                              style={{
-                                width: `${calculateDaysLeft(goal.goal_date)}%`,
-                              }}
-                            ></div>
-                          </div>
-                          <p className="text-sm text-gray-500 mt-2">
-                            {calculateDaysLeft(goal.goal_date)} days left
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+      <div className="flex-1 space-y-4 py-16 px-8">
+        <h2 className="text-4xl font-extrabold mb-2 tracking-tight">
+          {profiles[0].first_name}'s Dashboard
+        </h2>
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsContent value="overview" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {/* goals card */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Active Goals
+                  </CardTitle>
+                  <GiStairsGoal className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    <p className="text-logo-green">
+                      {calculateWeightDifference(
+                        goals?.[0]?.goal_weight || 0,
+                        weights?.[0]?.weight || 0
+                      )}{" "}
+                      lbs to go
+                    </p>
                   </div>
-                ) : (
-                  <p className="text-gray-600">No active goals set.</p>
-                )}
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <h3 className="text-2xl font-semibold text-button-text mb-4">
-                Active Competitions
-              </h3>
-              <div className="flex-1">
-                {competitions?.length ? (
-                  <div className="grid grid-cols-1 gap-6">
-                    {competitions.map((competition) => (
-                      <div
-                        key={competition.id}
-                        className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition duration-300 flex flex-col h-full"
-                      >
-                        <Link
-                          className="text-lg font-semibold text-gray-700 mb-2"
-                          href={`/competitions/${competition.competition_id}`}
-                        >
-                          {competition.competitions.name}
-                        </Link>
-                        <p className="text-gray-600">
-                          Participants: {competitions.length}
-                        </p>
-                        <p className="text-gray-600">
-                          End Date:{" "}
-                          {handleDate(competition.competitions.date_ending)}
-                        </p>
-                        <div className="mt-auto">
-                          <div className="h-2 bg-gray-200 rounded-full">
-                            <div
-                              className="h-2 bg-blue-500 rounded-full"
-                              style={{
-                                width: `${
-                                  100 -
-                                  calculateDaysLeft(
-                                    competition.competitions.date_ending
-                                  )
-                                }%`,
-                              }}
-                            ></div>
-                          </div>
-                          <p className="text-sm text-gray-500 mt-2">
-                            {calculateDaysLeft(
-                              competition.competitions.date_ending
-                            )}{" "}
-                            days left
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                  <p className="text-xs text-muted-foreground">
+                    {calculateDaysLeft(goals?.[0]?.goal_date)} days left to
+                    achieve your goal!
+                  </p>
+                  <div className="flex justify-center">
+                    <Link
+                      href="/goals"
+                      className=" mt-7 px-4 py-2 bg-logo-green text-white text-sm font-semibold rounded-lg shadow-md hover:bg-opacity-90 focus:outline-none focus:ring focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
+                    >
+                      Set a Goal
+                    </Link>
                   </div>
-                ) : (
-                  <p>No active competitions joined.</p>
-                )}
-              </div>
+                </CardContent>
+              </Card>
+              {/* competitions card */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Active Competitions
+                  </CardTitle>
+                  <FaRunning className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent className="m-2">
+                  <CarouselOrientation competitions={competitions} />
+                </CardContent>
+              </Card>
+              {/* weight card */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Calories to Burn Today
+                  </CardTitle>
+                  <IoFootstepsOutline className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-logo-green">
+                    {calculateWeightDifferenceSinceMonthStart(
+                      goals?.[0]?.goal_weight || 0,
+                      weights?.[0]?.weight || 0
+                    )}{" "}
+                    lbs
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    -20.1% from last month
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Today's Badges Earned
+                  </CardTitle>
+                  <LuAward className="h-5 w-5 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-4 mt-4">
+                    {/* Badge 1 */}
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-12 h-12 bg-logo-green text-white rounded-full flex items-center justify-center shadow-md">
+                        🏅
+                      </div>
+                      <p className="text-xs mt-2 text-muted-foreground">
+                        Workout Master
+                      </p>
+                    </div>
+                    {/* Badge 2 */}
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-md">
+                        💧
+                      </div>
+                      <p className="text-xs mt-2 text-muted-foreground">
+                        Hydration Hero
+                      </p>
+                    </div>
+                    {/* Badge 3 */}
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-12 h-12 bg-yellow-500 text-white rounded-full flex items-center justify-center shadow-md">
+                        🥗
+                      </div>
+                      <p className="text-xs mt-2 text-muted-foreground">
+                        Nutrition Champ
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-4 text-center">
+                    Great work! Keep earning badges to track your progress.
+                  </p>
+                </CardContent>
+              </Card>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative bg-prm-bkg text-white py-16 overflow-hidden">
-        <div className="relative max-w-6xl mx-auto flex flex-wrap justify-between items-center z-10">
-          <div className="w-full lg:w-1/2 mb-6 lg:mb-0">
-            <h2 className="text-4xl lg:text-5xl font-extrabold mb-6 text-shadow-xl">
-              Stay Motivated!
-            </h2>
-            <p className="text-lg lg:text-xl font-light leading-relaxed">
-              Set fitness goals and join competitions to stay on track with your
-              health journey.
-            </p>
-          </div>
-          <div className="flex space-x-4">
-            <Link
-              href="/goals"
-              className="relative bg-white text-prm-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
-            >
-              Set a New Goal
-              <div className="absolute inset-0 rounded-lg bg-[#E8F5E9] opacity-0 hover:opacity-20 transition duration-300"></div>
-            </Link>
-            <Link
-              href="/competitions/create"
-              className="relative bg-white text-[#123438] font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
-            >
-              Join a Competition
-              <div className="absolute inset-0 rounded-lg bg-[#DFF3F6] opacity-0 hover:opacity-20 transition duration-300"></div>
-            </Link>
-          </div>
-        </div>
-      </section>
-      <section className="py-12 bg-nav-bkg">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-button-text mb-8">
-            Explore More Tools
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            <Link href="/calculator">
-              <div className="bg-gray-50 rounded-lg shadow-lg p-6 hover:shadow-xl transition duration-300">
-                <GiBodyHeight className="text-4xl text-logo-green mx-auto mb-4" />
-                <h3 className="text-lg font-semibold">BMI Calculator</h3>
-              </div>
-            </Link>
-            <Link href="/calculator/calorie">
-              <div className="bg-gray-50 rounded-lg shadow-lg p-6 hover:shadow-xl transition duration-300">
-                <FaCalculator className="text-4xl text-logo-green mx-auto mb-4" />
-                <h3 className="text-lg font-semibold">Calorie Calculator</h3>
-              </div>
-            </Link>
-            <Link href="/recipes">
-              <div className="bg-gray-50 rounded-lg shadow-lg p-6 hover:shadow-xl transition duration-300">
-                <BiFoodMenu className="text-4xl text-logo-green mx-auto mb-4" />
-                <h3 className="text-lg font-semibold">Recipe Finder</h3>
-              </div>
-            </Link>
-          </div>
-        </div>
-      </section>
-
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+              <Card className="col-span-2">
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium">
+                    In the last 30 days, you tracked your weight on the
+                    following days:
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pl-2">
+                  <ProgressTracker />
+                </CardContent>
+              </Card>
+              <Card className="col-span-2">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Water Intake
+                  </CardTitle>
+                  <LuGlassWater className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">+2350</div>
+                  <p className="text-xs text-muted-foreground">
+                    +180.1% from last month
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="col-span-3">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Did you know?
+                  </CardTitle>
+                  <HiOutlineLightBulb className="h-4 w-4 text-muted-foreground text-yellow-400" />
+                </CardHeader>
+                <CardContent className="px-4 py-6">
+                  {foodTrivia ? (
+                    <div className="space-y-4">
+                      <p className="text-justify text-gray-600 leading-relaxed pl-2">
+                        {foodTrivia.text}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-20">
+                      <p className="text-gray-500 italic">Loading trivia...</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
       <Footer />
-    </div>
+    </>
   )
 }

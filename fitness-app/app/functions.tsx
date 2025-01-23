@@ -25,6 +25,13 @@ export function handleDate(date: any) {
   return dayjs(date).format("MM/DD/YYYY")
 }
 
+export const calculateWeightDifferenceSinceMonthStart = (
+  startWeight: number,
+  currentWeight: number
+) => {
+  return (currentWeight - startWeight).toFixed(2)
+}
+
 export const calculateWeightDifference = (
   goalWeight: number,
   currentWeight: number
