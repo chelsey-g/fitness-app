@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Select, Space } from "antd"
+import { Select, Space, ConfigProvider } from "antd"
 
 import { createClient } from "@/utils/supabase/client"
 
@@ -40,23 +40,33 @@ export default function AddPlayers({
   }, [])
 
   return (
-    <Space
-      style={{
-        width: "100%",
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: "#003D33",
+          borderRadius: 1,
+          colorBgContainer: "#FFFFFF",
+        },
       }}
-      direction="vertical"
     >
-      <Select
-        mode="multiple"
-        allowClear
+      <Space
         style={{
           width: "100%",
         }}
-        placeholder="Select Players"
-        onChange={handleChange}
-        options={options}
-        value={selectedPlayerIds}
-      />
-    </Space>
+        direction="vertical"
+      >
+        <Select
+          mode="multiple"
+          allowClear
+          style={{
+            width: "100%",
+          }}
+          placeholder="Select Players"
+          onChange={handleChange}
+          options={options}
+          value={selectedPlayerIds}
+        />
+      </Space>
+    </ConfigProvider>
   )
 }

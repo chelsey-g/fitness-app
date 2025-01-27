@@ -4,7 +4,6 @@ import useSWR, { Fetcher } from "swr"
 
 import DropdownMenuDemo from "@/components/CompetitionsActions"
 import Link from "next/link"
-import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 
@@ -58,21 +57,19 @@ export default function CompetitionHistoryPage() {
   }
 
   return (
-    <div className="w-full">
-      <Navigation />
-      <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg shadow-md relative">
+    <>
+      <div className="max-w-5xl mx-auto mt-6 bg-white dark:text-black rounded-lg shadow-md relative">
         <div className="absolute top-6 right-6">
           <button
-            className="relative flex items-center bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+            className="relative flex items-center px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90"
             onClick={handleShowActiveCompetitions}
           >
             Active Competitions
-            <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
           </button>
         </div>
 
         <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
-          <h1 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
+          <h1 className="text-4xl font-extrabold mb-2 tracking-tight">
             Competition History
           </h1>
           <p className="text-lg text-gray-700">
@@ -129,6 +126,6 @@ export default function CompetitionHistoryPage() {
           )}
         </div>
       </div>
-    </div>
+    </>
   )
 }

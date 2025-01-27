@@ -5,7 +5,6 @@ import useSWR, { Fetcher } from "swr"
 import DeleteCompetition from "@/components/CompetitionsActions"
 import { IoIosAdd } from "react-icons/io"
 import Link from "next/link"
-import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { getRandomColor } from "@/app/functions"
 import { useRouter } from "next/navigation"
@@ -59,21 +58,19 @@ export default function CompetitionsPage() {
     router.push("/competitions/history")
   }
   return (
-    <div className="w-full">
-      <Navigation />
-
-      <div className="relative max-w-5xl mx-auto mt-6 bg-white rounded-lg">
+    <>
+      <div className="relative max-w-5xl mx-auto mt-6 bg-white rounded-lg dark:text-black">
         <button
-          className="absolute top-6 right-6 bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center"
+          className="flex items-center absolute top-6 right-6 px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90"
           onClick={handleCreateCompetition}
         >
-          <IoIosAdd className="mr-2 text-lg" />
+          <IoIosAdd className="mr-2" />
           Create
         </button>
 
         {(competitions?.length ?? 0) > 0 && (
           <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
-            <h1 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
+            <h1 className="text-4xl font-extrabold mb-2 tracking-tight">
               Active Competitions
             </h1>
             <p className="text-lg text-gray-700">
@@ -86,7 +83,7 @@ export default function CompetitionsPage() {
           </div>
         )}
 
-        <div className="p-4">
+        <div className="p-4 justify-center">
           {competitions?.map((result, index) => (
             <div
               key={index}
@@ -134,7 +131,7 @@ export default function CompetitionsPage() {
 
           <div className="flex justify-center">
             <button
-              className="mt-5 relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              className="px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90"
               onClick={handleShowExpiredCompetitions}
             >
               Competition History
@@ -142,6 +139,6 @@ export default function CompetitionsPage() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }

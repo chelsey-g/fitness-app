@@ -1,9 +1,7 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { ValidationError, useForm } from "@formspree/react"
-
-import Navigation from "@/components/Navigation"
 import SubmitContactAlert from "@/components/ContactAlert"
 import { useRouter } from "next/navigation"
 
@@ -27,15 +25,14 @@ function ContactForm() {
   }, [state.succeeded, router])
 
   return (
-    <div>
-      <Navigation />
+    <>
       <h1 className="text-3xl text-center font-bold pt-10">Contact Us</h1>
       {showContactAlert && <SubmitContactAlert />}
       <form onSubmit={handleSubmit} className="max-w-lg mx-auto p-4 ">
         <div className="mb-4">
           <label
             htmlFor="name"
-            className="block text-gray-700 text-sm font-bold mb-2"
+            className="block text-gray-700 text-sm font-bold mb-2 dark:text-white"
           >
             Name
           </label>
@@ -51,7 +48,7 @@ function ContactForm() {
         <div className="mb-4">
           <label
             htmlFor="email"
-            className="block text-gray-700 text-sm font-bold mb-2"
+            className="block text-gray-700 text-sm font-bold mb-2 dark:text-white"
           >
             Email
           </label>
@@ -67,7 +64,7 @@ function ContactForm() {
         <div className="mb-4">
           <label
             htmlFor="message"
-            className="block text-gray-700 text-sm font-bold mb-2"
+            className="block text-gray-700 text-sm font-bold mb-2 dark:text-white"
           >
             Message
           </label>
@@ -86,12 +83,12 @@ function ContactForm() {
         <button
           type="submit"
           disabled={state.submitting}
-          className="bg-snd-bkg hover:bg-snd-bkg hover:opacity-90 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex flex-col items-center"
+          className="px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90"
         >
           Submit
         </button>
       </form>
-    </div>
+    </>
   )
 }
 

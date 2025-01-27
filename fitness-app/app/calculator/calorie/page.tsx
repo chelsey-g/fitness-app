@@ -1,9 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import Navigation from "../../../components/Navigation"
 
-const CalorieCalculator = () => {
+export default function CalorieCalculator() {
   type CalorieData = {
     level: string
     multiplier: number
@@ -52,11 +51,10 @@ const CalorieCalculator = () => {
   }
 
   return (
-    <div className="w-full">
-      <Navigation />
-      <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg shadow-md p-6">
+    <>
+      <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg shadow-md p-6 dark:text-black">
         <div className="border-b-2 border-snd-bkg pb-4 mb-6">
-          <h1 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
+          <h1 className="text-4xl font-extrabold mb-2 tracking-tight">
             Calorie Calculator
           </h1>
           <p className="text-lg text-gray-700">
@@ -136,52 +134,43 @@ const CalorieCalculator = () => {
           <div className="flex justify-center">
             <button
               type="button"
-              className="relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              className="px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90"
               onClick={calculateCalories}
             >
               Calculate Calories
-              <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
             </button>
           </div>
         </form>
 
-        {calories && (
-          <div className="mt-6 p-4 bg-green-100 rounded-lg shadow-md border border-green-400">
-            <h2 className="text-xl font-bold text-green-700">
-              Your Daily Calorie Needs:
-            </h2>
-            <p className="text-green-700">{calories} calories/day</p>
+        {calorieData.length > 0 && (
+          <div className="max-w-5xl mx-auto mt-8 bg-white dark:text-black rounded-lg p-6">
+            <div className="border-b-2 border-snd-bkg pb-4 mb-4">
+              <h2 className="text-4xl font-extrabold text-nav-bkg tracking-tight">
+                Calorie Needs
+              </h2>
+              <p className="text-lg text-gray-700">
+                These are suggestions for maintaining your current weight.
+              </p>
+            </div>
+            <table className="min-w-full table-auto border-collapse border border-gray-200">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="px-4 py-2 border">Activity Level</th>
+                  <th className="px-4 py-2 border">Calories Needed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {calorieData.map((row, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-4 py-2 border">{row.level}</td>
+                    <td className="px-4 py-2 border">{row.calories}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
-
-      {calorieData.length > 0 && (
-        <div className="max-w-5xl mx-auto mt-8 bg-white rounded-lg shadow-md p-6">
-          <div className="border-b-2 border-snd-bkg pb-4 mb-4">
-            <h2 className="text-2xl font-extrabold text-nav-bkg tracking-tight">
-              Calorie Needs Based on Activity Level
-            </h2>
-          </div>
-          <table className="min-w-full table-auto border-collapse border border-gray-200">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="px-4 py-2 border">Activity Level</th>
-                <th className="px-4 py-2 border">Calories Needed</th>
-              </tr>
-            </thead>
-            <tbody>
-              {calorieData.map((row, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-4 py-2 border">{row.level}</td>
-                  <td className="px-4 py-2 border">{row.calories}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+    </>
   )
 }
-
-export default CalorieCalculator
