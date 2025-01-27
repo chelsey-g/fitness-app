@@ -6,7 +6,6 @@ import {
   calculateWeightDifferenceSinceMonthStart,
 } from "@/app/functions"
 import useSWR from "swr"
-import Footer from "@/components/Footer"
 import { GiBodyHeight, GiStairsGoal } from "react-icons/gi"
 import { HiOutlineLightBulb } from "react-icons/hi"
 import { IoFootstepsOutline } from "react-icons/io5"
@@ -14,7 +13,6 @@ import { LuAward } from "react-icons/lu"
 import { LuGlassWater } from "react-icons/lu"
 import { FaRunning } from "react-icons/fa"
 import Link from "next/link"
-import Navigation from "@/components/Navigation"
 import CarouselOrientation from "@/components/CompetitionsCarousel"
 import ProgressTracker from "@/components/ProgressTracker"
 import { createClient } from "@/utils/supabase/client"
@@ -188,7 +186,6 @@ export default function UserDashboard() {
 
   return (
     <>
-      <Navigation />
       <div className="flex-1 space-y-4 py-16 px-8">
         <h2 className="text-4xl font-extrabold mb-2 tracking-tight">
           {profiles[0].first_name}'s Dashboard
@@ -355,7 +352,6 @@ export default function UserDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-      <Footer />
     </>
   )
 }

@@ -1,7 +1,6 @@
-// import LandingPage from "@/components/LandingPage"
 import { cookies } from "next/headers"
 import { createClient } from "@/utils/supabase/server"
-import Navigation from "@/components/Navigation"
+import LandingPage from "@/components/LandingPage"
 
 export default async function HomePage() {
   const cookieStore = cookies()
@@ -19,7 +18,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      <Navigation />
+      <LandingPage />
     </div>
   )
 }

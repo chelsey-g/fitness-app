@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <div className="w-3/4 p-4 py-6 mx-auto">
+    <div className="w-full p-4 py-6 mx-auto">
       <hr className="my-6 border-gray-300 dark:border-gray-700" />
       <div className="flex items-center justify-between">
         <div>

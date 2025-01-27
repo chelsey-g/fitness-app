@@ -82,7 +82,7 @@ export default function ProfileDropDown() {
               <DropdownMenuItem>
                 <div className="px-4 py-2 border-b">
                   <div className="flex items-center">
-                    <FaRegUserCircle className="w-5 h-5 mr-2" />
+                    <FaRegUserCircle className="w-5 h-5 text-black mr-5" />
 
                     {profiles && (
                       <div>
@@ -98,17 +98,17 @@ export default function ProfileDropDown() {
                 </div>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <div className="px-4 py-2">
+                <div className="px-4 py-2 dark:text-black">
                   <Link href="/profile">Profile</Link>
                 </div>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <div className="px-4 py-2">
+                <div className="px-4 py-2 dark:text-black">
                   <Link href="/contact">Contact Us</Link>
                 </div>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <div className="px-4 py-2">
+                <div className="px-4 py-2 dark:text-black">
                   <button
                     onClick={handleSignOutUser}
                     className="block w-full text-left text-sm text-gray-800 hover:bg-gray-100"
