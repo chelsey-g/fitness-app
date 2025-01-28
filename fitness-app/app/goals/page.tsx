@@ -1,6 +1,4 @@
 "use client"
-
-// import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   Dialog,
   DialogContent,
@@ -10,7 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-// import { FaCheckCircle } from "react-icons/fa"
 import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
 import useSWR, { Fetcher } from "swr"
 
@@ -18,7 +15,6 @@ import { Button } from "@/components/ui/button"
 import GoalsDropdown from "@/components/GoalsActions"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { handleDate } from "@/app/functions"
 import { useState } from "react"
@@ -140,18 +136,16 @@ export default function ProfileGoals() {
   }
 
   return (
-    <div className="w-full">
-      <Navigation />
-      <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg shadow-md relative">
+    <>
+      <div className="max-w-5xl mx-auto mt-6 bg-white dark:text-black rounded-lg shadow-md relative">
         <div className="absolute top-6 right-6">
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <button
                 onClick={handleEditModal}
-                className="relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                className="relative px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90"
               >
                 Add New Goal
-                <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
               </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] bg-white rounded-lg shadow-lg p-6">
@@ -276,6 +270,6 @@ export default function ProfileGoals() {
           )}
         </div>
       </div>
-    </div>
+    </>
   )
 }

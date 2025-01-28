@@ -1,9 +1,6 @@
 "use client"
 
 import { getAwardColor, getOrdinalSuffix } from "@/app/functions"
-
-import BackButton from "@/components/BackButton"
-import Navigation from "@/components/Navigation"
 import { TbAwardFilled } from "react-icons/tb"
 import { createClient } from "@/utils/supabase/client"
 import { handleDate } from "@/app/functions"
@@ -25,14 +22,25 @@ export default function CompetitionPage(props: any) {
       .eq("id", props.params.id)
     return data
   })
+  console.log(competitionData)
 
-  const handleDaysLeft = (date: any | number | Date) => {
-    const today = new Date()
-    const competitionEndDate: any = new Date(date)
-    const timeDifference = competitionEndDate.getTime() - today.getTime()
-    const daysLeft = Math.ceil(timeDifference / (1000 * 3600 * 24))
-    return daysLeft
+  function getCreatedBy(competition: any) {
+    const creator = competition.competitions_players.find(
+      (player: any) => player.player_id === competition.created_by
+    )
+
+    return creator?.profiles
+      ? `${creator.profiles.first_name} ${creator.profiles.last_name}`
+      : "Unknown"
   }
+
+  // const handleDaysLeft = (date: any | number | Date) => {
+  //   const today = new Date()
+  //   const competitionEndDate: any = new Date(date)
+  //   const timeDifference = competitionEndDate.getTime() - today.getTime()
+  //   const daysLeft = Math.ceil(timeDifference / (1000 * 3600 * 24))
+  //   return daysLeft
+  // }
 
   function getInitialWeight(player: any, competitionData: any) {
     if (!player?.profiles?.weight_tracker?.length) {
@@ -108,14 +116,12 @@ export default function CompetitionPage(props: any) {
     )
 
   return (
-    <div className="w-full">
-      <Navigation />
-      <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg shadow-lg p-6">
+    <>
+      <div className="max-w-5xl mx-auto mt-6 bg-white dark:text-black rounded-lg shadow-lg p-6">
         {competitionData?.map((competition, index) => (
-          <div key={index} className="border-b-2 pb-6 mb-6">
-            <BackButton />
+          <div key={index} className="pb-6 mb-6">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-4xl font-extrabold text-nav-bkg tracking-tight">
+              <h1 className="text-4xl font-extrabold tracking-tight">
                 {competition.name}
               </h1>
             </div>
@@ -133,30 +139,17 @@ export default function CompetitionPage(props: any) {
                 </span>
               </p>
             </div>
-            <p
-              className={`text-center mb-6 font-bold text-2xl py-4 px-6 rounded-lg shadow-lg transition-transform duration-800 ${
-                handleDaysLeft(competition.date_ending) <= 0
-                  ? "bg-red-500 text-white animate-bounce"
-                  : "bg-snd-bkg text-white animate-pulse"
-              }`}
-            >
-              {handleDaysLeft(competition.date_ending) <= 0
-                ? "This competition has ended!"
-                : `Only ${handleDaysLeft(
-                    competition.date_ending
-                  )} days left of the competition`}
-            </p>
-
-            <h2 className="text-xl font-semibold text-center mb-4">
-              Overall Competition Stats
-            </h2>
             <div className="overflow-x-auto">
               <table className="table-auto w-full">
-                <thead className="bg-gray-200">
+                <thead className="bg-gray-100">
                   <tr>
-                    <th className="px-4 py-3 text-left text-gray-700">Rank</th>
-                    <th className="px-4 py-3 text-left text-gray-700">Name</th>
-                    <th className="px-4 py-3 text-left text-gray-700">
+                    <th className="px-4 py-3 text-left text-gray-700 font-semibold">
+                      Rank
+                    </th>
+                    <th className="px-4 py-3 text-left text-gray-700 font-semibold">
+                      Name
+                    </th>
+                    <th className="px-4 py-3 text-left text-gray-700 font-semibold">
                       % Change
                     </th>
                   </tr>
@@ -171,27 +164,32 @@ export default function CompetitionPage(props: any) {
                       <tr
                         key={playerIndex}
                         className={`${
-                          playerIndex % 2 === 0 ? "bg-gray-100" : "bg-white"
-                        }`}
+                          playerIndex % 2 === 0 ? "bg-gray-50" : "bg-white"
+                        } hover:bg-gray-100`}
                       >
-                        <td className="border px-4 py-3 flex items-center">
-                          {playerIndex < 3 ? (
-                            <TbAwardFilled
-                              className={`mr-2 ${getAwardColor(
-                                playerIndex + 1
-                              )}`}
-                            />
-                          ) : null}
-                          {getOrdinalSuffix(playerIndex + 1)}
+                        <td className="px-4 py-3">
+                          <div className="flex items-center">
+                            {playerIndex < 3 ? (
+                              <TbAwardFilled
+                                className={`mr-2 ${getAwardColor(
+                                  playerIndex + 1
+                                )}`}
+                              />
+                            ) : null}
+                            {getOrdinalSuffix(playerIndex + 1)}
+                          </div>
                         </td>
-                        <td className="border px-4 py-3">{player.player}</td>
-                        <td className="border px-4 py-3">
-                          {player.percentageChange}
-                        </td>
+                        <td className="px-4 py-3">{player.player}</td>
+                        <td className="px-4 py-3">{player.percentageChange}</td>
                       </tr>
                     ))}
                 </tbody>
               </table>
+              <div className="mt-2">
+                <span className="text-xs text-gray-500">
+                  Last updated on January 28th, 2024 at 10:00 PM
+                </span>
+              </div>
             </div>
 
             {competition.rules && (
@@ -202,11 +200,15 @@ export default function CompetitionPage(props: any) {
                     {competition.rules}
                   </pre>
                 </div>
+                <span className="text-xs text-gray-500">
+                  Competition created by {getCreatedBy(competition)} on{" "}
+                  {handleDate(competition.created_at)}
+                </span>
               </div>
             )}
           </div>
         ))}
       </div>
-    </div>
+    </>
   )
 }
