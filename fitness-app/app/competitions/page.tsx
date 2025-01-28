@@ -76,9 +76,9 @@ export default function CompetitionsPage() {
             <p className="text-lg text-gray-700">
               You currently have{" "}
               <span className="text-snd-bkg font-semibold">
-                {competitions?.length || 0}
+                {competitions?.length}
               </span>{" "}
-              active competitions.
+              active competition{(competitions?.length ?? 0) > 1 ? "s" : ""}.
             </p>
           </div>
         )}
