@@ -20,7 +20,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import Navigation from "@/components/Navigation"
 import UploadPicture from "@/components/UploadPicture"
 import UsernamePassword from "@/components/UsernamePassword"
 import { createClient } from "@/utils/supabase/client"
@@ -77,9 +76,9 @@ export default function ProfileDashboard() {
 
   const cardContent =
     selectedProfileCard === "Account Settings" ? (
-      <Card className="border rounded-lg shadow-lg">
-        <CardHeader className="bg-gray-100 py-4 px-6">
-          <CardTitle className="text-2xl font-bold text-nav-bkg">
+      <Card className="border rounded-lg shadow-lg dark:text-black">
+        <CardHeader className="bg-gray-100 py-4 px-6 dark:text-black">
+          <CardTitle className="text-2xl font-bold dark:text-black">
             Account Settings
           </CardTitle>
           <CardDescription className="text-gray-700">
@@ -100,10 +99,9 @@ export default function ProfileDashboard() {
                   <DialogTrigger asChild>
                     <button
                       onClick={handleEditModal}
-                      className="relative bg-button-bkg text-nav-bkg font-bold py-2 px-4 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                      className="relative px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90"
                     >
                       Edit
-                      <div className="absolute inset-0 rounded-lg bg-button-hover opacity-0 hover:opacity-20 transition duration-300"></div>
                     </button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[425px] bg-white rounded-lg shadow-lg p-6">
@@ -167,13 +165,14 @@ export default function ProfileDashboard() {
     )
 
   return (
-    <div className="w-full min-h-screen">
-      <Navigation />
+    <>
       <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg shadow-lg p-6 flex gap-8">
         <nav className="flex flex-col gap-4 w-1/4">
           <button
-            className={`font-semibold text-left ${
-              selectedProfileCard === "Account Settings" ? "text-snd-bkg" : ""
+            className={`font-semibold text-left dark:text-black ${
+              selectedProfileCard === "Account Settings"
+                ? "dark:text-black"
+                : ""
             }`}
             onClick={() => setSelectedProfileCard("Account Settings")}
           >
@@ -181,7 +180,9 @@ export default function ProfileDashboard() {
           </button>
           <button
             className={`text-left ${
-              selectedProfileCard === "Login & Security" ? "text-snd-bkg" : ""
+              selectedProfileCard === "Login & Security"
+                ? "dark:text-black"
+                : ""
             }`}
             onClick={() => setSelectedProfileCard("Login & Security")}
           >
@@ -190,6 +191,6 @@ export default function ProfileDashboard() {
         </nav>
         <div className="flex flex-col w-3/4">{cardContent}</div>
       </div>
-    </div>
+    </>
   )
 }
