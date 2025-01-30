@@ -1,4 +1,3 @@
-import Footer from "./Footer"
 import Link from "next/link"
 import { CgArrowRight } from "react-icons/cg"
 
@@ -37,7 +36,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-      <Footer />
     </div>
   )
 }
