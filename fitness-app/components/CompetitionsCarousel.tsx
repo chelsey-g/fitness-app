@@ -1,16 +1,30 @@
-import * as React from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
+  // CarouselNext,
+  // CarouselPrevious,
 } from "@/components/ui/carousel"
 import Link from "next/link"
 import { handleDate, calculateDaysLeft } from "@/app/functions"
 
-export default function CarouselOrientation({ competitions }) {
+interface Competition {
+  id: string
+  competition_id: string
+  competitions: {
+    name: string
+    date_ending: string
+  }
+}
+
+interface CarouselOrientationProps {
+  competitions: Competition[]
+}
+
+export default function CarouselOrientation({
+  competitions,
+}: CarouselOrientationProps) {
   if (!competitions || competitions.length === 0) {
     return <p className="text-gray-600 italic">No active competitions found.</p>
   }
@@ -18,7 +32,6 @@ export default function CarouselOrientation({ competitions }) {
   return (
     <div className="relative max-w-xs mx-auto">
       <Carousel className="w-full">
-        <CarouselPrevious className="absolute top-1/2 -left-6 transform -translate-y-1/2 bg-snd-bkg text-white rounded-full p-2 shadow-md"></CarouselPrevious>
         <CarouselContent>
           {competitions.map((competition) => (
             <CarouselItem key={competition.id}>
@@ -43,10 +56,10 @@ export default function CarouselOrientation({ competitions }) {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselNext className="absolute top-1/2 -right-6 transform -translate-y-1/2 bg-snd-bkg text-white rounded-full p-2 shadow-md">
-          &gt;
-        </CarouselNext>
       </Carousel>
+      <span className="block text-center text-xs text-gray-500 mt-2">
+        Swipe over to see more competitions
+      </span>
     </div>
   )
 }

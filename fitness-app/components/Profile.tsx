@@ -74,7 +74,7 @@ export default function ProfileDropDown() {
               fallbackSrc={fallbackSrc}
               width={5}
               height={5}
-              className="w-5 h-5 rounded-full cursor-pointer bg-logo-green"
+              className="w-5 h-5 rounded-full items-center justify-center mt-2 focus:none"
             />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="relative right-20 z-10 w-60 mt-2 origin-top-right bg-white rounded-md shadow-lg">
@@ -82,7 +82,15 @@ export default function ProfileDropDown() {
               <DropdownMenuItem>
                 <div className="px-4 py-2 border-b">
                   <div className="flex items-center">
-                    <FaRegUserCircle className="w-5 h-5 text-black mr-5" />
+                    <ImageWithFallback
+                      key={name.publicUrl || ""}
+                      src={name.publicUrl || ""}
+                      alt="profile picture"
+                      fallbackSrc={fallbackSrc}
+                      width={7}
+                      height={7}
+                      className="w-7 h-7 rounded-full mr-5"
+                    />
 
                     {profiles && (
                       <div>
@@ -98,12 +106,12 @@ export default function ProfileDropDown() {
                 </div>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <div className="px-4 py-2 dark:text-black">
+                <div className="px-4 py-2 dark:text-black hover:underline">
                   <Link href="/profile">Profile</Link>
                 </div>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <div className="px-4 py-2 dark:text-black">
+                <div className="px-4 py-2 dark:text-black hover:underline">
                   <Link href="/contact">Contact Us</Link>
                 </div>
               </DropdownMenuItem>
@@ -111,7 +119,7 @@ export default function ProfileDropDown() {
                 <div className="px-4 py-2 dark:text-black">
                   <button
                     onClick={handleSignOutUser}
-                    className="block w-full text-left text-sm text-gray-800 hover:bg-gray-100"
+                    className="block w-full text-left text-sm text-gray-800 hover:underline"
                   >
                     Logout
                   </button>

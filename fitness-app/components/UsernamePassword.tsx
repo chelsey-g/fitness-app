@@ -63,7 +63,7 @@ export default function UsernamePassword() {
 
   return (
     <div>
-      <CardHeader>
+      <CardHeader className="dark:text-black">
         <CardTitle>Email & Password</CardTitle>
         <CardDescription>Update your email and password.</CardDescription>
       </CardHeader>
@@ -82,7 +82,7 @@ export default function UsernamePassword() {
                 Edit
               </button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-white">
+            <DialogContent className="sm:max-w-[425px] bg-white dark:text-black">
               <DialogHeader>
                 <DialogTitle>Edit profile</DialogTitle>
                 <DialogDescription>

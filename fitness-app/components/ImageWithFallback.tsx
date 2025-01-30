@@ -23,7 +23,7 @@ const ImageWithFallback = ({
     return typeof fallbackSrc === "string" ? (
       <Image alt={alt} {...props} src={fallbackSrc as string} />
     ) : (
-      <div className="w-10 h-10 flex items-center justify-center">
+      <div className="w-10 h-10 flex items-center justify-center focus:none">
         {fallbackSrc}
       </div>
     )

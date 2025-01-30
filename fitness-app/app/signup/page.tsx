@@ -1,4 +1,4 @@
-import Messages from "./messages"
+// import Messages from "./messages"
 import { Suspense } from "react"
 import Link from "next/link"
 
@@ -29,7 +29,7 @@ export default function SignUp() {
               </Link>
             </p>
 
-            <Messages />
+            {/* <Messages /> */}
             <label className="text-md" htmlFor="email">
               Email
             </label>
