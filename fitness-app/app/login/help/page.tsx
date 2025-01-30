@@ -11,26 +11,26 @@ export default function ResetPasswordRequest() {
   const [message, setMessage] = useState("")
   const supabase = createClient()
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    try {
-      setLoading(true)
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "http://example.com/account/update-password", // Replace with your actual URL
-      })
+  // const handleSubmit = async (e: { preventDefault: () => void }) => {
+  //   e.preventDefault()
+  //   try {
+  //     setLoading(true)
+  //     const { error } = await supabase.auth.resetPasswordForEmail(email, {
+  //       redirectTo: "http://example.com/account/update-password", // Replace with your actual URL
+  //     })
 
-      if (error) throw error
-      setMessage("Check your email for the password reset link")
-    } catch (error) {
-      if (error instanceof Error) {
-        setMessage("Error: " + error.message)
-      } else {
-        setMessage("An unknown error occurred")
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
+  //     if (error) throw error
+  //     setMessage("Check your email for the password reset link")
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       setMessage("Error: " + error.message)
+  //     } else {
+  //       setMessage("An unknown error occurred")
+  //     }
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
   return (
     <>
