@@ -5,6 +5,14 @@ import { TbAwardFilled } from "react-icons/tb"
 import { createClient } from "@/utils/supabase/client"
 import { handleDate } from "@/app/functions"
 import useSWR from "swr"
+import {
+  ReactElement,
+  JSXElementConstructor,
+  ReactFragment,
+  ReactPortal,
+  PromiseLikeOfReactNode,
+  Key,
+} from "react"
 
 export default function CompetitionPage(props: any) {
   const supabase = createClient()
@@ -160,29 +168,67 @@ export default function CompetitionPage(props: any) {
                       (a: any, b: any) =>
                         b.percentageChange - a.percentageChange
                     )
-                    .map((player, playerIndex) => (
-                      <tr
-                        key={playerIndex}
-                        className={`${
-                          playerIndex % 2 === 0 ? "bg-gray-50" : "bg-white"
-                        } hover:bg-gray-100`}
-                      >
-                        <td className="px-4 py-3">
-                          <div className="flex items-center">
-                            {playerIndex < 3 ? (
-                              <TbAwardFilled
-                                className={`mr-2 ${getAwardColor(
-                                  playerIndex + 1
-                                )}`}
-                              />
-                            ) : null}
-                            {getOrdinalSuffix(playerIndex + 1)}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">{player.player}</td>
-                        <td className="px-4 py-3">{player.percentageChange}</td>
-                      </tr>
-                    ))}
+                    .map(
+                      (
+                        player: {
+                          player:
+                            | string
+                            | number
+                            | boolean
+                            | ReactElement<
+                                any,
+                                string | JSXElementConstructor<any>
+                              >
+                            | ReactFragment
+                            | ReactPortal
+                            | PromiseLikeOfReactNode
+                            | null
+                            | undefined
+                          percentageChange:
+                            | string
+                            | number
+                            | boolean
+                            | ReactElement<
+                                any,
+                                string | JSXElementConstructor<any>
+                              >
+                            | ReactFragment
+                            | ReactPortal
+                            | PromiseLikeOfReactNode
+                            | null
+                            | undefined
+                        },
+                        playerIndex: number
+                      ) => (
+                        <tr
+                          key={playerIndex}
+                          className={`${
+                            playerIndex !== null &&
+                            playerIndex !== undefined &&
+                            playerIndex % 2 === 0
+                              ? "bg-gray-50"
+                              : "bg-white"
+                          } hover:bg-gray-100`}
+                        >
+                          <td className="px-4 py-3">
+                            <div className="flex items-center">
+                              {playerIndex < 3 ? (
+                                <TbAwardFilled
+                                  className={`mr-2 ${getAwardColor(
+                                    playerIndex + 1
+                                  )}`}
+                                />
+                              ) : null}
+                              {getOrdinalSuffix(playerIndex + 1)}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">{player.player}</td>
+                          <td className="px-4 py-3">
+                            {player.percentageChange}
+                          </td>
+                        </tr>
+                      )
+                    )}
                 </tbody>
               </table>
               <div className="mt-2">
