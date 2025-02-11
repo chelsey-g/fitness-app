@@ -3,7 +3,6 @@
 import {
   calculateDaysLeft,
   calculateWeightDifference,
-  calculateWeightDifferenceSinceMonthStart,
 } from "@/app/functions"
 import useSWR from "swr"
 import { GiStairsGoal } from "react-icons/gi"
@@ -13,15 +12,13 @@ import Link from "next/link"
 import CarouselOrientation from "@/components/CompetitionsCarousel"
 import ProgressTracker from "@/components/ProgressTracker"
 import { createClient } from "@/utils/supabase/client"
-import { handleDate } from "@/app/functions"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
 
 export default function UserDashboard() {
   type Competition = {
@@ -106,8 +103,6 @@ export default function UserDashboard() {
     { revalidateOnFocus: false }
   )
 
-  console.log(competitions, "hi")
-
   const profilesFetcher = async (url: string) => {
     const { data, error: profilesError } = await supabase
       .from("profiles")
@@ -146,8 +141,6 @@ export default function UserDashboard() {
     { revalidateOnFocus: false }
   )
 
-  console.log(goals, "goals")
-
   const weightFetcher = async (url: string) => {
     const { data, error: weightError } = await supabase
       .from("weight_tracker")
@@ -169,16 +162,11 @@ export default function UserDashboard() {
     { revalidateOnFocus: false }
   )
 
-  console.log(weights, "weights")
-
   if (!user || !profiles) {
     return <div>Loading...</div>
   }
 
   const currentDate = new Date()
-  const activeGoals = goals?.filter(
-    (goal) => new Date(goal.goal_date) >= currentDate
-  )
 
   return (
     <>
@@ -234,8 +222,25 @@ export default function UserDashboard() {
                   </div>
                 </CardContent>
               </Card>
+              <Card className="col-span-1 sm:col-span-2">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Progress Tracker
+                  </CardTitle>
+                  <FaRunning className="h-5 w-5 text-muted-foreground" />
+                </CardHeader>
+                <CardContent className="m-2">
+                  <div className="overflow-x-auto">
+                    <ProgressTracker />
+                  </div>
+                  <div className="block text-center text-xs text-gray-500 mt-2">
+                    This chart shows the days you've tracked your weight over the
+                    last 30 days.
+                  </div>
+                </CardContent>
+              </Card>
 
-              <Card className="col-span-1 sm:col-span-4">
+              <Card className="col-span-1 sm:col-span-2">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
                     Did you know?
