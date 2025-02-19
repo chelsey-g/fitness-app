@@ -1,17 +1,34 @@
+'use client'
 import Messages from "./messages"
 import { Suspense } from "react"
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useRouter } from 'next/navigation'
 
 import { IoIosLock } from "react-icons/io"
 import { FcGoogle } from "react-icons/fc"
 
-import Navigation from "@/components/Navigation"
-import Footer from "@/components/Footer"
-
 export default function Login() {
+  const router = useRouter()
+  const supabase = createClientComponentClient()
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${location.origin}/auth/callback`
+        }
+      })
+      
+      if (error) throw error
+    } catch (error) {
+      console.error('Error logging in with Google:', error)
+    }
+  }
+
   return (
     <div>
       <Suspense fallback={<div>Loading...</div>}>
-        <Navigation />
         <div className="px-2 py-4 sm:max-w-lg mx-auto">
           <form
             className="p-4 rounded-lg flex flex-col gap-2 text-foreground"
@@ -59,14 +76,16 @@ export default function Login() {
               <span className="px-2 text-sm uppercase text-gray-400">Or</span>
               <div className="flex-grow border-t border-gray-600"></div>
             </div>
-            <button className="w-full flex items-center justify-center gap-2 bg-cream-white hover:opacity-90 dark:bg-black rounded-md px-4 py-2 mt-2 border border-dashed border-logo-green">
+            <button
+              onClick={handleGoogleLogin}
+              className="flex items-center justify-center gap-2 rounded-lg bg-white px-4 py-2 text-gray-700 shadow-md hover:bg-gray-100"
+            >
               <FcGoogle />
-              Continue With Google
+              Continue with Google
             </button>
           </form>
         </div>
       </Suspense>
-      <Footer />
     </div>
   )
 }

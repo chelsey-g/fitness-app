@@ -1,22 +1,57 @@
+'use client'
 // import Messages from "./messages"
 import { Suspense } from "react"
 import Link from "next/link"
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useRouter } from 'next/navigation'
+import { useRef, useState, FormEvent } from 'react'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
 
 import { IoCreateOutline } from "react-icons/io5"
 
-import Navigation from "@/components/Navigation"
-import Footer from "@/components/Footer"
-
 export default function SignUp() {
+  const router = useRouter()
+  const supabase = createClientComponentClient()
+  const [captchaToken, setCaptchaToken] = useState<string>()
+  const captcha = useRef<HCaptcha>(null)
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    const form = e.target as HTMLFormElement
+    const formData = new FormData(form)
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          captchaToken,
+          emailRedirectTo: `${location.origin}/auth/callback`
+        }
+      })
+
+      if (error) throw error
+
+      // Redirect to email verification page
+      router.push('/verify-email')
+      router.refresh()
+    } catch (error) {
+      console.error('Error signing up:', error)
+    } finally {
+      // Reset the captcha after signup attempt
+      captcha.current?.resetCaptcha()
+    }
+  }
+
   return (
     <div>
       <Suspense fallback={<div>Loading...</div>}>
-        <Navigation />
         <div className="px-2 py-4 sm:max-w-lg mx-auto">
           <form
             className="p-4 rounded-lg flex flex-col gap-2 text-foreground"
-            action="/auth/sign-up"
-            method="post"
+            onSubmit={handleSubmit}
           >
             <div className="flex items-center space-x-2 mb-2">
               <IoCreateOutline className="text-2xl text-logo-green" />
@@ -51,13 +86,22 @@ export default function SignUp() {
               required
               autoComplete="new-password"
             />
-            <button className="w-full bg-logo-green hover:opacity-90 rounded-md px-4 py-2 mb-2 dark:bg-snd-bkg text-white text-sm font-semibold">
+            <div className="mb-4">
+              <HCaptcha
+                ref={captcha}
+                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+                onVerify={(token) => setCaptchaToken(token)}
+              />
+            </div>
+            <button 
+              type="submit"
+              className="w-full bg-logo-green hover:opacity-90 rounded-md px-4 py-2 mb-2 dark:bg-snd-bkg text-white text-sm font-semibold"
+            >
               Create Account
             </button>
           </form>
         </div>
       </Suspense>
-      <Footer />
     </div>
   )
 }
