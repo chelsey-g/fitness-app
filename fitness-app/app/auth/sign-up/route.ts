@@ -1,40 +1,34 @@
-import { NextResponse } from "next/server"
-import { cookies } from "next/headers"
-import { createClient } from "@/utils/supabase/server"
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   const requestUrl = new URL(request.url)
   const formData = await request.formData()
-  const email = String(formData.get("email"))
-  const password = String(formData.get("password"))
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const email = String(formData.get('email'))
+  const password = String(formData.get('password'))
+  const captchaToken = String(formData.get('captchaToken'))
 
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${requestUrl.origin}/auth/callback`,
-    },
-  })
+  const supabase = createRouteHandlerClient({ cookies })
 
-  console.log(error)
+  try {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        captchaToken,
+        emailRedirectTo: `${requestUrl.origin}/auth/callback`,
+      },
+    })
 
-  if (error) {
-    return NextResponse.redirect(
-      `${requestUrl.origin}/login?error=Could not authenticate user`,
-      {
-        // a 301 status is required to redirect from a POST to a GET route
-        status: 301,
-      }
-    )
-  }
-
-  return NextResponse.redirect(
-    `${requestUrl.origin}/login?message=Check email to confirm account`,
-    {
-      // a 301 status is required to redirect from a POST to a GET route
-      status: 301,
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
     }
-  )
+
+    return NextResponse.redirect(requestUrl.origin, {
+      status: 301,
+    })
+  } catch (error) {
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
 }
