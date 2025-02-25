@@ -118,14 +118,15 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, result })
   } catch (error) {
+    const err = error as Error
     console.error('Detailed error:', {
-      error,
-      message: error.message,
-      stack: error.stack
+      error: err,
+      message: err.message,
+      stack: err.stack
     })
     return NextResponse.json({ 
-      error: error.message || 'Failed to send email',
-      details: error
+      error: err.message || 'Failed to send email',
+      details: err
     }, { 
       status: 500 
     })
