@@ -1,7 +1,29 @@
 "use client"
 
-import { FaArrowDown, FaWeight } from "react-icons/fa"
+import { FaArrowDown } from "react-icons/fa"
 import { useState } from "react"
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar"
+import "react-circular-progressbar/dist/styles.css"
+
+const bmiColors = {
+  underweight: "#facc15",
+  normal: "#22c55e",
+  overweight: "#f97316",
+  obese: "#ef4444",
+}
+
+const getBmiColor = (message: any) => {
+  switch (message) {
+    case "Underweight":
+      return bmiColors.underweight
+    case "Normal weight":
+      return bmiColors.normal
+    case "Overweight":
+      return bmiColors.overweight
+    default:
+      return bmiColors.obese
+  }
+}
 
 const BMICalculator = () => {
   const [feet, setFeet] = useState("")
@@ -20,16 +42,17 @@ const BMICalculator = () => {
         2
       )
       setBMI(bmiValue)
+
       let bmiMessage = ""
       let targetBMI = null
 
       if (Number(bmiValue) < 18.5) {
         bmiMessage = "Underweight"
         targetBMI = 18.5
-      } else if (Number(bmiValue) >= 18.5 && Number(bmiValue) < 24.9) {
+      } else if (Number(bmiValue) < 24.9) {
         bmiMessage = "Normal weight"
         targetBMI = 24.9
-      } else if (Number(bmiValue) >= 25 && Number(bmiValue) < 29.9) {
+      } else if (Number(bmiValue) < 29.9) {
         bmiMessage = "Overweight"
         targetBMI = 24.9
       } else {
@@ -38,7 +61,7 @@ const BMICalculator = () => {
       }
       setMessage(bmiMessage)
 
-      if (targetBMI && Number(targetBMI) < Number(bmiValue)) {
+      if (targetBMI && targetBMI < Number(bmiValue)) {
         const targetWeightKg = targetBMI * (heightInMeters * heightInMeters)
         const targetWeightLbs = targetWeightKg / 0.453592
         const weightToLoseLbs = (Number(pounds) - targetWeightLbs).toFixed(2)
@@ -49,10 +72,12 @@ const BMICalculator = () => {
     }
   }
 
+  const bmiPercentage = bmi ? Math.min((Number(bmi) / 40) * 100, 100) : 0
+
   return (
-    <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg shadow-md p-6">
+    <div className="max-w-5xl mx-auto mt-6 bg-white dark:text-black rounded-lg shadow-md p-6">
       <div className="border-b-2 border-snd-bkg pb-4 mb-6">
-        <h1 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight">
+        <h1 className="text-4xl font-extrabold mb-2 tracking-tight">
           BMI Calculator
         </h1>
         <p className="text-lg text-gray-700">
@@ -100,19 +125,27 @@ const BMICalculator = () => {
           <button
             type="button"
             onClick={calculateBMI}
-            className="relative bg-button-bkg text-nav-bkg font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+            className="px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90"
           >
             Calculate BMI
           </button>
         </div>
       </form>
       {bmi && (
-        <div className="mt-6 p-4 bg-gray-100 rounded-lg shadow-md">
-          <div className="flex items-center justify-center">
-            <FaWeight className="text-4xl text-snd-bkg mr-4" />
-            <p className="text-3xl font-extrabold">
-              Your BMI: <span className="text-snd-bkg">{bmi}</span>
-            </p>
+        <div className="mt-6 p-6 bg-white">
+          <div className="flex flex-col items-center">
+            <div className="w-32 h-32">
+              <CircularProgressbar
+                value={bmiPercentage}
+                text={`${bmi}`}
+                styles={buildStyles({
+                  textSize: "1.5rem",
+                  textColor: getBmiColor(message),
+                  pathColor: getBmiColor(message),
+                  trailColor: "#e5e7eb",
+                })}
+              />
+            </div>
           </div>
           <p
             className={`text-lg mt-4 font-semibold text-center ${
@@ -127,9 +160,8 @@ const BMICalculator = () => {
           >
             {message}
           </p>
-
           {weightToLose && (
-            <div className="mt-4 flex items-center justify-center text-red-500">
+            <div className="mt-4 flex items-center justify-center">
               <FaArrowDown className="text-2xl mr-2" />
               <p className="text-lg">
                 You need to lose approximately {weightToLose} lbs to reach the

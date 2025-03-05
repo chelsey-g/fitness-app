@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
   if (code) {
     const cookieStore = cookies()
-    const supabase = createClient(cookieStore)
+    const supabase = await createClient(cookieStore)
     await supabase.auth.exchangeCodeForSession(code)
   }
 

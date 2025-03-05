@@ -1,9 +1,6 @@
 "use client"
 
-import {
-  calculateDaysLeft,
-  calculateWeightDifference,
-} from "@/app/functions"
+import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
 import useSWR from "swr"
 import { GiStairsGoal } from "react-icons/gi"
 import { HiOutlineLightBulb } from "react-icons/hi"
@@ -12,12 +9,7 @@ import Link from "next/link"
 import CarouselOrientation from "@/components/CompetitionsCarousel"
 import ProgressTracker from "@/components/ProgressTracker"
 import { createClient } from "@/utils/supabase/client"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
 
 export default function UserDashboard() {
@@ -68,9 +60,24 @@ export default function UserDashboard() {
     data: user,
     error,
     isLoading,
-  } = useSWR("/user", () =>
-    supabase.auth.getUser().then((res) => res.data.user)
+  } = useSWR(
+    "/user",
+    async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      if (!session) {
+        window.location.href = "/login"
+        return null
+      }
+      return session.user
+    },
+    {
+      revalidateOnFocus: false,
+    }
   )
+
+  console.log(user, "user")
 
   let identityId = user?.identities?.[0]?.id || null
 
@@ -234,8 +241,8 @@ export default function UserDashboard() {
                     <ProgressTracker />
                   </div>
                   <div className="block text-center text-xs text-gray-500 mt-2">
-                    This chart shows the days you've tracked your weight over the
-                    last 30 days.
+                    This chart shows the days you've tracked your weight over
+                    the last 30 days.
                   </div>
                 </CardContent>
               </Card>

@@ -46,7 +46,7 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
           />
           <div className="text-right mb-3">
             <a
-              href="/login/help"
+              href="/login/forgot-password"
               className="text-sm text-logo-green hover:underline"
             >
               Forgot Password?

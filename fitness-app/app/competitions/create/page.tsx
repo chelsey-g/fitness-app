@@ -20,6 +20,7 @@ export default function CreateCompetitionPage() {
   const [addPlayers, setAddPlayers] = useState(false)
   const [selectedPlayerIds, setSelectedPlayerIds] = useState([])
   const [user, setUser] = useState<any | null>(null)
+  const [invitedEmails, setInvitedEmails] = useState<string[]>([])
 
   useEffect(() => {
     const getUser = async () => {
@@ -34,6 +35,18 @@ export default function CreateCompetitionPage() {
     getUser()
   }, [])
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        console.log("No session found, redirecting to login")
+        router.push('/login')
+        return
+      }
+    }
+    checkAuth()
+  }, [])
+
   const handleSelectPlayers = (selectedPlayers: any) => {
     setSelectedPlayerIds(selectedPlayers)
   }
@@ -45,11 +58,25 @@ export default function CreateCompetitionPage() {
   const handleSubmit = async (e: any) => {
     e.preventDefault()
 
-    if (!user) {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user) {
       console.error("User is not authenticated")
+      router.push('/login')
       return
     }
 
+    // Validate required fields
+    if (!competitionData.name) {
+      alert("Please enter a competition name")
+      return
+    }
+
+    if (!competitionData.date_started || !competitionData.date_ending) {
+      alert("Please select both start and end dates")
+      return
+    }
+
+    // First create the competition
     const { data: competitionInfo, error: insertError } = await supabase
       .from("competitions")
       .insert([
@@ -58,7 +85,7 @@ export default function CreateCompetitionPage() {
           date_started: competitionData.date_started,
           date_ending: competitionData.date_ending,
           rules: competitionData.rules,
-          created_by: user.id,
+          created_by: session.user.id,
         },
       ])
       .select()
@@ -75,27 +102,84 @@ export default function CreateCompetitionPage() {
       return
     }
 
-    const { data: playerInsertData, error: playerInsertError } = await supabase
-      .from("competitions_players")
-      .insert(
-        selectedPlayerIds.map((playerId) => ({
-          player_id: playerId,
-          competition_id: competitionId,
-        }))
-      )
+    // Add selected players to the competition
+    if (selectedPlayerIds.length > 0) {
+      console.log("Adding selected players:", selectedPlayerIds)
+      const { error: playerInsertError } = await supabase
+        .from("competitions_players")
+        .insert(
+          selectedPlayerIds.map((playerId) => ({
+            player_id: playerId,
+            competition_id: competitionId
+          }))
+        )
 
-    if (playerInsertError) {
-      console.error("Error inserting competition players:", playerInsertError)
-      return
+      if (playerInsertError) {
+        console.error("Error inserting competition players:", playerInsertError)
+      }
     }
 
-    console.log("Competition and players inserted successfully!")
+    // Process email invitations
+    if (invitedEmails.length > 0) {
+      console.log("Processing invitations for emails:", invitedEmails)
+
+      for (const email of invitedEmails) {
+        try {
+          // Create invitation record
+          const { error: inviteError } = await supabase
+            .from('competition_invitations')
+            .insert({
+              competition_id: competitionId,
+              email: email,
+              invited_by: session.user.id,
+              status: 'pending'
+            })
+            .select()
+            .single()
+
+          if (inviteError) {
+            console.error(`Failed to create invitation record for ${email}:`, inviteError)
+            continue
+          }
+
+          // Send invitation email
+          const response = await fetch('/api/send-invitation', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email,
+              competitionName: competitionData.name,
+              competitionId: competitionId
+            })
+          })
+
+          if (!response.ok) {
+            throw new Error('Failed to send invitation')
+          }
+
+          console.log(`Invitation sent to ${email}`)
+        } catch (error) {
+          console.error('Error processing invitation:', error)
+        }
+      }
+    }
 
     router.push("/competitions")
   }
 
   const handleAddPlayers = (e: any) => {
     setAddPlayers(e.target.value === "yes")
+  }
+
+  const handleAddEmail = (inputElement: HTMLInputElement) => {
+    const email = inputElement.value.trim()
+    if (email && !invitedEmails.includes(email)) {
+      setInvitedEmails([...invitedEmails, email])
+      inputElement.value = ''
+      console.log('Added email:', email, 'Current emails:', [...invitedEmails, email])
+    }
   }
 
   return (
@@ -172,6 +256,7 @@ export default function CreateCompetitionPage() {
                 name="date_started"
                 value={competitionData.date_started}
                 onChange={handleChange}
+                required
                 className="p-3 border border-gray-300 rounded-md focus:border-logo-green focus:ring focus:ring-logo-green"
               />
             </div>
@@ -185,6 +270,7 @@ export default function CreateCompetitionPage() {
                 id="date_ending"
                 name="date_ending"
                 value={competitionData.date_ending}
+                required
                 onChange={handleChange}
                 className="p-3 border border-gray-300 rounded-md focus:border-logo-green focus:ring focus:ring-logo-green"
               />
@@ -202,6 +288,49 @@ export default function CreateCompetitionPage() {
                 rows={4}
                 className="p-3 border border-gray-300 rounded-md focus:border-logo-green focus:ring focus:ring-logo-green"
               />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-gray-600 mb-1">Invite Players by Email</label>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  placeholder="Enter email address"
+                  className="flex-1 p-3 border border-gray-300 rounded-md focus:border-logo-green focus:ring focus:ring-logo-green"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleAddEmail(e.currentTarget)
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={(e) => handleAddEmail(e.currentTarget.previousElementSibling as HTMLInputElement)}
+                  className="px-4 py-2 bg-logo-green text-white rounded-md hover:opacity-90"
+                >
+                  Add
+                </button>
+              </div>
+              {invitedEmails.length > 0 && (
+                <div className="mt-2 space-y-2">
+                  {invitedEmails.map((email, index) => (
+                    <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                      <span>{email}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setInvitedEmails(invitedEmails.filter(e => e !== email))
+                          console.log('Removed email:', email, 'Current emails:', invitedEmails.filter(e => e !== email))
+                        }}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex justify-center">

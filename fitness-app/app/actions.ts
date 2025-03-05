@@ -2,13 +2,11 @@
 
 import { encodedRedirect } from "@/utils/utils"
 import { createClient } from "@/utils/supabase/server"
-import { headers, cookies } from "next/headers"
+import { headers } from "next/headers"
 import { redirect } from "next/navigation"
-import { NextResponse } from "next/server"
 
 export const signUpAction = async (formData: FormData) => {
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const supabase = await createClient()
   const firstName = formData.get("firstName") as string
   const lastName = formData.get("lastName") as string
   const email = formData.get("email") as string
@@ -54,8 +52,7 @@ export const signUpAction = async (formData: FormData) => {
 export const signInAction = async (formData: FormData) => {
   const email = formData.get("email") as string
   const password = formData.get("password") as string
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const supabase = await createClient()
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -71,17 +68,11 @@ export const signInAction = async (formData: FormData) => {
 
 export const forgotPasswordAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString()
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const supabase = await createClient()
   const origin = (await headers()).get("origin")
-  const callbackUrl = formData.get("callbackUrl")?.toString()
 
   if (!email) {
-    return encodedRedirect(
-      "error",
-      "/login/forgot-password",
-      "Email is required"
-    )
+    return encodedRedirect("error", "/forgot-password", "Email is required")
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -92,25 +83,20 @@ export const forgotPasswordAction = async (formData: FormData) => {
     console.error(error.message)
     return encodedRedirect(
       "error",
-      "/login/forgot-password",
+      "/forgot-password",
       "Could not reset password"
     )
   }
 
-  if (callbackUrl) {
-    return redirect(callbackUrl)
-  }
-
   return encodedRedirect(
     "success",
-    "/login/forgot-password",
+    "/forgot-password",
     "Check your email for a link to reset your password."
   )
 }
 
 export const resetPasswordAction = async (formData: FormData) => {
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const supabase = await createClient()
 
   const password = formData.get("password") as string
   const confirmPassword = formData.get("confirmPassword") as string
@@ -147,8 +133,7 @@ export const resetPasswordAction = async (formData: FormData) => {
 }
 
 export const signOutAction = async () => {
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const supabase = await createClient()
   await supabase.auth.signOut()
   return redirect("/sign-in")
 }

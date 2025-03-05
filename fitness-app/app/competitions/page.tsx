@@ -1,6 +1,7 @@
 "use client"
 
 import useSWR, { Fetcher } from "swr"
+import { useEffect } from "react"
 
 import DeleteCompetition from "@/components/CompetitionsActions"
 import { IoIosAdd } from "react-icons/io"
@@ -39,6 +40,29 @@ export default function CompetitionsPage() {
     error,
     isLoading,
   } = useSWR<Competition[]>("/competitions", fetcher)
+
+  const user = supabase.auth.getUser().data?.user
+
+  useEffect(() => {
+    const pendingCompetitionId = localStorage.getItem('pendingCompetitionId')
+    if (pendingCompetitionId && user) {
+      // Join the pending competition
+      const joinPendingCompetition = async () => {
+        const { error } = await supabase
+          .from('competitions_players')
+          .insert({
+            competition_id: pendingCompetitionId,
+            player_id: user.id
+          })
+
+        if (!error) {
+          localStorage.removeItem('pendingCompetitionId')
+        }
+      }
+
+      joinPendingCompetition()
+    }
+  }, [user])
 
   if (error) return <div>Failed to load</div>
   if (isLoading) return <div>Loading...</div>
@@ -123,7 +147,7 @@ export default function CompetitionsPage() {
                 No Active Competitions
               </h2>
               <p className="text-gray-500 text-lg mb-6">
-                You haven’t joined or created any competitions yet. Start one
+                You haven't joined or created any competitions yet. Start one
                 today to stay motivated!
               </p>
             </div>

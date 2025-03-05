@@ -1,18 +1,18 @@
-import { createClient } from "@/utils/supabase/server";
-import { InfoIcon } from "lucide-react";
-import { redirect } from "next/navigation";
-import { cookies } from 'next/headers';
+import { createClient } from "@/utils/supabase/server"
+import { InfoIcon } from "lucide-react"
+import { redirect } from "next/navigation"
+import { cookies } from "next/headers"
 
 export default async function ProtectedPage() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const cookieStore = cookies()
+  const supabase = await createClient(cookieStore)
 
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser()
 
   if (!user) {
-    return redirect("/sign-in");
+    return redirect("/sign-in")
   }
 
   return (
@@ -35,5 +35,5 @@ export default async function ProtectedPage() {
         {/* <FetchDataSteps /> */}
       </div>
     </div>
-  );
+  )
 }

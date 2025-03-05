@@ -231,10 +231,14 @@ export default function CompetitionPage(props: any) {
                     )}
                 </tbody>
               </table>
-              <div className="mt-2">
-                <span className="text-xs text-gray-500">
-                  Last updated on January 28th, 2024 at 10:00 PM
+              <div className="mt-2 flex">
+                <span className="text-xs text-gray-500">      
+                  Competition created by {getCreatedBy(competition)} on{" "}
+                  {handleDate(competition.created_at)}
                 </span>
+                {/* <span className="text-xs text-gray-500">
+                  Last updated on January 28th, 2024 at 10:00 PM
+                </span> */}
               </div>
             </div>
 
@@ -246,10 +250,6 @@ export default function CompetitionPage(props: any) {
                     {competition.rules}
                   </pre>
                 </div>
-                <span className="text-xs text-gray-500">
-                  Competition created by {getCreatedBy(competition)} on{" "}
-                  {handleDate(competition.created_at)}
-                </span>
               </div>
             )}
           </div>

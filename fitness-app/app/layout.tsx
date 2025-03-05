@@ -20,19 +20,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  // return (
-  //   <html lang="en">
-  //     <Navigation />
-  //     <body
-  //       className={cn(
-  //         "min-h-screen bg-mint-cream dark:bg-black font-sans antialiased",
-  //         fontSans.variable
-  //       )}
-  //     >
-  //       <main className="">{children}</main>
-  //     </body>
-  //   </html>
-  // )
   return (
     <html lang="en">
       <body
