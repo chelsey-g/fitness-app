@@ -6,13 +6,127 @@ import { createClient } from "@/utils/supabase/client"
 import { handleDate } from "@/app/functions"
 import useSWR from "swr"
 import {
-  ReactElement,
-  JSXElementConstructor,
-  ReactFragment,
-  ReactPortal,
-  PromiseLikeOfReactNode,
-  Key,
-} from "react"
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { GiTrophyCup } from "react-icons/gi"
+import { BiSolidTimeFive } from "react-icons/bi"
+
+// Define types for our data
+type Player = {
+  rank: number
+  player: string
+  percentageChange: string | number
+  playerId: string
+}
+
+// Define the columns
+const columns: ColumnDef<Player>[] = [
+  {
+    accessorKey: "rank",
+    header: () => <div className="text-center">Rank</div>,
+    cell: ({ row }) => {
+      const rank = row.getValue("rank") as number
+      const percentageChange = row.getValue("percentageChange") as string
+      const hasWeightLogged = percentageChange !== "No weight logged"
+
+      return (
+        <div className="flex items-center justify-center gap-2">
+          {rank <= 3 && hasWeightLogged ? (
+            <>
+              <div
+                className={`rounded-full p-2 ${getAwardColor(
+                  rank
+                )} bg-opacity-10`}
+              >
+                <TbAwardFilled className={`w-5 h-5 ${getAwardColor(rank)}`} />
+              </div>
+              <span className="font-medium">{getOrdinalSuffix(rank)}</span>
+            </>
+          ) : (
+            <span className="text-gray-500 font-medium">
+              {hasWeightLogged ? getOrdinalSuffix(rank) : "-"}
+            </span>
+          )}
+        </div>
+      )
+    },
+  },
+  {
+    accessorKey: "player",
+    header: "Player",
+    cell: ({ row }) => (
+      <div className="font-medium">{row.getValue("player")}</div>
+    ),
+  },
+  {
+    accessorKey: "percentageChange",
+    header: () => <div className="text-right">Progress</div>,
+    cell: ({ row }) => {
+      const value = row.getValue("percentageChange") as string
+      const isPositive = !value.includes("-") && value !== "No weight logged"
+
+      return (
+        <div
+          className={`text-right font-medium ${
+            value === "No weight logged"
+              ? "text-gray-500"
+              : isPositive
+              ? "text-green-600"
+              : "text-red-600"
+          }`}
+        >
+          {value}
+        </div>
+      )
+    },
+  },
+  {
+    accessorKey: "prize",
+    header: () => <div className="text-right">Prize</div>,
+    cell: ({ row }) => {
+      const rank = row.getValue("rank") as number
+      const percentageChange = row.getValue("percentageChange") as string
+      const hasWeightLogged = percentageChange !== "No weight logged"
+
+      if (!hasWeightLogged || rank > 3)
+        return <div className="text-right">-</div>
+
+      const prizeStyles = {
+        1: "text-yellow-500",
+        2: "text-gray-400",
+        3: "text-amber-700",
+      }
+
+      const prizes = {
+        1: "$30.00",
+        2: "$20.00",
+        3: "$10.00",
+      }
+
+      return (
+        <div
+          className={`text-right font-medium ${
+            prizeStyles[rank as keyof typeof prizeStyles]
+          }`}
+        >
+          {prizes[rank as keyof typeof prizes]}
+        </div>
+      )
+    },
+  },
+]
 
 export default function CompetitionPage(props: any) {
   const supabase = createClient()
@@ -90,10 +204,11 @@ export default function CompetitionPage(props: any) {
     return closestCurrentDate.weight
   }
 
-  const difference: any | null = []
+  // Calculate player differences
+  const difference: Player[] = []
   if (competitionData) {
     competitionData.forEach((competition) => {
-      competition.competitions_players.forEach((player: any | null) => {
+      competition.competitions_players.forEach((player: any) => {
         const initialWeight = getInitialWeight(player, competition)
         const currentWeight = getCurrentWeight(player, competition)
         let percentageChange
@@ -107,13 +222,35 @@ export default function CompetitionPage(props: any) {
         }
 
         difference.push({
-          player: player.profiles.first_name + " " + player.profiles.last_name,
-          percentageChange: percentageChange,
+          rank: 0, // Will be determined by sort order
+          player: `${player.profiles.first_name} ${player.profiles.last_name}`,
+          percentageChange,
           playerId: player.profiles.id,
         })
       })
     })
   }
+
+  // Sort players by percentage change
+  const sortedData = difference
+    .sort((a: any, b: any) => {
+      if (a.percentageChange === "No weight logged") return 1
+      if (b.percentageChange === "No weight logged") return -1
+      return parseFloat(b.percentageChange) - parseFloat(a.percentageChange)
+    })
+    .map((player, index) => ({
+      ...player,
+      rank:
+        player.percentageChange === "No weight logged"
+          ? difference.length
+          : index + 1,
+    }))
+
+  const table = useReactTable({
+    data: sortedData,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   if (error) return <div className="text-center mt-20">Failed to load</div>
   if (isLoading)
@@ -124,137 +261,133 @@ export default function CompetitionPage(props: any) {
     )
 
   return (
-    <>
-      <div className="max-w-5xl mx-auto mt-6 bg-white dark:text-black rounded-lg shadow-lg p-6">
-        {competitionData?.map((competition, index) => (
-          <div key={index} className="pb-6 mb-6">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-4xl font-extrabold tracking-tight">
-                {competition.name}
-              </h1>
-            </div>
-            <div className="text-lg text-gray-700 mb-4">
-              <p>
-                Start Date:{" "}
-                <span className="font-medium">
-                  {handleDate(competition.date_started)}
-                </span>
-              </p>
-              <p>
-                End Date:{" "}
-                <span className="font-medium">
-                  {handleDate(competition.date_ending)}
-                </span>
+    <div className="max-w-5xl mx-auto mt-6 bg-white dark:text-black rounded-lg shadow-lg p-6">
+      {competitionData?.map((competition, index) => (
+        <div key={index} className="pb-6 mb-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-4xl font-extrabold tracking-tight">
+              {competition.name}
+            </h1>
+          </div>
+          <div className="grid grid-cols-2 gap-6 mb-6 p-4 bg-muted/30 rounded-lg">
+            <div className="space-y-1 text-center">
+              <p className="text-sm text-muted-foreground">Start Date</p>
+              <p className="text-lg font-semibold">
+                {handleDate(competition.date_started)}
               </p>
             </div>
-            <div className="overflow-x-auto">
-              <table className="table-auto w-full">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-gray-700 font-semibold">
-                      Rank
-                    </th>
-                    <th className="px-4 py-3 text-left text-gray-700 font-semibold">
-                      Name
-                    </th>
-                    <th className="px-4 py-3 text-left text-gray-700 font-semibold">
-                      % Change
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {difference
-                    .sort(
-                      (a: any, b: any) =>
-                        b.percentageChange - a.percentageChange
-                    )
-                    .map(
-                      (
-                        player: {
-                          player:
-                            | string
-                            | number
-                            | boolean
-                            | ReactElement<
-                                any,
-                                string | JSXElementConstructor<any>
-                              >
-                            | ReactFragment
-                            | ReactPortal
-                            | PromiseLikeOfReactNode
-                            | null
-                            | undefined
-                          percentageChange:
-                            | string
-                            | number
-                            | boolean
-                            | ReactElement<
-                                any,
-                                string | JSXElementConstructor<any>
-                              >
-                            | ReactFragment
-                            | ReactPortal
-                            | PromiseLikeOfReactNode
-                            | null
-                            | undefined
-                        },
-                        playerIndex: number
-                      ) => (
-                        <tr
-                          key={playerIndex}
-                          className={`${
-                            playerIndex !== null &&
-                            playerIndex !== undefined &&
-                            playerIndex % 2 === 0
-                              ? "bg-gray-50"
-                              : "bg-white"
-                          } hover:bg-gray-100`}
-                        >
-                          <td className="px-4 py-3">
-                            <div className="flex items-center">
-                              {playerIndex < 3 ? (
-                                <TbAwardFilled
-                                  className={`mr-2 ${getAwardColor(
-                                    playerIndex + 1
-                                  )}`}
-                                />
-                              ) : null}
-                              {getOrdinalSuffix(playerIndex + 1)}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">{player.player}</td>
-                          <td className="px-4 py-3">
-                            {player.percentageChange}
-                          </td>
-                        </tr>
-                      )
-                    )}
-                </tbody>
-              </table>
-              <div className="mt-2 flex">
-                <span className="text-xs text-gray-500">      
-                  Competition created by {getCreatedBy(competition)} on{" "}
-                  {handleDate(competition.created_at)}
-                </span>
-                {/* <span className="text-xs text-gray-500">
-                  Last updated on January 28th, 2024 at 10:00 PM
-                </span> */}
-              </div>
+            <div className="space-y-1 text-center">
+              <p className="text-sm text-muted-foreground">End Date</p>
+              <p className="text-lg font-semibold">
+                {handleDate(competition.date_ending)}
+              </p>
             </div>
+          </div>
 
-            {competition.rules && (
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold mb-2">Rules</h3>
-                <div className="bg-gray-100 p-4 rounded-md">
-                  <pre className="text-sm text-gray-800">
-                    {competition.rules}
-                  </pre>
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <Alert className="border-yellow-500/50 bg-yellow-500/10">
+              <GiTrophyCup className="h-5 w-5 text-yellow-500" />
+              <AlertTitle className="text-yellow-500">1st Place</AlertTitle>
+              <AlertDescription className="text-black">$30.00</AlertDescription>
+            </Alert>
+            <Alert className="border-gray-400/50 bg-gray-400/10">
+              <GiTrophyCup className="h-5 w-5 text-gray-400" />
+              <AlertTitle className="text-gray-400">2nd Place</AlertTitle>
+              <AlertDescription className="text-black">$20.00</AlertDescription>
+            </Alert>
+            <Alert className="border-amber-700/50 bg-amber-700/10">
+              <GiTrophyCup className="h-5 w-5 text-amber-700" />
+              <AlertTitle className="text-amber-700">3rd Place</AlertTitle>
+              <AlertDescription className="text-black">$10.00</AlertDescription>
+            </Alert>
+          </div>
+
+          <div className="rounded-lg border bg-card">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow
+                    key={headerGroup.id}
+                    className="hover:bg-transparent"
+                  >
+                    {headerGroup.headers.map((header) => (
+                      <TableHead
+                        key={header.id}
+                        className="text-base font-semibold"
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      className={row.index < 3 ? "bg-muted/30" : ""}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="py-4">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="mt-2 flex">
+            <span className="text-xs text-gray-500">
+              Competition created by {getCreatedBy(competition)} on{" "}
+              {handleDate(competition.created_at)}
+            </span>
+            {/* <span className="text-xs text-gray-500">
+              Last updated on January 28th, 2024 at 10:00 PM
+            </span> */}
+          </div>
+
+          {competition.rules && (
+            <div className="mt-8">
+              <div className="flex items-center gap-2 mb-4">
+                <BiSolidTimeFive className="w-6 h-6 text-blue-500" />
+                <h3 className="text-xl font-semibold">Competition Rules</h3>
+              </div>
+              <div className="bg-blue-50 border border-blue-100 p-6 rounded-lg">
+                <div className="prose prose-blue max-w-none text-gray-700">
+                  {competition.rules
+                    .split("\n")
+                    .map((rule: string, index: number) => (
+                      <p key={index} className="mb-2 last:mb-0">
+                        {rule}
+                      </p>
+                    ))}
                 </div>
               </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
   )
 }
