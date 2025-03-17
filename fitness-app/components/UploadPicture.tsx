@@ -27,18 +27,52 @@ const UploadPhoto = () => {
       return
     }
 
+    if (!user?.id) {
+      console.error("No user ID available")
+      return
+    }
+
     setUploading(true)
 
     const avatarFile = selectedFile
-    const fileName = user?.id || "unknown-file-name"
+    const fileExt = selectedFile.name.split(".").pop()
+    const fileName = `${user.id}.${fileExt}`
+    console.log("User ID:", user.id)
+    console.log("Generated fileName:", fileName)
+
     supabase.storage
-      .from("habit-kick/profile-pictures")
-      .upload(fileName, avatarFile)
-      .then(({ data, error }) => {
+      .from("habit-kick")
+      .upload(`profile-pictures/${fileName}`, avatarFile)
+      .then(async ({ data, error }) => {
         if (error) {
           console.error("Error uploading file:", error.message)
         } else {
-          console.log("File uploaded successfully:", fileName)
+          console.log("Upload response:", data)
+
+          // Get the public URL for the uploaded file
+          const publicUrlResponse = supabase.storage
+            .from("habit-kick")
+            .getPublicUrl(`profile-pictures/${fileName}`)
+
+          console.log("Public URL response:", publicUrlResponse)
+
+          const {
+            data: { publicUrl },
+          } = publicUrlResponse
+
+          console.log("Final public URL:", publicUrl)
+
+          // Update the user's metadata with the new avatar URL
+          const { data: userData, error: updateError } =
+            await supabase.auth.updateUser({
+              data: { avatar_url: publicUrl },
+            })
+
+          if (updateError) {
+            console.error("Error updating user metadata:", updateError.message)
+          } else {
+            console.log("Updated user metadata:", userData)
+          }
         }
         setUploading(false)
         router.refresh()

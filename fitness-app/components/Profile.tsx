@@ -5,7 +5,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import useSWR, { Fetcher } from "swr"
@@ -24,33 +23,31 @@ interface Profile {
 
 export default function ProfileDropDown() {
   const router = useRouter()
-  const [isOpen, setIsOpen] = useState<boolean>(false)
   const supabase = createClient()
 
   const { data: user } = useSWR("/user", () =>
     supabase.auth.getUser().then((res) => res.data.user)
   )
 
-  let identityId = user?.identities?.[0]?.id || null
-
   const fetcher: Fetcher<Profile[], string> = async (url: string) => {
+    if (!user?.id) return null
+
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
-      .eq("id", identityId)
+      .eq("id", user.id)
     if (error) {
       throw new Error(error.message)
     }
     return data
   }
 
-  const { data: profiles } = useSWR<Profile[]>("/profiles", fetcher)
+  const { data: profiles } = useSWR<Profile[]>(
+    user?.id ? "/profiles" : null,
+    fetcher
+  )
 
-  const fileName = user?.id || "profile-image"
-  const { data: name } = supabase.storage
-    .from("habit-kick/profile-pictures")
-    .getPublicUrl(fileName)
-
+  const avatarUrl = user?.user_metadata?.avatar_url || null
   const fallbackSrc = <FaRegUserCircle className="w-5 h-5" />
 
   async function handleSignOutUser() {
@@ -65,11 +62,11 @@ export default function ProfileDropDown() {
         className="relative inline-block text-left"
         data-testid="profile-dropdown"
       >
-        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenu>
           <DropdownMenuTrigger>
             <ImageWithFallback
-              key={name.publicUrl || ""}
-              src={name.publicUrl || ""}
+              key={avatarUrl || ""}
+              src={avatarUrl || ""}
               alt="profile picture"
               fallbackSrc={fallbackSrc}
               width={5}
@@ -83,8 +80,8 @@ export default function ProfileDropDown() {
                 <div className="px-4 py-2 border-b">
                   <div className="flex items-center">
                     <ImageWithFallback
-                      key={name.publicUrl || ""}
-                      src={name.publicUrl || ""}
+                      key={avatarUrl || ""}
+                      src={avatarUrl || ""}
                       alt="profile picture"
                       fallbackSrc={fallbackSrc}
                       width={7}
