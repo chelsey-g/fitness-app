@@ -1,7 +1,7 @@
 "use client"
 
 import useSWR, { Fetcher } from "swr"
-import { useEffect } from "react"
+import { useState, useEffect } from "react"
 
 import DeleteCompetition from "@/components/CompetitionsActions"
 import { IoIosAdd } from "react-icons/io"
@@ -10,22 +10,26 @@ import { createClient } from "@/utils/supabase/client"
 import { getRandomColor } from "@/app/functions"
 import { useRouter } from "next/navigation"
 
+interface Competition {
+  name: string
+  id: string
+  date_started: string
+  date_ending: string
+  created_by: string
+}
+
 export default function CompetitionsPage() {
   const supabase = createClient()
   const router = useRouter()
 
-  interface Competition {
-    name: string
-    id: string
-    date_started: string
-    date_ending: string
-  }
-
   const fetcher: Fetcher<Competition[], string> = async (url: string) => {
     const today = new Date()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     const { data, error } = await supabase
       .from("competitions")
-      .select(`name, id, date_started, date_ending`)
+      .select(`name, id, date_started, date_ending, created_by`)
       .order("date_ending", { ascending: false })
 
     if (error) {
@@ -41,28 +45,20 @@ export default function CompetitionsPage() {
     isLoading,
   } = useSWR<Competition[]>("/competitions", fetcher)
 
-  const user = supabase.auth.getUser().data?.user
+  // Get current user
+  const [currentUser, setCurrentUser] = useState<string | null>(null)
 
   useEffect(() => {
-    const pendingCompetitionId = localStorage.getItem('pendingCompetitionId')
-    if (pendingCompetitionId && user) {
-      // Join the pending competition
-      const joinPendingCompetition = async () => {
-        const { error } = await supabase
-          .from('competitions_players')
-          .insert({
-            competition_id: pendingCompetitionId,
-            player_id: user.id
-          })
-
-        if (!error) {
-          localStorage.removeItem('pendingCompetitionId')
-        }
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (user) {
+        setCurrentUser(user.id)
       }
-
-      joinPendingCompetition()
     }
-  }, [user])
+    getUser()
+  }, [])
 
   if (error) return <div>Failed to load</div>
   if (isLoading) return <div>Loading...</div>
@@ -74,7 +70,7 @@ export default function CompetitionsPage() {
   const handleDeleteCompetition = async (id: string) => {
     let { error } = await supabase.from("competitions").delete().eq("id", id)
     if (error) {
-      console.log("error", error)
+      alert("Failed to delete competition")
     }
   }
 
@@ -122,21 +118,30 @@ export default function CompetitionsPage() {
                       {result.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
-                  <Link
-                    href={`/competitions/${result.id}`}
-                    className="ml-3 text-black hover:text-snd-bkg font-medium"
-                  >
-                    {result.name}
-                  </Link>
+                  <div className="flex flex-col ml-3">
+                    <Link
+                      href={`/competitions/${result.id}`}
+                      className="text-black hover:text-snd-bkg font-medium"
+                    >
+                      {result.name}
+                    </Link>
+                    {currentUser === result.created_by && (
+                      <span className="text-xs text-logo-green font-medium">
+                        Admin
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <span className="text-gray-500 text-sm ml-auto text-right">
                   End Date: {new Date(result.date_ending).toLocaleDateString()}
                 </span>
               </div>
               <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center ml-4">
-                <DeleteCompetition
-                  deleteCompetition={() => handleDeleteCompetition(result.id)}
-                />
+                {currentUser === result.created_by && (
+                  <DeleteCompetition
+                    deleteCompetition={() => handleDeleteCompetition(result.id)}
+                  />
+                )}
               </div>
             </div>
           ))}

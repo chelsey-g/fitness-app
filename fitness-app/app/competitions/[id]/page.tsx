@@ -21,9 +21,10 @@ import {
 } from "@tanstack/react-table"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { GiTrophyCup } from "react-icons/gi"
-import { BiSolidTimeFive } from "react-icons/bi"
+import { useRouter } from "next/navigation"
+import LeaveCompetition from "@/components/LeaveCompetition"
+import { useState, useEffect } from "react"
 
-// Define types for our data
 type Player = {
   rank: number
   player: string
@@ -31,120 +32,56 @@ type Player = {
   playerId: string
 }
 
-// Define the columns
-const columns: ColumnDef<Player>[] = [
-  {
-    accessorKey: "rank",
-    header: () => <div className="text-center">Rank</div>,
-    cell: ({ row }) => {
-      const rank = row.getValue("rank") as number
-      const percentageChange = row.getValue("percentageChange") as string
-      const hasWeightLogged = percentageChange !== "No weight logged"
-
-      return (
-        <div className="flex items-center justify-center gap-2">
-          {rank <= 3 && hasWeightLogged ? (
-            <>
-              <div
-                className={`rounded-full p-2 ${getAwardColor(
-                  rank
-                )} bg-opacity-10`}
-              >
-                <TbAwardFilled className={`w-5 h-5 ${getAwardColor(rank)}`} />
-              </div>
-              <span className="font-medium">{getOrdinalSuffix(rank)}</span>
-            </>
-          ) : (
-            <span className="text-gray-500 font-medium">
-              {hasWeightLogged ? getOrdinalSuffix(rank) : "-"}
-            </span>
-          )}
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: "player",
-    header: "Player",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("player")}</div>
-    ),
-  },
-  {
-    accessorKey: "percentageChange",
-    header: () => <div className="text-right">Progress</div>,
-    cell: ({ row }) => {
-      const value = row.getValue("percentageChange") as string
-      const isPositive = !value.includes("-") && value !== "No weight logged"
-
-      return (
-        <div
-          className={`text-right font-medium ${
-            value === "No weight logged"
-              ? "text-gray-500"
-              : isPositive
-              ? "text-green-600"
-              : "text-red-600"
-          }`}
-        >
-          {value}
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: "prize",
-    header: () => <div className="text-right">Prize</div>,
-    cell: ({ row }) => {
-      const rank = row.getValue("rank") as number
-      const percentageChange = row.getValue("percentageChange") as string
-      const hasWeightLogged = percentageChange !== "No weight logged"
-
-      if (!hasWeightLogged || rank > 3)
-        return <div className="text-right">-</div>
-
-      const prizeStyles = {
-        1: "text-yellow-500",
-        2: "text-gray-400",
-        3: "text-amber-700",
-      }
-
-      const prizes = {
-        1: "$30.00",
-        2: "$20.00",
-        3: "$10.00",
-      }
-
-      return (
-        <div
-          className={`text-right font-medium ${
-            prizeStyles[rank as keyof typeof prizeStyles]
-          }`}
-        >
-          {prizes[rank as keyof typeof prizes]}
-        </div>
-      )
-    },
-  },
-]
-
 export default function CompetitionPage(props: any) {
   const supabase = createClient()
+  const router = useRouter()
 
   const {
     data: competitionData,
     error,
     isLoading,
   } = useSWR("/competitions/name", async () => {
-    const { data } = await supabase
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return null
+
+    const { data, error } = await supabase
       .from("competitions")
       .select(
-        "*, competitions_players(*, profiles(id,first_name, last_name, weight_tracker(weight, date_entry)))"
+        `
+        *,
+        competitions_players!inner(
+          *,
+          profiles(
+            id,
+            first_name,
+            last_name,
+            weight_tracker(weight, date_entry)
+          )
+        )
+      `
       )
       .eq("id", props.params.id)
-    return data
+      .single()
+
+    if (error) throw error
+    return data ? [data] : []
   })
-  console.log(competitionData)
+
+  const [isCreator, setIsCreator] = useState(false)
+
+  useEffect(() => {
+    const checkIfCreator = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (user && competitionData?.[0]) {
+        setIsCreator(user.id === competitionData[0].created_by)
+      }
+    }
+    checkIfCreator()
+  }, [competitionData])
 
   function getCreatedBy(competition: any) {
     const creator = competition.competitions_players.find(
@@ -155,14 +92,6 @@ export default function CompetitionPage(props: any) {
       ? `${creator.profiles.first_name} ${creator.profiles.last_name}`
       : "Unknown"
   }
-
-  // const handleDaysLeft = (date: any | number | Date) => {
-  //   const today = new Date()
-  //   const competitionEndDate: any = new Date(date)
-  //   const timeDifference = competitionEndDate.getTime() - today.getTime()
-  //   const daysLeft = Math.ceil(timeDifference / (1000 * 3600 * 24))
-  //   return daysLeft
-  // }
 
   function getInitialWeight(player: any, competitionData: any) {
     if (!player?.profiles?.weight_tracker?.length) {
@@ -204,7 +133,6 @@ export default function CompetitionPage(props: any) {
     return closestCurrentDate.weight
   }
 
-  // Calculate player differences
   const difference: Player[] = []
   if (competitionData) {
     competitionData.forEach((competition) => {
@@ -214,7 +142,7 @@ export default function CompetitionPage(props: any) {
         let percentageChange
 
         if (initialWeight === 0 || currentWeight === 0) {
-          percentageChange = "No weight logged"
+          percentageChange = "-"
         } else {
           const weightChange = currentWeight - initialWeight
           percentageChange =
@@ -231,7 +159,6 @@ export default function CompetitionPage(props: any) {
     })
   }
 
-  // Sort players by percentage change
   const sortedData = difference
     .sort((a: any, b: any) => {
       if (a.percentageChange === "No weight logged") return 1
@@ -246,11 +173,135 @@ export default function CompetitionPage(props: any) {
           : index + 1,
     }))
 
+  const prizeColumn: ColumnDef<Player> = {
+    accessorKey: "prize",
+    header: () => <div className="text-right">Prize</div>,
+    cell: ({ row }) => {
+      const rank = row.getValue("rank") as number
+      const percentageChange = row.getValue("percentageChange") as string
+      const hasWeightLogged = percentageChange !== "-"
+
+      if (!hasWeightLogged || rank > 3)
+        return <div className="text-right">-</div>
+
+      const prizeStyles = {
+        1: "text-yellow-500",
+        2: "text-gray-400",
+        3: "text-amber-700",
+      }
+
+      const prize = competitionData?.[0]?.prizes?.find(
+        (p: any) => p.place === rank
+      )
+
+      return (
+        <div
+          className={`text-right font-medium ${
+            prizeStyles[rank as keyof typeof prizeStyles]
+          }`}
+        >
+          {prize?.type === "money" ? `$${prize.reward}` : prize?.reward}
+        </div>
+      )
+    },
+  }
+
+  const columns: ColumnDef<Player>[] = [
+    {
+      accessorKey: "rank",
+      header: () => <div className="text-center">Rank</div>,
+      cell: ({ row }) => {
+        const rank = row.getValue("rank") as number
+        const percentageChange = row.getValue("percentageChange") as string
+        const hasWeightLogged = percentageChange !== "-"
+
+        return (
+          <div className="flex items-center justify-center gap-2">
+            {rank <= 3 && hasWeightLogged ? (
+              <>
+                <div
+                  className={`rounded-full p-2 ${getAwardColor(
+                    rank
+                  )} bg-opacity-10`}
+                >
+                  <TbAwardFilled className={`w-5 h-5 ${getAwardColor(rank)}`} />
+                </div>
+                <span className="font-medium">{getOrdinalSuffix(rank)}</span>
+              </>
+            ) : (
+              <span className="text-gray-500 font-medium">
+                {hasWeightLogged ? getOrdinalSuffix(rank) : "-"}
+              </span>
+            )}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "player",
+      header: "Player",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.getValue("player")}</div>
+      ),
+    },
+    {
+      accessorKey: "percentageChange",
+      header: () => <div className="text-right">Progress</div>,
+      cell: ({ row }) => {
+        const value = row.getValue("percentageChange") as string
+        const isPositive = !value.includes("-") && value !== "-"
+
+        return (
+          <div
+            className={`text-right font-medium ${
+              value === "-"
+                ? "text-gray-500"
+                : isPositive
+                ? "text-green-600"
+                : "text-red-600"
+            }`}
+          >
+            {value}
+          </div>
+        )
+      },
+    },
+    ...(competitionData?.[0]?.has_prizes ? [prizeColumn] : []),
+  ]
+
   const table = useReactTable({
     data: sortedData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
+
+  const handleLeaveCompetition = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return
+
+    // Prevent creators from leaving
+    if (competitionData?.[0]?.created_by === user.id) {
+      alert("Competition creators cannot leave their own competitions")
+      return
+    }
+
+    const { error } = await supabase
+      .from("competitions_players")
+      .delete()
+      .match({
+        competition_id: props.params.id,
+        player_id: user.id,
+      })
+
+    if (error) {
+      console.error("Error leaving competition:", error)
+      alert("Failed to leave competition")
+    } else {
+      router.push("/competitions")
+    }
+  }
 
   if (error) return <div className="text-center mt-20">Failed to load</div>
   if (isLoading)
@@ -268,15 +319,18 @@ export default function CompetitionPage(props: any) {
             <h1 className="text-4xl font-extrabold tracking-tight">
               {competition.name}
             </h1>
+            {!isCreator && (
+              <LeaveCompetition leaveCompetition={handleLeaveCompetition} />
+            )}
           </div>
           <div className="grid grid-cols-2 gap-6 mb-6 p-4 bg-muted/30 rounded-lg">
-            <div className="space-y-1 text-center">
+            <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Start Date</p>
               <p className="text-lg font-semibold">
                 {handleDate(competition.date_started)}
               </p>
             </div>
-            <div className="space-y-1 text-center">
+            <div className="space-y-1">
               <p className="text-sm text-muted-foreground">End Date</p>
               <p className="text-lg font-semibold">
                 {handleDate(competition.date_ending)}
@@ -284,23 +338,48 @@ export default function CompetitionPage(props: any) {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <Alert className="border-yellow-500/50 bg-yellow-500/10">
-              <GiTrophyCup className="h-5 w-5 text-yellow-500" />
-              <AlertTitle className="text-yellow-500">1st Place</AlertTitle>
-              <AlertDescription className="text-black">$30.00</AlertDescription>
-            </Alert>
-            <Alert className="border-gray-400/50 bg-gray-400/10">
-              <GiTrophyCup className="h-5 w-5 text-gray-400" />
-              <AlertTitle className="text-gray-400">2nd Place</AlertTitle>
-              <AlertDescription className="text-black">$20.00</AlertDescription>
-            </Alert>
-            <Alert className="border-amber-700/50 bg-amber-700/10">
-              <GiTrophyCup className="h-5 w-5 text-amber-700" />
-              <AlertTitle className="text-amber-700">3rd Place</AlertTitle>
-              <AlertDescription className="text-black">$10.00</AlertDescription>
-            </Alert>
-          </div>
+          {competition.has_prizes && (
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              {competition.prizes?.map((prize: any, index: number) => {
+                const colors = {
+                  1: {
+                    border: "border-yellow-500/50",
+                    bg: "bg-yellow-500/10",
+                    text: "text-yellow-500 dark:text-black",
+                  },
+                  2: {
+                    border: "border-gray-400/50",
+                    bg: "bg-gray-400/10",
+                    text: "text-gray-400 dark:text-black",
+                  },
+                  3: {
+                    border: "border-amber-700/50",
+                    bg: "bg-amber-700/10",
+                    text: "text-amber-700 dark:text-black",
+                  },
+                }
+
+                const prizeColors = colors[prize.place as keyof typeof colors]
+
+                return (
+                  <Alert
+                    key={index}
+                    className={`${prizeColors.border} ${prizeColors.bg}`}
+                  >
+                    <GiTrophyCup className={`h-5 w-5 ${prizeColors.text}`} />
+                    <AlertTitle className={prizeColors.text}>
+                      {getOrdinalSuffix(prize.place)} Place
+                    </AlertTitle>
+                    <AlertDescription className="text-black">
+                      {prize.type === "money"
+                        ? `$${prize.reward}`
+                        : prize.reward}
+                    </AlertDescription>
+                  </Alert>
+                )
+              })}
+            </div>
+          )}
 
           <div className="rounded-lg border bg-card">
             <Table>
@@ -362,27 +441,13 @@ export default function CompetitionPage(props: any) {
               Competition created by {getCreatedBy(competition)} on{" "}
               {handleDate(competition.created_at)}
             </span>
-            {/* <span className="text-xs text-gray-500">
-              Last updated on January 28th, 2024 at 10:00 PM
-            </span> */}
           </div>
 
           {competition.rules && (
-            <div className="mt-8">
-              <div className="flex items-center gap-2 mb-4">
-                <BiSolidTimeFive className="w-6 h-6 text-blue-500" />
-                <h3 className="text-xl font-semibold">Competition Rules</h3>
-              </div>
-              <div className="bg-blue-50 border border-blue-100 p-6 rounded-lg">
-                <div className="prose prose-blue max-w-none text-gray-700">
-                  {competition.rules
-                    .split("\n")
-                    .map((rule: string, index: number) => (
-                      <p key={index} className="mb-2 last:mb-0">
-                        {rule}
-                      </p>
-                    ))}
-                </div>
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-2">Rules</h3>
+              <div className="bg-gray-100 p-4 rounded-md">
+                <pre className="text-sm text-gray-800">{competition.rules}</pre>
               </div>
             </div>
           )}
