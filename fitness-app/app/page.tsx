@@ -1,13 +1,10 @@
-import { cookies } from "next/headers"
 import { createClient } from "@/utils/supabase/server"
 import LandingPage from "@/components/LandingPage"
 
 export default async function HomePage() {
-  const cookieStore = cookies()
-
   const canInitSupabaseClient = () => {
     try {
-      createClient(cookieStore)
+      createClient()
       return true
     } catch (e) {
       return false
