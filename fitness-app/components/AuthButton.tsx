@@ -1,6 +1,6 @@
-import { createClient } from '@/utils/supabase/server'
-import Link from 'next/link'
-import { cookies } from 'next/headers'
+import { createClient } from "@/utils/supabase/server"
+import Link from "next/link"
+import { cookies } from "next/headers"
 
 export default async function AuthButton() {
   const cookieStore = cookies()
@@ -8,7 +8,7 @@ export default async function AuthButton() {
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await (await supabase).auth.getUser()
 
   return user ? (
     <div className="flex items-center gap-4">
