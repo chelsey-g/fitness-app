@@ -9,7 +9,7 @@ import { createClient } from "@/utils/supabase/server"
 
 export default async function ListPage(props: any) {
   const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const supabase = await createClient(cookieStore)
 
   let { data: listData, error } = await supabase
     .from("workouts_lists")
