@@ -5,7 +5,7 @@ import { cookies } from "next/headers"
 export async function POST(request: Request) {
   const requestUrl = new URL(request.url)
   const cookieStore = cookies()
-  const supabase = await createClient()
+  const supabase = await createClient(cookieStore)
 
   await supabase.auth.signOut()
 
