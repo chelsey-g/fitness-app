@@ -70,17 +70,21 @@ export default function CompetitionPage(props: any) {
   })
 
   const [isCreator, setIsCreator] = useState(false)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    const checkIfCreator = async () => {
+    const checkUser = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser()
-      if (user && competitionData?.[0]) {
-        setIsCreator(user.id === competitionData[0].created_by)
+      if (user) {
+        setCurrentUserId(user.id)
+        if (competitionData?.[0]) {
+          setIsCreator(user.id === competitionData[0].created_by)
+        }
       }
     }
-    checkIfCreator()
+    checkUser()
   }, [competitionData])
 
   function getCreatedBy(competition: any) {
@@ -150,7 +154,7 @@ export default function CompetitionPage(props: any) {
         }
 
         difference.push({
-          rank: 0, // Will be determined by sort order
+          rank: 0,
           player: `${player.profiles.first_name} ${player.profiles.last_name}`,
           percentageChange,
           playerId: player.profiles.id,
@@ -281,7 +285,6 @@ export default function CompetitionPage(props: any) {
     } = await supabase.auth.getUser()
     if (!user) return
 
-    // Prevent creators from leaving
     if (competitionData?.[0]?.created_by === user.id) {
       alert("Competition creators cannot leave their own competitions")
       return
@@ -337,6 +340,104 @@ export default function CompetitionPage(props: any) {
               </p>
             </div>
           </div>
+
+          <div className="mb-6">
+            <h3 className="text-sm text-muted-foreground mb-2">
+              Competition Progress
+            </h3>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              {(() => {
+                const start = new Date(competition.date_started).getTime()
+                const end = new Date(competition.date_ending).getTime()
+                const now = new Date().getTime()
+                const progress = Math.min(
+                  Math.max(((now - start) / (end - start)) * 100, 0),
+                  100
+                )
+                return (
+                  <div
+                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
+                    style={{ width: `${progress}%` }}
+                  />
+                )
+              })()}
+            </div>
+            <div className="flex justify-between mt-1 text-xs text-muted-foreground">
+              <span>Start</span>
+              <span>
+                {Math.round(
+                  ((new Date().getTime() -
+                    new Date(competition.date_started).getTime()) /
+                    (new Date(competition.date_ending).getTime() -
+                      new Date(competition.date_started).getTime())) *
+                    100
+                )}
+                % Complete
+              </span>
+              <span>End</span>
+            </div>
+          </div>
+
+          {sortedData.map((player) => {
+            if (player.playerId === currentUserId) {
+              return (
+                <div
+                  key="personal-stats"
+                  className="mb-6 p-4 bg-primary/10 rounded-lg"
+                >
+                  <h3 className="text-lg font-semibold mb-3">Your Progress</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <p className="text-sm text-muted-foreground">
+                        Current Rank
+                      </p>
+                      <p className="text-xl font-bold">
+                        {getOrdinalSuffix(player.rank)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-muted-foreground">Progress</p>
+                      <p
+                        className={`text-xl font-bold ${
+                          player.percentageChange === "-"
+                            ? "text-gray-500"
+                            : typeof player.percentageChange === "string" &&
+                              !player.percentageChange.includes("-")
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {player.percentageChange}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-muted-foreground">
+                        Last Updated
+                      </p>
+                      <p className="text-xl font-bold">
+                        {(() => {
+                          const player = competition.competitions_players.find(
+                            (p: any) => p.player_id === supabase.auth.getUser()
+                          )
+                          if (!player?.profiles?.weight_tracker?.length)
+                            return "-"
+                          const lastWeight =
+                            player.profiles.weight_tracker.reduce(
+                              (a: any, b: any) =>
+                                new Date(a.date_entry) > new Date(b.date_entry)
+                                  ? a
+                                  : b
+                            )
+                          return handleDate(lastWeight.date_entry)
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )
+            }
+            return null
+          })}
 
           {competition.has_prizes && (
             <div className="grid grid-cols-3 gap-4 mb-6">
