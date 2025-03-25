@@ -30,7 +30,7 @@ export default function ProfileDropDown() {
   )
 
   const fetcher: Fetcher<Profile[], string> = async (url: string) => {
-    if (!user?.id) return null
+    if (!user?.id) return []
 
     const { data, error } = await supabase
       .from("profiles")
