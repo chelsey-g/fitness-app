@@ -1,37 +1,37 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter, useSearchParams } from "next/navigation"
 
-export default function InvitationPage() {
-  const supabase = createClient()
-  const router = useRouter()
+function InvitationForm() {
   const searchParams = useSearchParams()
-  
+  const router = useRouter()
+  const supabase = createClient()
+
   const [formData, setFormData] = useState({
-    email: '',
-    firstName: '',
-    username: '',
-    password: '',
+    email: "",
+    firstName: "",
+    username: "",
+    password: "",
   })
 
-  const competitionId = searchParams?.get('competitionId')
+  const competitionId = searchParams?.get("competitionId")
 
   useEffect(() => {
-    const email = searchParams?.get('email')
-    const competition = searchParams?.get('competition')
-    const competitionId = searchParams?.get('competitionId')
-    
-    console.log('Invitation page params:', {
+    const email = searchParams?.get("email")
+    const competition = searchParams?.get("competition")
+    const competitionId = searchParams?.get("competitionId")
+
+    console.log("Invitation page params:", {
       email,
       competition,
       competitionId: typeof competitionId,
-      rawCompetitionId: competitionId
+      rawCompetitionId: competitionId,
     })
 
     if (email) {
-      setFormData(prev => ({ ...prev, email }))
+      setFormData((prev) => ({ ...prev, email }))
     }
   }, [searchParams])
 
@@ -39,46 +39,51 @@ export default function InvitationPage() {
     e.preventDefault()
 
     try {
-      console.log('Starting signup process with competition ID:', competitionId)
+      console.log("Starting signup process with competition ID:", competitionId)
 
       // First sign up the user
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            first_name: formData.firstName,
-            username: formData.username,
+      const { data: signUpData, error: signUpError } =
+        await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            data: {
+              first_name: formData.firstName,
+              username: formData.username,
+            },
+            emailRedirectTo: `${
+              window.location.origin
+            }/auth/callback?competitionId=${competitionId}&redirectTo=${encodeURIComponent(
+              `/competitions/${competitionId}`
+            )}`,
           },
-          emailRedirectTo: `${window.location.origin}/auth/callback?competitionId=${competitionId}&redirectTo=${encodeURIComponent(`/competitions/${competitionId}`)}`
-        }
-      })
+        })
 
       if (signUpError || !signUpData.user) {
         console.error("Error signing up:", signUpError)
         return
       }
 
-      console.log('User signed up successfully:', signUpData.user.id)
+      console.log("User signed up successfully:", signUpData.user.id)
 
       // Create their profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: signUpData.user.id,
-          username: formData.username,
-          first_name: formData.firstName
-        })
+      const { error: profileError } = await supabase.from("profiles").upsert({
+        id: signUpData.user.id,
+        username: formData.username,
+        first_name: formData.firstName,
+      })
 
       if (profileError) {
         console.error("Error creating profile:", profileError)
         return
       }
 
-      console.log('Profile created successfully')
+      console.log("Profile created successfully")
 
       // Don't try to add them to competition here - we'll do it after email confirmation
-      alert("Account created! Please check your email to confirm your registration.")
+      alert(
+        "Account created! Please check your email to confirm your registration."
+      )
       router.push("/competitions")
     } catch (error) {
       console.error("Error in signup process:", error)
@@ -90,7 +95,9 @@ export default function InvitationPage() {
       <h1 className="text-2xl font-bold mb-6 text-center">Join HabitKick</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Email
+          </label>
           <input
             type="email"
             value={formData.email}
@@ -99,31 +106,43 @@ export default function InvitationPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">First Name</label>
+          <label className="block text-sm font-medium text-gray-700">
+            First Name
+          </label>
           <input
             type="text"
             value={formData.firstName}
-            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, firstName: e.target.value })
+            }
             required
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-logo-green focus:border-logo-green"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Username</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Username
+          </label>
           <input
             type="text"
             value={formData.username}
-            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, username: e.target.value })
+            }
             required
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-logo-green focus:border-logo-green"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Password</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Password
+          </label>
           <input
             type="password"
             value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, password: e.target.value })
+            }
             required
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-logo-green focus:border-logo-green"
           />
@@ -137,4 +156,12 @@ export default function InvitationPage() {
       </form>
     </div>
   )
-} 
+}
+
+export default function InvitationPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InvitationForm />
+    </Suspense>
+  )
+}
