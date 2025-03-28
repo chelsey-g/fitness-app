@@ -11,6 +11,7 @@ import ProgressTracker from "@/components/ProgressTracker"
 import { createClient } from "@/utils/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
+import InviteFriend from "@/components/InviteFriend"
 
 export default function UserDashboard() {
   type Competition = {
@@ -269,6 +270,10 @@ export default function UserDashboard() {
             </div>
           </TabsContent>
         </Tabs>
+
+        <div className="mt-8">
+          <InviteFriend />
+        </div>
       </div>
     </>
   )

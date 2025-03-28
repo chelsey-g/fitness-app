@@ -4,13 +4,18 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import PasswordInput from "@/components/PasswordInput"
-
 import { IoCreateOutline } from "react-icons/io5"
 
+type SignupSearchParams = Message & {
+  email?: string
+}
+
 export default async function Signup(props: {
-  searchParams: Promise<Message>
+  searchParams: Promise<SignupSearchParams>
 }) {
   const searchParams = await props.searchParams
+  const email = searchParams?.email || ""
+
   if ("message" in searchParams) {
     return (
       <div className="w-full flex-1 flex items-center h-screen sm:max-w-md justify-center gap-2 p-4">
@@ -70,6 +75,7 @@ export default async function Signup(props: {
           <Input
             name="email"
             placeholder="you@example.com"
+            defaultValue={email}
             className="bg-white mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-logo-green focus:border-logo-green dark:text-black"
             required
           />
