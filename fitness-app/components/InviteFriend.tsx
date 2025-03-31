@@ -25,14 +25,39 @@ export default function InviteFriend() {
         return
       }
 
+      // Get the current user's profile to include their name in the invite
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("first_name")
+        .eq("id", user.id)
+        .single()
+
       const signupUrl = `${
         window.location.origin
       }/signup?email=${encodeURIComponent(email)}`
-      await navigator.clipboard.writeText(signupUrl)
-      setMessage("Invite link copied to clipboard!")
+
+      // Send the invite email using Resend
+      const response = await fetch("/api/send-invitation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          inviteUrl: signupUrl,
+          inviterName: profile?.first_name || "a friend",
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to send invitation")
+      }
+
+      setMessage("Invitation sent successfully!")
       setEmail("")
     } catch (error) {
-      setMessage("Failed to create invite link")
+      console.error("Error sending invitation:", error)
+      setMessage("Failed to send invitation. Please try again.")
     } finally {
       setIsSending(false)
     }
@@ -42,11 +67,11 @@ export default function InviteFriend() {
     <div className="max-w-2xl mx-auto rounded-lg shadow-sm border p-8">
       <div className="text-center mb-8">
         <h2 className="text-2xl font-semibold mb-2">
-          Invite a friend & get rewards.
+          Invite a friend & start competing today
         </h2>
         <p className="text-gray-600">
-          Get additional rewards on your free plan when your friends sign up
-          with your invite link.
+          Enter your friend's email address and we'll send them a link to sign
+          up.
         </p>
       </div>
       <div className="space-y-4">
@@ -71,7 +96,7 @@ export default function InviteFriend() {
         {message && (
           <p
             className={`text-sm text-center ${
-              message.includes("Failed") ? "text-red-500" : "text-green-500"
+              message.includes("Failed") ? "text-red-500" : "text-logo-green"
             }`}
           >
             {message}

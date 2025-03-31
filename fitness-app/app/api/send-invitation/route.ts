@@ -1,63 +1,42 @@
-import { NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { NextResponse } from "next/server"
+import { Resend } from "resend"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: Request) {
-  console.log('API route hit: /api/send-invitation')
-  
+  console.log("API route hit: /api/send-invitation")
+
   try {
-    const { email, competitionName, competitionId } = await request.json()
-    
-    // Make sure competitionId is a number
-    const numericCompetitionId = parseInt(competitionId)
-    
-    console.log('Request data:', { 
-      email, 
-      competitionName, 
-      competitionId: numericCompetitionId 
+    const { email, inviteUrl, inviterName } = await request.json()
+
+    console.log("Request data:", {
+      email,
+      inviteUrl,
+      inviterName,
     })
 
     if (!process.env.RESEND_API_KEY) {
-      console.error('Missing RESEND_API_KEY')
-      throw new Error('RESEND_API_KEY is not set')
+      console.error("Missing RESEND_API_KEY")
+      throw new Error("RESEND_API_KEY is not set")
     }
 
-    console.log('Attempting to send email with Resend config:', {
-      from: 'team@habitkick.app',
+    console.log("Attempting to send email with Resend config:", {
+      from: "team@habitkick.app",
       to: email,
-      subject: `Join ${competitionName} on HabitKick`
+      subject: `${inviterName} invited you to join HabitKick`,
     })
-
-    console.log('Generating invitation link with:', {
-      email,
-      competitionName,
-      competitionId: numericCompetitionId,
-      rawCompetitionId: competitionId
-    })
-
-    console.log('Received invitation request:', {
-      email,
-      competitionName,
-      competitionId: typeof numericCompetitionId,
-      rawCompetitionId: competitionId
-    })
-
-    const invitationLink = `http://localhost:3000/invitation?email=${encodeURIComponent(email)}&competition=${encodeURIComponent(competitionName)}&competitionId=${numericCompetitionId}&redirectTo=${encodeURIComponent(`/competitions/${numericCompetitionId}`)}`
-
-    console.log('Generated link:', invitationLink)
 
     const result = await resend.emails.send({
-      from: 'HabitKick <team@habitkick.app>',
+      from: "HabitKick <team@habitkick.app>",
       to: email,
-      subject: `Join ${competitionName} on HabitKick`,
+      subject: `${inviterName} invited you to join HabitKick`,
       html: `
         <!DOCTYPE html>
         <html>
           <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Join HabitKick Competition</title>
+            <title>Join HabitKick</title>
           </head>
           <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9fafb;">
             <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb;">
@@ -74,15 +53,14 @@ export async function POST(request: Request) {
                     <!-- Content -->
                     <tr>
                       <td style="padding: 40px;">
-                        <p style="color: #4B5563; font-size: 16px; line-height: 24px; margin-bottom: 24px; text-align: center;">
-                          You've been invited to join a competition on <strong>HabitKick!</strong>
-                           <strong style="color: #10B981;">${competitionName}</strong>
+                        <p style="color: #4B5563; font-size: 16px; line-height: 24px; margin-bottom: 24px;">
+                          <strong>${inviterName}</strong> has invited you to join <strong>HabitKick</strong> - your ultimate tool to build and maintain healthy habits.
                         </p>
                         
                         <div style="text-align: center;">
-                          <a href="${invitationLink}" 
+                          <a href="${inviteUrl}" 
                              style="display: inline-block; background-color: #10B981; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);">
-                            Join Competition
+                            Join HabitKick
                           </a>
                         </div>
                       </td>
@@ -97,38 +75,36 @@ export async function POST(request: Request) {
                       </td>
                     </tr>
                   </table>
-                  
-                  <!-- Copyright -->
-                  <p style="color: #6B7280; font-size: 12px; margin-top: 24px; text-align: center;">
-                    © ${new Date().getFullYear()} HabitKick. All rights reserved.
-                  </p>
                 </td>
               </tr>
             </table>
           </body>
         </html>
-      `
+      `,
     })
 
-    console.log('Resend API response:', result)
+    console.log("Resend API response:", result)
 
     if (result.error) {
       throw new Error(`Resend API error: ${result.error}`)
     }
 
-    return NextResponse.json({ success: true, result })
+    return NextResponse.json({ success: true })
   } catch (error) {
     const err = error as Error
-    console.error('Detailed error:', {
+    console.error("Detailed error:", {
       error: err,
       message: err.message,
-      stack: err.stack
+      stack: err.stack,
     })
-    return NextResponse.json({ 
-      error: err.message || 'Failed to send email',
-      details: err
-    }, { 
-      status: 500 
-    })
+    return NextResponse.json(
+      {
+        error: err.message || "Failed to send invitation",
+        details: err,
+      },
+      {
+        status: 500,
+      }
+    )
   }
-} 
+}
