@@ -3,53 +3,80 @@
 import { useState } from "react"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
-import BackButton from "@/components/BackButton"
+import useSWR from "swr"
 
 export default function TrackerPage() {
   const [date, setDate] = useState(new Date().toISOString().substr(0, 10))
   const [weight, setWeight] = useState("")
-  const [submittedData, setSubmittedData] = useState(null)
+  const [error, setError] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const supabase = createClient()
-
   const router = useRouter()
+
+  // Get the current user
+  const { data: user } = useSWR(
+    "/user",
+    async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      return user
+    },
+    { revalidateOnFocus: false }
+  )
 
   const handleSubmit = async (event: any) => {
     event.preventDefault()
-    const { data, error } = await supabase.from("weight_tracker").insert([
-      {
-        date_entry: date,
-        weight,
-      },
-    ])
+    setError("")
+    setIsSubmitting(true)
 
-    if (error) {
-      console.error("Error inserting data into Supabase:", error)
-    } else {
-      console.log("Data inserted successfully:", data)
-      setSubmittedData(data)
+    try {
+      const identityId = user?.identities?.[0]?.id
+      if (!identityId) {
+        throw new Error("User not authenticated")
+      }
+      const { data, error } = await supabase.from("weight_tracker").insert([
+        {
+          date_entry: date,
+          weight: Number(weight),
+          created_by: identityId,
+        },
+      ])
+
+      if (error) {
+        throw error
+      }
       router.push("/tracker/chart")
+    } catch (err) {
+      console.error("Error inserting data:", err)
+      setError("Failed to save weight. Please try again.")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   return (
-    <div className="w-full">
-      <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg relative">
-        <BackButton />
-
-        <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
-          <h2 className="text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight dark:text-black">
+    <div className="w-full px-4 sm:px-6">
+      <div className="max-w-5xl mx-auto mt-4 sm:mt-6 bg-white rounded-lg">
+        <div className="border-b-2 border-snd-bkg pb-4 m-4 sm:m-6 pt-6">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-nav-bkg mb-2 tracking-tight dark:text-black">
             Record Weight
           </h2>
-          <p className="text-lg text-gray-700">
-            Track your progress and review your past entries to stay on top of
-            your fitness goals.
+          <p className="text-base sm:text-lg text-gray-700">
+            Ready to check in? Let's see what the scale has to say today!
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 px-6 pb-6">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 sm:space-y-6 px-4 sm:px-6 pb-6"
+        >
           <div className="flex flex-col">
-            <label htmlFor="date" className="text-gray-600 mb-1">
+            <label
+              htmlFor="date"
+              className="text-gray-600 mb-1 text-sm sm:text-base"
+            >
               Date:
             </label>
             <input
@@ -57,11 +84,15 @@ export default function TrackerPage() {
               id="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              className="p-2 sm:p-3 border border-gray-300 rounded-md focus:outline-none focus:border-logo-green text-sm sm:text-base text-black"
+              max={new Date().toISOString().substr(0, 10)}
             />
           </div>
           <div className="flex flex-col">
-            <label htmlFor="weight" className="text-gray-600 mb-1">
+            <label
+              htmlFor="weight"
+              className="text-gray-600 mb-1 text-sm sm:text-base"
+            >
               Weight (lbs):
             </label>
             <input
@@ -69,15 +100,18 @@ export default function TrackerPage() {
               id="weight"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
-              className="p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              className="p-2 sm:p-3 border border-gray-300 rounded-md focus:outline-none focus:border-logo-green text-sm sm:text-base text-black"
+              required
             />
           </div>
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
           <div className="flex justify-center">
             <button
               type="submit"
-              className="relative bg-logo-green dark:bg-snd-bkg py-3 px-6 rounded-lg hover:opacity-90"
+              disabled={isSubmitting}
+              className="w-full sm:w-auto relative bg-logo-green dark:bg-snd-bkg py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:opacity-90 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Add Weight
+              {isSubmitting ? "Saving..." : "Add Weight"}
             </button>
           </div>
         </form>

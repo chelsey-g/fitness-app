@@ -116,10 +116,10 @@ export default function WeightChartPage() {
 
   return (
     <>
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-5xl mx-auto px-4 py-6">
         {showAlert && (
           <Alert
-            className="bg-red-100 border-l-4 border-red-500 text-red-700 p-2 rounded-md shadow-md"
+            className="bg-red-100 border-l-4 border-red-500 text-red-700 p-2 rounded-md shadow-md mb-4"
             role="alert"
           >
             <div className="flex items-center">
@@ -136,23 +136,13 @@ export default function WeightChartPage() {
           </Alert>
         )}
 
-        <div className="max-w-5xl mx-auto mt-6 bg-white rounded-lg relative">
-          <div className="absolute top-6 right-6">
-            <Link href="/tracker">
-              <button className="relative flex items-center px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90">
-                <IoMdAdd className="mr-2 text-lg" />
-                Add Weight
-              </button>
-            </Link>
-          </div>
-
+        <div className="bg-white rounded-lg shadow-sm">
           <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6 dark:text-black">
             <h2 className="text-4xl font-extrabold mb-2 tracking-tight">
               Weight Tracker
             </h2>
             <p className="text-lg text-gray-700">
-              Track your progress and review your past entries to stay on top of
-              your fitness goals.
+              Track your progress to stay on top of your goals.
             </p>
           </div>
 
@@ -182,11 +172,13 @@ export default function WeightChartPage() {
                         {handleFormattedDate(data.date_entry)}
                       </td>
                       <td className="py-3 px-6 text-left">{data.weight}</td>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <DeleteWeight
-                          deleteWeight={() => handleDeleteWeight(data.id)}
-                        />
-                      </div>
+                      <td className="py-3 px-6 text-right">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <DeleteWeight
+                            deleteWeight={() => handleDeleteWeight(data.id)}
+                          />
+                        </div>
+                      </td>
                     </tr>
                   ))
                 ) : (
@@ -201,6 +193,14 @@ export default function WeightChartPage() {
                 )}
               </tbody>
             </table>
+          </div>
+          <div className="flex justify-center p-6 sm:pb-8">
+            <Link href="/tracker">
+              <button className="relative flex items-center px-6 py-3 sm:px-4 sm:py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90 transition-opacity">
+                <IoMdAdd className="mr-2 text-lg" />
+                Add Weight
+              </button>
+            </Link>
           </div>
         </div>
       </div>
