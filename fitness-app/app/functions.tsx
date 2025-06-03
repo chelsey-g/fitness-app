@@ -36,6 +36,16 @@ export const calculateWeightDifference = (
   goalWeight: number,
   currentWeight: number
 ) => {
+  // Handle cases where currentWeight is undefined, null, or not a valid number
+  if (currentWeight === undefined || currentWeight === null || isNaN(currentWeight)) {
+    return "No logged weight available"
+  }
+  
+  // Handle cases where goalWeight is not a valid number
+  if (goalWeight === undefined || goalWeight === null || isNaN(goalWeight)) {
+    return "Invalid goal"
+  }
+  
   const difference = goalWeight - currentWeight
   return difference.toFixed(2)
 }
