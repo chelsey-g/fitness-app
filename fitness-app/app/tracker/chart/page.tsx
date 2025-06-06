@@ -127,7 +127,7 @@ export default function WeightChartPage() {
       }
 
       const updatedData = weightData?.filter((entry) => entry.id !== id)
-      setWeightData(updatedData)
+      setWeightData(updatedData ?? null)
       setShowAlert(true)
     } catch (error) {
       console.error("Error deleting weight entry:", error)
