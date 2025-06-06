@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom"
 
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { fireEvent, render, screen } from "@testing-library/react"
 
 import LandingPage from "./LandingPage"
@@ -15,14 +15,14 @@ vi.mock("next/navigation", () => ({
 
 describe("LandingPage", () => {
   it("renders the main heading", () => {
-    render(<LandingPage />)
+    render(<LandingPage isBackendConnected={true} />)
 
     // Check if the main heading is rendered
     expect(screen.getByText("Fitness At Your Fingertips")).toBeInTheDocument()
   })
 
   it("renders the 'Get Started' button", () => {
-    render(<LandingPage />)
+    render(<LandingPage isBackendConnected={true} />)
 
     // Check if the 'Get Started' button is rendered
     const button = screen.getByRole("button", { name: /get started/i })
@@ -31,7 +31,7 @@ describe("LandingPage", () => {
 
   //   it("navigates to the login page when 'Get Started' button is clicked", () => {
   //     const { push } = useRouter()
-  //     render(<LandingPage />)
+  //     render(<LandingPage isBackendConnected={true} />)
 
   //     // Simulate a click event on the 'Get Started' button
   //     const button = screen.getByRole("button", { name: /get started/i })
@@ -42,7 +42,7 @@ describe("LandingPage", () => {
   //   })
 
   it("renders Explore Our Tools section with icons", () => {
-    render(<LandingPage />)
+    render(<LandingPage isBackendConnected={true} />)
 
     // Check if the section heading is rendered
     expect(screen.getByText("Explore Our Tools")).toBeInTheDocument()
@@ -55,7 +55,7 @@ describe("LandingPage", () => {
   })
 
   it("renders the testimonials", () => {
-    render(<LandingPage />)
+    render(<LandingPage isBackendConnected={true} />)
 
     // Check if testimonials are rendered
     expect(
@@ -70,7 +70,7 @@ describe("LandingPage", () => {
   })
 
   it("renders the 'Join Now' section", () => {
-    render(<LandingPage />)
+    render(<LandingPage isBackendConnected={true} />)
 
     // Check if the 'Join Now' section is rendered
     expect(screen.getByText("Ready to Start Your Journey?")).toBeInTheDocument()
