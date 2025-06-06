@@ -54,13 +54,17 @@ export const signInAction = async (formData: FormData) => {
   const password = formData.get("password") as string
   const supabase = await createClient()
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
 
   if (error) {
     return encodedRedirect("error", "/sign-in", error.message)
+  }
+
+  if (!data.session) {
+    return encodedRedirect("error", "/sign-in", "Failed to create session")
   }
 
   return redirect("/dashboard")
