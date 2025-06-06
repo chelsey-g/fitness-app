@@ -67,15 +67,15 @@ const config: Config = {
           },
           background: {
             muted: "#131A2B",
-            subtle: colors.gray[800],
-            DEFAULT: colors.gray[900],
-            emphasis: colors.gray[300],
+            subtle: "#003D33", 
+            DEFAULT: "#003D33",
+            emphasis: "#64b77d",
           },
           border: {
-            DEFAULT: colors.gray[800],
+            DEFAULT: "#64b77d",
           },
           ring: {
-            DEFAULT: colors.gray[800],
+            DEFAULT: colors.red[800],
           },
           content: {
             subtle: colors.gray[600],

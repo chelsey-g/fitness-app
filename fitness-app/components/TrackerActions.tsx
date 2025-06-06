@@ -20,20 +20,14 @@ export function DeleteWeight({ deleteWeight }: { deleteWeight: () => void }) {
 
   return (
     <Dialog onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <div
-          role="button"
-          tabIndex={0}
-          className="flex items-center justify-center p-2 cursor-pointer"
+      <DialogTrigger>
+        <button
+          type="button"
+          className="flex items-center justify-center p-2"
           onClick={handleEditModal}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              handleEditModal()
-            }
-          }}
         >
           <MdDeleteOutline className="w-5 h-5 text-red-600" />
-        </div>
+        </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] bg-white rounded-lg shadow-lg p-6">
         <DialogHeader>
