@@ -1,7 +1,8 @@
 "use client"
 
 import useSWR, { Fetcher } from "swr"
-import { useState, useEffect } from "react"
+import { useAuth } from "@/contexts/AuthContext"
+import dayjs from "dayjs"
 
 import DeleteCompetition from "@/components/CompetitionsActions"
 import { IoIosAdd } from "react-icons/io"
@@ -21,12 +22,14 @@ interface Competition {
 export default function CompetitionsPage() {
   const supabase = createClient()
   const router = useRouter()
+  const { user } = useAuth()
 
   const fetcher: Fetcher<Competition[], string> = async (url: string) => {
-    const today = new Date()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    if (!user) {
+      throw new Error("User not authenticated")
+    }
+
+    const today = dayjs().startOf('day')
     const { data, error } = await supabase
       .from("competitions")
       .select(`name, id, date_started, date_ending, created_by`)
@@ -36,110 +39,132 @@ export default function CompetitionsPage() {
       throw new Error(error.message)
     }
 
-    return data.filter((comp) => new Date(comp.date_ending) > today)
+    return data.filter((comp) => dayjs(comp.date_ending).isAfter(today))
   }
 
   const {
     data: competitions,
     error,
     isLoading,
-  } = useSWR<Competition[]>("/competitions", fetcher)
+    mutate
+  } = useSWR<Competition[]>(user ? "/competitions" : null, fetcher)
 
-  // Get current user
-  const [currentUser, setCurrentUser] = useState<string | null>(null)
+  if (!user) {
+    router.push('/login')
+    return null
+  }
 
-  useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (user) {
-        setCurrentUser(user.id)
-      }
-    }
-    getUser()
-  }, [])
+  if (error) return (
+    <div className="text-center py-10">
+      <h2 className="text-2xl font-semibold text-red-600 mb-4">
+        Failed to load competitions
+      </h2>
+      <p className="text-gray-500 text-lg">
+        Please try refreshing the page
+      </p>
+    </div>
+  )
 
-  if (error) return <div>Failed to load</div>
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading) return (
+    <div className="text-center py-10">
+      <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+        Loading competitions...
+      </h2>
+    </div>
+  )
 
   const handleCreateCompetition = () => {
     router.push("/competitions/create")
   }
 
   const handleDeleteCompetition = async (id: string) => {
-    let { error } = await supabase.from("competitions").delete().eq("id", id)
-    if (error) {
-      alert("Failed to delete competition")
+    try {
+      const { error } = await supabase
+        .from("competitions")
+        .delete()
+        .eq("id", id)
+        .eq("created_by", user.id)
+
+      if (error) {
+        throw error
+      }
+
+      // Refresh the competitions list
+      mutate()
+    } catch (error) {
+      console.error("Error deleting competition:", error)
+      alert("Failed to delete competition. Please try again.")
     }
   }
 
   const handleShowExpiredCompetitions = () => {
     router.push("/competitions/history")
   }
-  return (
-    <>
-      <div className="relative max-w-5xl mx-auto mt-6 bg-white rounded-lg dark:text-black">
-        <button
-          className="flex items-center absolute top-6 right-6 px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90"
-          onClick={handleCreateCompetition}
-        >
-          <IoIosAdd className="mr-2" />
-          Create
-        </button>
 
-        {(competitions?.length ?? 0) > 0 && (
-          <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
-            <h1 className="text-4xl font-extrabold mb-2 tracking-tight">
+  return (
+    <div className="w-full px-4 sm:px-6">
+      <div className="max-w-5xl mx-auto mt-4 sm:mt-6 bg-white rounded-lg dark:text-black">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 p-4 sm:p-6 pt-6">
+          <div className="border-b-2 border-snd-bkg pb-4 flex-1">
+            <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 tracking-tight">
               Active Competitions
             </h1>
-            <p className="text-lg text-gray-700">
-              You currently have{" "}
-              <span className="text-snd-bkg font-semibold">
-                {competitions?.length}
-              </span>{" "}
-              active competition{(competitions?.length ?? 0) > 1 ? "s" : ""}.
-            </p>
+            {(competitions?.length ?? 0) > 0 && (
+              <p className="text-base sm:text-lg text-gray-700">
+                You currently have{" "}
+                <span className="text-snd-bkg font-semibold">
+                  {competitions?.length}
+                </span>{" "}
+                active competition{(competitions?.length ?? 0) > 1 ? "s" : ""}.
+              </p>
+            )}
           </div>
-        )}
+          <button
+            className="flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90 text-sm sm:text-base"
+            onClick={handleCreateCompetition}
+          >
+            <IoIosAdd className="mr-2" />
+            Create Competition
+          </button>
+        </div>
 
-        <div className="p-4 justify-center">
-          {competitions?.map((result, index) => (
+        <div className="p-4 sm:p-6 justify-center">
+          {competitions?.map((competition) => (
             <div
-              key={index}
-              className="flex items-center justify-between mb-4 p-2 pr-5 bg-white rounded-lg hover:bg-gray-100 group"
+              key={competition.id}
+              className="flex items-center justify-between mb-4 p-3 sm:p-4 pr-3 sm:pr-5 bg-white rounded-lg hover:bg-gray-100 group"
             >
               <div className="flex items-center justify-between w-full border-b pb-4">
                 <div className="flex items-center">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${getRandomColor()}`}
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${getRandomColor()}`}
                   >
-                    <span className="text-white text-sm font-semibold">
-                      {result.name.charAt(0).toUpperCase()}
+                    <span className="text-white text-sm sm:text-base font-semibold">
+                      {competition.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div className="flex flex-col ml-3">
                     <Link
-                      href={`/competitions/${result.id}`}
-                      className="text-black hover:text-snd-bkg font-medium"
+                      href={`/competitions/${competition.id}`}
+                      className="text-black hover:text-snd-bkg font-medium text-sm sm:text-base"
                     >
-                      {result.name}
+                      {competition.name}
                     </Link>
-                    {currentUser === result.created_by && (
+                    {user.id === competition.created_by && (
                       <span className="text-xs text-logo-green font-medium">
                         Admin
                       </span>
                     )}
                   </div>
                 </div>
-                <span className="text-gray-500 text-sm ml-auto text-right">
-                  End Date: {new Date(result.date_ending).toLocaleDateString()}
+                <span className="text-gray-500 text-xs sm:text-sm ml-auto text-right">
+                  End Date: {dayjs(competition.date_ending).format("MMMM D, YYYY")}
                 </span>
               </div>
               <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center ml-4">
-                {currentUser === result.created_by && (
+                {user.id === competition.created_by && (
                   <DeleteCompetition
-                    deleteCompetition={() => handleDeleteCompetition(result.id)}
+                    deleteCompetition={() => handleDeleteCompetition(competition.id)}
                   />
                 )}
               </div>
@@ -147,20 +172,20 @@ export default function CompetitionsPage() {
           ))}
 
           {competitions?.length === 0 && (
-            <div className="text-center py-10">
-              <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4 opacity-50">📋</div>
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-700 mb-3">
                 No Active Competitions
               </h2>
-              <p className="text-gray-500 text-lg mb-6">
-                You haven't joined or created any competitions yet. Start one
-                today to stay motivated!
+              <p className="text-base sm:text-lg text-gray-500 mb-6 max-w-md mx-auto">
+                Create or join a competition to get started.
               </p>
             </div>
           )}
 
           <div className="flex justify-center">
             <button
-              className="px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90 text-sm sm:text-base"
               onClick={handleShowExpiredCompetitions}
             >
               Competition History
@@ -168,6 +193,6 @@ export default function CompetitionsPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }

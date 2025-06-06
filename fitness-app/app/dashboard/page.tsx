@@ -5,6 +5,8 @@ import useSWR from "swr"
 import { GiStairsGoal } from "react-icons/gi"
 import { HiOutlineLightBulb } from "react-icons/hi"
 import { FaRunning } from "react-icons/fa"
+import { FaBarsProgress } from "react-icons/fa6"
+import { IoMdAdd } from "react-icons/io"
 import Link from "next/link"
 import CarouselOrientation from "@/components/CompetitionsCarousel"
 import ProgressTracker from "@/components/ProgressTracker"
@@ -13,32 +15,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
 import InviteFriend from "@/components/InviteFriend"
 
+type Competition = {
+  id: string
+  competition_id: string
+  competitions: {
+    name: string
+    date_ending: string
+  }
+}
+
+type Profile = {
+  id: number
+  first_name: string
+}
+
+type Goals = {
+  id: number
+  goal_date: string
+  goal_weight: number
+}
+
+type Weight = {
+  created_by: number
+  weight: number
+}
+
 export default function UserDashboard() {
-  type Competition = {
-    id: string
-    competition_id: string
-    competitions: {
-      name: string
-      date_ending: string
-    }
-  }
-
-  type Profile = {
-    id: number
-    first_name: string
-  }
-
-  type Goals = {
-    id: number
-    goal_date: string
-    goal_weight: number
-  }
-
-  type Weight = {
-    created_by: number
-    weight: number
-  }
-
   const triviaFetcher = (url: string) =>
     fetch(url, {
       headers: {
@@ -77,8 +79,6 @@ export default function UserDashboard() {
       revalidateOnFocus: false,
     }
   )
-
-  console.log(user, "user")
 
   let identityId = user?.identities?.[0]?.id || null
 
@@ -235,7 +235,7 @@ export default function UserDashboard() {
                   <CardTitle className="text-sm font-medium">
                     Progress Tracker
                   </CardTitle>
-                  <FaRunning className="h-5 w-5 text-muted-foreground" />
+                  <FaBarsProgress className="h-5 w-5 text-muted-foreground" />
                 </CardHeader>
                 <CardContent className="m-2">
                   <div className="overflow-x-auto">
@@ -244,6 +244,15 @@ export default function UserDashboard() {
                   <div className="block text-center text-xs text-gray-500 mt-2">
                     This chart shows the days you've tracked your weight over
                     the last 30 days.
+                  </div>
+                  <div className="flex justify-center mt-4">
+                    <Link
+                      href="/tracker"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-logo-green text-white font-medium rounded-lg hover:opacity-90 transition-opacity shadow-sm text-sm"
+                    >
+                      <IoMdAdd className="w-4 h-4" />
+                      Add Weight
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

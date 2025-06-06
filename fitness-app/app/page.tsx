@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server"
 import LandingPage from "@/components/LandingPage"
 import { cookies } from "next/headers"
+
 export default async function HomePage() {
   const cookieStore = cookies()
   const canInitSupabaseClient = () => {
@@ -16,7 +17,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      <LandingPage />
+      <LandingPage isBackendConnected={isSupabaseConnected} />
     </div>
   )
 }

@@ -15,6 +15,7 @@ import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { FaRegUserCircle } from "react-icons/fa"
+import { useAuth } from "@/contexts/AuthContext"
 
 interface Profile {
   first_name: string
@@ -24,6 +25,7 @@ interface Profile {
 export default function ProfileDropDown() {
   const router = useRouter()
   const supabase = createClient()
+  const auth = useAuth()
 
   const { data: user } = useSWR("/user", () =>
     supabase.auth.getUser().then((res) => res.data.user)
@@ -47,12 +49,11 @@ export default function ProfileDropDown() {
     fetcher
   )
 
-  const avatarUrl = user?.user_metadata?.avatar_url || null
+  const avatarUrl = user?.user_metadata?.avatar_url
   const fallbackSrc = <FaRegUserCircle className="w-5 h-5" />
 
   async function handleSignOutUser() {
-    const { error } = await supabase.auth.signOut()
-    if (error) console.error("Sign out error", error)
+    await auth.signOut()
     router.push("/")
   }
 
@@ -64,30 +65,42 @@ export default function ProfileDropDown() {
       >
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <ImageWithFallback
-              key={avatarUrl || ""}
-              src={avatarUrl || ""}
-              alt="profile picture"
-              fallbackSrc={fallbackSrc}
-              width={5}
-              height={5}
-              className="w-5 h-5 rounded-full items-center justify-center mt-2 focus:none"
-            />
+            {avatarUrl ? (
+              <ImageWithFallback
+                key={avatarUrl}
+                src={avatarUrl}
+                alt="profile picture"
+                fallbackSrc={fallbackSrc}
+                width={20}
+                height={20}
+                className="w-5 h-5 rounded-full items-center justify-center mt-2 focus:none"
+              />
+            ) : (
+              <div className="w-5 h-5 flex items-center justify-center mt-2">
+                <FaRegUserCircle className="w-5 h-5" />
+              </div>
+            )}
           </DropdownMenuTrigger>
           <DropdownMenuContent className="relative right-20 z-10 w-60 mt-2 origin-top-right bg-white rounded-md shadow-lg">
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <div className="px-4 py-2 border-b">
                   <div className="flex items-center">
-                    <ImageWithFallback
-                      key={avatarUrl || ""}
-                      src={avatarUrl || ""}
-                      alt="profile picture"
-                      fallbackSrc={fallbackSrc}
-                      width={7}
-                      height={7}
-                      className="w-7 h-7 rounded-full mr-5"
-                    />
+                    {avatarUrl ? (
+                      <ImageWithFallback
+                        key={avatarUrl}
+                        src={avatarUrl}
+                        alt="profile picture"
+                        fallbackSrc={fallbackSrc}
+                        width={28}
+                        height={28}
+                        className="w-7 h-7 rounded-full mr-5"
+                      />
+                    ) : (
+                      <div className="w-7 h-7 flex items-center justify-center mr-5">
+                        <FaRegUserCircle className="w-7 h-7" />
+                      </div>
+                    )}
 
                     {profiles && (
                       <div>

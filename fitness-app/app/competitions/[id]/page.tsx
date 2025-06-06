@@ -3,8 +3,10 @@
 import { getAwardColor, getOrdinalSuffix } from "@/app/functions"
 import { TbAwardFilled } from "react-icons/tb"
 import { createClient } from "@/utils/supabase/client"
-import { handleDate } from "@/app/functions"
+// import { handleDate } from "@/app/functions"
 import useSWR from "swr"
+import { useAuth } from "@/contexts/AuthContext"
+import dayjs from "dayjs"
 import {
   Table,
   TableBody,
@@ -23,128 +25,84 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { GiTrophyCup } from "react-icons/gi"
 import { useRouter } from "next/navigation"
 import LeaveCompetition from "@/components/LeaveCompetition"
-import { useState, useEffect } from "react"
 
-type Player = {
+interface Player {
   rank: number
   player: string
   percentageChange: string | number
   playerId: string
 }
 
-export default function CompetitionPage(props: any) {
+interface Competition {
+  id: string
+  name: string
+  date_started: string
+  date_ending: string
+  created_by: string
+  created_at: string
+  has_prizes: boolean
+  prizes?: Array<{
+    place: number
+    type: string
+    reward: string | number
+  }>
+  rules?: string
+  competitions_players: Array<{
+    player_id: string
+    profiles: {
+      id: string
+      first_name: string
+      last_name: string
+      weight_tracker: Array<{
+        weight: number
+        date_entry: string
+      }>
+    }
+  }>
+}
+
+export default function CompetitionPage({ params }: { params: { id: string } }) {
   const supabase = createClient()
   const router = useRouter()
+  const { user } = useAuth()
 
   const {
     data: competitionData,
     error,
     isLoading,
-  } = useSWR("/competitions/name", async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return null
-
-    const { data, error } = await supabase
-      .from("competitions")
-      .select(
-        `
-        *,
-        competitions_players!inner(
+    mutate
+  } = useSWR<Competition[]>(
+    user ? `/competitions/${params.id}` : null,
+    async () => {
+      const { data, error } = await supabase
+        .from("competitions")
+        .select(`
           *,
-          profiles(
-            id,
-            first_name,
-            last_name,
-            weight_tracker(weight, date_entry)
+          competitions_players(
+            *,
+            profiles(
+              id,
+              first_name,
+              last_name,
+              weight_tracker(weight, date_entry)
+            )
           )
-        )
-      `
-      )
-      .eq("id", props.params.id)
-      .single()
-
-    if (error) throw error
-    return data ? [data] : []
-  })
-
-  const [isCreator, setIsCreator] = useState(false)
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
-
-  useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (user) {
-        setCurrentUserId(user.id)
-        if (competitionData?.[0]) {
-          setIsCreator(user.id === competitionData[0].created_by)
-        }
-      }
+        `)
+        .eq("id", params.id)
+        .single()
+      if (error) throw error
+      return data ? [data] : []
     }
-    checkUser()
-  }, [competitionData])
+  )
 
-  function getCreatedBy(competition: any) {
-    const creator = competition.competitions_players.find(
-      (player: any) => player.player_id === competition.created_by
-    )
-
-    return creator?.profiles
-      ? `${creator.profiles.first_name} ${creator.profiles.last_name}`
-      : "Unknown"
-  }
-
-  function getInitialWeight(player: any, competitionData: any) {
-    if (!player?.profiles?.weight_tracker?.length) {
-      return 0
-    }
-    const closestInitialDate = player.profiles.weight_tracker.reduce(
-      (a: any, b: any) =>
-        Math.abs(
-          new Date(b.date_entry).getTime() -
-            new Date(competitionData.date_ending).getTime()
-        ) <
-        Math.abs(
-          new Date(a.date_entry).getTime() -
-            new Date(competitionData.date_started).getTime()
-        )
-          ? a
-          : b
-    )
-    return closestInitialDate.weight
-  }
-
-  function getCurrentWeight(player: any, competitionData: any) {
-    if (!player?.profiles?.weight_tracker?.length) {
-      return 0
-    }
-    const closestCurrentDate = player.profiles.weight_tracker.reduce(
-      (a: any, b: any) =>
-        Math.abs(
-          new Date(b.date_entry).getTime() -
-            new Date(competitionData.date_started).getTime()
-        ) <
-        Math.abs(
-          new Date(a.date_entry).getTime() -
-            new Date(competitionData.date_ending).getTime()
-        )
-          ? b
-          : a
-    )
-    return closestCurrentDate.weight
-  }
-
+  // Prepare all data and columns regardless of loading/error state
   const difference: Player[] = []
   if (competitionData) {
     competitionData.forEach((competition) => {
-      competition.competitions_players.forEach((player: any) => {
+      competition.competitions_players.forEach((player) => {
         const initialWeight = getInitialWeight(player, competition)
         const currentWeight = getCurrentWeight(player, competition)
         let percentageChange
-
         if (initialWeight === 0 || currentWeight === 0) {
           percentageChange = "-"
         } else {
@@ -152,7 +110,6 @@ export default function CompetitionPage(props: any) {
           percentageChange =
             ((weightChange / initialWeight) * 100).toFixed(2) + "%"
         }
-
         difference.push({
           rank: 0,
           player: `${player.profiles.first_name} ${player.profiles.last_name}`,
@@ -164,17 +121,14 @@ export default function CompetitionPage(props: any) {
   }
 
   const sortedData = difference
-    .sort((a: any, b: any) => {
-      if (a.percentageChange === "No weight logged") return 1
-      if (b.percentageChange === "No weight logged") return -1
-      return parseFloat(b.percentageChange) - parseFloat(a.percentageChange)
+    .sort((a, b) => {
+      if (a.percentageChange === "-") return 1
+      if (b.percentageChange === "-") return -1
+      return parseFloat(b.percentageChange as string) - parseFloat(a.percentageChange as string)
     })
     .map((player, index) => ({
       ...player,
-      rank:
-        player.percentageChange === "No weight logged"
-          ? difference.length
-          : index + 1,
+      rank: player.percentageChange === "-" ? difference.length : index + 1,
     }))
 
   const prizeColumn: ColumnDef<Player> = {
@@ -184,20 +138,16 @@ export default function CompetitionPage(props: any) {
       const rank = row.getValue("rank") as number
       const percentageChange = row.getValue("percentageChange") as string
       const hasWeightLogged = percentageChange !== "-"
-
       if (!hasWeightLogged || rank > 3)
         return <div className="text-right">-</div>
-
       const prizeStyles = {
         1: "text-yellow-500",
         2: "text-gray-400",
         3: "text-amber-700",
       }
-
       const prize = competitionData?.[0]?.prizes?.find(
-        (p: any) => p.place === rank
+        (p) => p.place === rank
       )
-
       return (
         <div
           className={`text-right font-medium ${
@@ -218,7 +168,6 @@ export default function CompetitionPage(props: any) {
         const rank = row.getValue("rank") as number
         const percentageChange = row.getValue("percentageChange") as string
         const hasWeightLogged = percentageChange !== "-"
-
         return (
           <div className="flex items-center justify-center gap-2">
             {rank <= 3 && hasWeightLogged ? (
@@ -254,7 +203,6 @@ export default function CompetitionPage(props: any) {
       cell: ({ row }) => {
         const value = row.getValue("percentageChange") as string
         const isPositive = !value.includes("-") && value !== "-"
-
         return (
           <div
             className={`text-right font-medium ${
@@ -273,70 +221,124 @@ export default function CompetitionPage(props: any) {
     ...(competitionData?.[0]?.has_prizes ? [prizeColumn] : []),
   ]
 
+  // Always call hooks before any return
   const table = useReactTable({
     data: sortedData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
 
+  // Helper functions (must be defined before use)
+  function getCreatedBy(competition: Competition) {
+    const creator = competition.competitions_players.find(
+      (player) => player.player_id === competition.created_by
+    )
+    return creator?.profiles
+      ? `${creator.profiles.first_name} ${creator.profiles.last_name}`
+      : "Unknown"
+  }
+  function getInitialWeight(player: Competition['competitions_players'][0], competitionData: Competition) {
+    if (!player?.profiles?.weight_tracker?.length) {
+      return 0
+    }
+    const startDate = dayjs(competitionData.date_started)
+    return player.profiles.weight_tracker.reduce((closest, current) => {
+      const currentDate = dayjs(current.date_entry)
+      const closestDate = dayjs(closest.date_entry)
+      return currentDate.diff(startDate) < closestDate.diff(startDate) ? current : closest
+    }).weight
+  }
+  function getCurrentWeight(player: Competition['competitions_players'][0], competitionData: Competition) {
+    if (!player?.profiles?.weight_tracker?.length) {
+      return 0
+    }
+    const endDate = dayjs(competitionData.date_ending)
+    return player.profiles.weight_tracker.reduce((closest, current) => {
+      const currentDate = dayjs(current.date_entry)
+      const closestDate = dayjs(closest.date_entry)
+      return currentDate.diff(endDate) < closestDate.diff(endDate) ? current : closest
+    }).weight
+  }
+  const isCreator = user && competitionData?.[0]?.created_by === user.id
+  const calculateProgress = (competition: Competition) => {
+    const start = dayjs(competition.date_started)
+    const end = dayjs(competition.date_ending)
+    const now = dayjs()
+    const total = end.diff(start)
+    const current = now.diff(start)
+    const progress = Math.min(Math.max((current / total) * 100, 0), 100)
+    return Math.round(progress)
+  }
   const handleLeaveCompetition = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
     if (!user) return
-
-    if (competitionData?.[0]?.created_by === user.id) {
+    if (isCreator) {
       alert("Competition creators cannot leave their own competitions")
       return
     }
-
-    const { error } = await supabase
-      .from("competitions_players")
-      .delete()
-      .match({
-        competition_id: props.params.id,
-        player_id: user.id,
-      })
-
-    if (error) {
-      console.error("Error leaving competition:", error)
-      alert("Failed to leave competition")
-    } else {
+    try {
+      const { error } = await supabase
+        .from("competitions_players")
+        .delete()
+        .match({
+          competition_id: params.id,
+          player_id: user.id,
+        })
+      if (error) {
+        throw error
+      }
       router.push("/competitions")
+    } catch (error) {
+      console.error("Error leaving competition:", error)
+      alert("Failed to leave competition. Please try again.")
     }
   }
 
-  if (error) return <div className="text-center mt-20">Failed to load</div>
-  if (isLoading)
-    return (
-      <div className="text-center mt-20">
-        <span className="text-gray-700">Loading competition...</span>
-      </div>
-    )
+  // Now do conditional rendering
+  if (!user) {
+    router.push('/login')
+    return null
+  }
+  if (error) return (
+    <div className="text-center mt-20">
+      <h2 className="text-2xl font-semibold text-red-600 mb-4">
+        Failed to load competition
+      </h2>
+      <p className="text-gray-500 text-lg">
+        Please try refreshing the page
+      </p>
+    </div>
+  )
+  if (isLoading) return (
+    <div className="text-center mt-20">
+      <span className="text-gray-700">Loading competition...</span>
+    </div>
+  )
 
   return (
     <div className="max-w-5xl mx-auto mt-6 bg-white dark:text-black rounded-lg shadow-lg p-6">
-      {competitionData?.map((competition, index) => (
-        <div key={index} className="pb-6 mb-6">
+      {competitionData?.map((competition) => (
+        <div key={competition.id} className="pb-6 mb-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-4xl font-extrabold tracking-tight">
               {competition.name}
             </h1>
-            {!isCreator && (
-              <LeaveCompetition leaveCompetition={handleLeaveCompetition} />
-            )}
+            <div className="flex gap-4">
+              {!isCreator && (
+                <LeaveCompetition leaveCompetition={handleLeaveCompetition} />
+              )}
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-6 mb-6 p-4 bg-muted/30 rounded-lg">
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Start Date</p>
               <p className="text-lg font-semibold">
-                {handleDate(competition.date_started)}
+                {dayjs(competition.date_started).format("MMMM D, YYYY")}
               </p>
             </div>
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">End Date</p>
               <p className="text-lg font-semibold">
-                {handleDate(competition.date_ending)}
+                {dayjs(competition.date_ending).format("MMMM D, YYYY")}
               </p>
             </div>
           </div>
@@ -346,40 +348,20 @@ export default function CompetitionPage(props: any) {
               Competition Progress
             </h3>
             <div className="w-full bg-gray-200 rounded-full h-2.5">
-              {(() => {
-                const start = new Date(competition.date_started).getTime()
-                const end = new Date(competition.date_ending).getTime()
-                const now = new Date().getTime()
-                const progress = Math.min(
-                  Math.max(((now - start) / (end - start)) * 100, 0),
-                  100
-                )
-                return (
-                  <div
-                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
-                    style={{ width: `${progress}%` }}
-                  />
-                )
-              })()}
+              <div
+                className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
+                style={{ width: `${calculateProgress(competition)}%` }}
+              />
             </div>
             <div className="flex justify-between mt-1 text-xs text-muted-foreground">
               <span>Start</span>
-              <span>
-                {Math.round(
-                  ((new Date().getTime() -
-                    new Date(competition.date_started).getTime()) /
-                    (new Date(competition.date_ending).getTime() -
-                      new Date(competition.date_started).getTime())) *
-                    100
-                )}
-                % Complete
-              </span>
+              <span>{calculateProgress(competition)}% Complete</span>
               <span>End</span>
             </div>
           </div>
 
           {sortedData.map((player) => {
-            if (player.playerId === currentUserId) {
+            if (player.playerId === user.id) {
               return (
                 <div
                   key="personal-stats"
@@ -417,18 +399,18 @@ export default function CompetitionPage(props: any) {
                       <p className="text-xl font-bold">
                         {(() => {
                           const player = competition.competitions_players.find(
-                            (p: any) => p.player_id === supabase.auth.getUser()
+                            (p) => p.player_id === user.id
                           )
                           if (!player?.profiles?.weight_tracker?.length)
                             return "-"
                           const lastWeight =
                             player.profiles.weight_tracker.reduce(
-                              (a: any, b: any) =>
-                                new Date(a.date_entry) > new Date(b.date_entry)
+                              (a, b) =>
+                                dayjs(a.date_entry).isAfter(dayjs(b.date_entry))
                                   ? a
                                   : b
                             )
-                          return handleDate(lastWeight.date_entry)
+                          return dayjs(lastWeight.date_entry).format("MMMM D, YYYY")
                         })()}
                       </p>
                     </div>
@@ -441,7 +423,7 @@ export default function CompetitionPage(props: any) {
 
           {competition.has_prizes && (
             <div className="grid grid-cols-3 gap-4 mb-6">
-              {competition.prizes?.map((prize: any, index: number) => {
+              {competition.prizes?.map((prize, index) => {
                 const colors = {
                   1: {
                     border: "border-yellow-500/50",
@@ -459,9 +441,7 @@ export default function CompetitionPage(props: any) {
                     text: "text-amber-700 dark:text-black",
                   },
                 }
-
                 const prizeColors = colors[prize.place as keyof typeof colors]
-
                 return (
                   <Alert
                     key={index}
@@ -540,7 +520,7 @@ export default function CompetitionPage(props: any) {
           <div className="mt-2 flex">
             <span className="text-xs text-gray-500">
               Competition created by {getCreatedBy(competition)} on{" "}
-              {handleDate(competition.created_at)}
+              {dayjs(competition.created_at).format("MMMM D, YYYY")}
             </span>
           </div>
 

@@ -76,7 +76,7 @@ export default function ProfileDashboard() {
 
   const cardContent =
     selectedProfileCard === "Account Settings" ? (
-      <Card className="border rounded-lg shadow-lg dark:text-black">
+      <Card className="rounded-lg shadow-lg dark:text-black">
         <CardHeader className="bg-gray-100 py-4 px-6 dark:text-black">
           <CardTitle className="text-2xl font-bold dark:text-black">
             Account Settings
@@ -179,11 +179,7 @@ export default function ProfileDashboard() {
             Account Settings
           </button>
           <button
-            className={`text-left ${
-              selectedProfileCard === "Login & Security"
-                ? "dark:text-black"
-                : ""
-            }`}
+            className="text-left dark:text-black"
             onClick={() => setSelectedProfileCard("Login & Security")}
           >
             Login & Security

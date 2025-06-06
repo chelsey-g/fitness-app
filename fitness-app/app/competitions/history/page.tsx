@@ -1,54 +1,91 @@
 "use client"
 
 import useSWR, { Fetcher } from "swr"
+import { useAuth } from "@/contexts/AuthContext"
+import dayjs from "dayjs"
 
 import DropdownMenuDemo from "@/components/CompetitionsActions"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
+import { getRandomColor } from "@/app/functions"
+
+interface CompetitionHistory {
+  name: string
+  id: string
+  date_started: string
+  date_ending: string
+  created_by: string
+}
 
 export default function CompetitionHistoryPage() {
   const supabase = createClient()
   const router = useRouter()
+  const { user } = useAuth()
 
-  interface CompetitionHistory {
-    name: string
-    id: string
-    date_started: string
-    date_ending: string
-  }
-
-  const fetcher: Fetcher<CompetitionHistory[], string> = async (
-    url: string
-  ) => {
-    const today = new Date()
+  const fetcher: Fetcher<CompetitionHistory[], string> = async () => {
+    const today = dayjs().startOf('day')
     const { data, error } = await supabase
       .from("competitions")
-      .select(`name, id, date_started, date_ending`)
+      .select(`name, id, date_started, date_ending, created_by`)
       .order("date_ending", { ascending: false })
+
     if (error) {
       throw new Error(error.message)
     }
-    return data.filter((comp) => new Date(comp.date_ending) < today)
+
+    // Filter for expired competitions only
+    return data.filter((comp) => dayjs(comp.date_ending).isBefore(today))
   }
 
   const {
     data: competitions,
     error,
     isLoading,
-  } = useSWR<CompetitionHistory[]>("/competitionHistory", fetcher)
-  if (error) return <div>Failed to load</div>
-  if (isLoading) return <div>Loading...</div>
+    mutate
+  } = useSWR<CompetitionHistory[]>(user ? "/competitionHistory" : null, fetcher)
 
-  function getRandomColor() {
-    const colors = ["bg-snd-bkg", "bg-trd-bkg", "bg-nav-bkg"]
-    return colors[Math.floor(Math.random() * colors.length)]
+  if (!user) {
+    router.push('/login')
+    return null
   }
 
+  if (error) return (
+    <div className="text-center py-10">
+      <h2 className="text-2xl font-semibold text-red-600 mb-4">
+        Failed to load competition history
+      </h2>
+      <p className="text-gray-500 text-lg">
+        Please try refreshing the page
+      </p>
+    </div>
+  )
+
+  if (isLoading) return (
+    <div className="text-center py-10">
+      <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+        Loading competition history...
+      </h2>
+    </div>
+  )
+
   const handleDeleteCompetition = async (id: string) => {
-    let { error } = await supabase.from("competitions").delete().eq("id", id)
-    if (error) {
-      console.log("error", error)
+    try {
+      const { error } = await supabase
+        .from("competitions")
+        .delete()
+        .eq("id", id)
+        .eq("created_by", user.id)
+
+      if (error) {
+        throw error
+      }
+
+      // Refresh the competitions list
+      mutate()
+    } catch (error) {
+      console.error("Error deleting competition:", error)
+      alert("Failed to delete competition. Please try again.")
     }
   }
 
@@ -78,11 +115,11 @@ export default function CompetitionHistoryPage() {
         </div>
 
         <div className="p-4">
-          {competitions?.map((result, index) => (
+          {competitions?.map((competition) => (
             <div
-              key={index}
+              key={competition.id}
               className={`flex items-center justify-between mb-4 p-2 pr-5 bg-white rounded-lg hover:bg-gray-100 group ${
-                competitions.length > 1 && index !== competitions.length - 1
+                competitions.length > 1 && competition !== competitions[competitions.length - 1]
                   ? "border-b pb-4"
                   : ""
               }`}
@@ -92,23 +129,32 @@ export default function CompetitionHistoryPage() {
                   className={`w-8 h-8 rounded-full flex items-center justify-center ${getRandomColor()}`}
                 >
                   <span className="text-white text-sm font-semibold">
-                    {result.name.charAt(0).toUpperCase()}
+                    {competition.name.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <Link
-                  href={`/competitions/${result.id}`}
-                  className="ml-3 text-black hover:text-snd-bkg font-medium"
-                >
-                  {result.name}
-                </Link>
+                <div className="flex flex-col ml-3">
+                  <Link
+                    href={`/competitions/${competition.id}`}
+                    className="text-black hover:text-snd-bkg font-medium"
+                  >
+                    {competition.name}
+                  </Link>
+                  {user.id === competition.created_by && (
+                    <span className="text-xs text-logo-green font-medium">
+                      Admin
+                    </span>
+                  )}
+                </div>
               </div>
               <span className="text-gray-500 text-sm ml-auto text-right">
-                End Date: {new Date(result.date_ending).toLocaleDateString()}
+                End Date: {dayjs(competition.date_ending).format("MMMM D, YYYY")}
               </span>
               <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center ml-4">
-                <DropdownMenuDemo
-                  deleteCompetition={() => handleDeleteCompetition(result.id)}
-                />
+                {user.id === competition.created_by && (
+                  <DropdownMenuDemo
+                    deleteCompetition={() => handleDeleteCompetition(competition.id)}
+                  />
+                )}
               </div>
             </div>
           ))}
@@ -116,11 +162,10 @@ export default function CompetitionHistoryPage() {
           {competitions?.length === 0 && (
             <div className="text-center py-10">
               <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-                No Active Competitions
+                No Competition History
               </h2>
               <p className="text-gray-500 text-lg mb-6">
-                You haven’t joined or created any competitions yet. Start one
-                today to stay motivated!
+                You haven't completed any competitions yet. Join or create one today to start building your history!
               </p>
             </div>
           )}

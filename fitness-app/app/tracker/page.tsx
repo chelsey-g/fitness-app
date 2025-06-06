@@ -4,6 +4,7 @@ import { useState } from "react"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 import useSWR from "swr"
+import { useAuth } from "@/contexts/AuthContext"
 
 export default function TrackerPage() {
   const [date, setDate] = useState(new Date().toISOString().substr(0, 10))
@@ -13,18 +14,7 @@ export default function TrackerPage() {
 
   const supabase = createClient()
   const router = useRouter()
-
-  // Get the current user
-  const { data: user } = useSWR(
-    "/user",
-    async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      return user
-    },
-    { revalidateOnFocus: false }
-  )
+  const { user } = useAuth()
 
   const handleSubmit = async (event: any) => {
     event.preventDefault()
@@ -32,15 +22,14 @@ export default function TrackerPage() {
     setIsSubmitting(true)
 
     try {
-      const identityId = user?.identities?.[0]?.id
-      if (!identityId) {
+      if (!user?.id) {
         throw new Error("User not authenticated")
       }
       const { data, error } = await supabase.from("weight_tracker").insert([
         {
           date_entry: date,
           weight: Number(weight),
-          created_by: identityId,
+          created_by: user.id,
         },
       ])
 
