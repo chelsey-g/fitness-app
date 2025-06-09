@@ -27,19 +27,24 @@ const dropdown = [
       { href: "/tracker/chart", label: "Tracker" },
     ],
   },
-  {
-    id: "competitions",
-    label: "Competitions",
-    links: [
-      { href: "/competitions/create", label: "Create Competition" },
-      { href: "/competitions", label: "Competitions" },
-      { href: "/competitions/history", label: "Competition History" },
-    ],
-  },
+  // {
+  //   id: "competitions",
+  //   label: "Competitions",
+  //   links: [
+  //     { href: "/competitions/create", label: "Create Competition" },
+  //     { href: "/competitions", label: "Competitions" },
+  //     { href: "/competitions/history", label: "Competition History" },
+  //   ],
+  // },
   {
     id: "goals",
     label: "Goals",
     links: [{ href: "/goals", label: "Goals" }],
+  },
+  {
+    id: "challenges",
+    label: "Challenges",
+    links: [{ href: "/challenges", label: "Challenges" }],
   },
   {
     id: "tools",

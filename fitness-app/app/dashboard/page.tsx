@@ -4,16 +4,17 @@ import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
 import useSWR from "swr"
 import { GiStairsGoal } from "react-icons/gi"
 import { HiOutlineLightBulb } from "react-icons/hi"
-import { FaRunning } from "react-icons/fa"
+// import { FaRunning } from "react-icons/fa"
 import { FaBarsProgress } from "react-icons/fa6"
 import { IoMdAdd } from "react-icons/io"
 import Link from "next/link"
-import CarouselOrientation from "@/components/CompetitionsCarousel"
+// import CarouselOrientation from "@/components/CompetitionsCarousel"
 import ProgressTracker from "@/components/ProgressTracker"
 import { createClient } from "@/utils/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
 import InviteFriend from "@/components/InviteFriend"
+import { FaFire } from "react-icons/fa"
 
 type Competition = {
   id: string
@@ -38,6 +39,17 @@ type Goals = {
 type Weight = {
   created_by: number
   weight: number
+}
+
+type Challenge = {
+  id: string
+  user_id: string
+  tier: "Soft" | "Medium" | "Hard"
+  start_date: string
+  end_date: string
+  rules: string[]
+  is_active: boolean
+  created_at: string
 }
 
 export default function UserDashboard() {
@@ -170,6 +182,40 @@ export default function UserDashboard() {
     { revalidateOnFocus: false }
   )
 
+  const challengeFetcher = async (url: string) => {
+    const { data, error: challengeError } = await supabase
+      .from("challenges")
+      .select("*")
+      .eq("user_id", identityId)
+      .eq("is_active", true)
+      .single()
+
+    if (challengeError && challengeError.code !== 'PGRST116') {
+      throw challengeError
+    }
+
+    return data
+  }
+
+  const { data: activeChallenge } = useSWR<Challenge>(
+    identityId ? "/challenge/" + identityId : null,
+    challengeFetcher,
+    { revalidateOnFocus: false }
+  )
+
+  const calculateChallengeProgress = (challenge: Challenge) => {
+    const startDate = new Date(challenge.start_date)
+    const today = new Date()
+    
+    const daysPassed = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    
+    return {
+      currentDay: Math.max(1, Math.min(daysPassed, 75)),
+      totalDays: 75,
+      percentage: Math.min(100, Math.max(0, (daysPassed / 75) * 100))
+    }
+  }
+
   if (!user || !profiles) {
     return <div>Loading...</div>
   }
@@ -217,7 +263,7 @@ export default function UserDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="col-span-1 sm:col-span-2">
+              {/* <Card className="col-span-1 sm:col-span-2">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
                     Active Competitions
@@ -228,6 +274,64 @@ export default function UserDashboard() {
                   <div className="overflow-x-auto">
                     <CarouselOrientation competitions={competitions || []} />
                   </div>
+                </CardContent>
+              </Card> */}
+                            <Card className="col-span-1 sm:col-span-2">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    75 Day Challenge
+                  </CardTitle>
+                  <FaFire className="h-5 w-5 text-orange-500" />
+                </CardHeader>
+                <CardContent className="px-4 py-6">
+                  {activeChallenge ? (
+                    <div className="space-y-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-orange-600">
+                          Day {calculateChallengeProgress(activeChallenge).currentDay}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          of 75 - {activeChallenge.tier} Challenge
+                        </p>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-orange-500 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${calculateChallengeProgress(activeChallenge).percentage}%` }}
+                        ></div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Link
+                          href={`/challenges/${activeChallenge.id}/daily`}
+                          className="flex-1 text-center px-3 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-green-700 transition"
+                        >
+                          Today's Tasks
+                        </Link>
+                        <Link
+                          href={`/challenges/${activeChallenge.id}`}
+                          className="flex-1 text-center px-3 py-2 border border-orange-500 bg-orange-500 text-white text-sm font-semibold rounded-lg hover:bg-orange-700 transition"
+                        >
+                          View Progress
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center space-y-4">
+                      <div className="text-gray-600">
+                        <FaFire className="mx-auto text-3xl text-orange-500 mb-2" />
+                        <p className="text-sm">Ready for a challenge?</p>
+                        <p className="text-xs text-muted-foreground">
+                          Transform your habits over 75 days
+                        </p>
+                      </div>
+                      <Link
+                        href="/challenges"
+                        className="inline-block px-4 py-2 bg-orange-500 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-orange-600 transition"
+                      >
+                        Start 75 Day Challenge
+                      </Link>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
               <Card className="col-span-1 sm:col-span-2">
