@@ -4,7 +4,7 @@ import useSWR, { Fetcher } from "swr"
 import { useAuth } from "@/contexts/AuthContext"
 import dayjs from "dayjs"
 
-import DeleteCompetition from "@/components/CompetitionsActions"
+import DeleteDialog from "@/components/DeleteDialog"
 import { IoIosAdd } from "react-icons/io"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/client"
@@ -163,8 +163,10 @@ export default function CompetitionsPage() {
               </div>
               <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center ml-4">
                 {user.id === competition.created_by && (
-                  <DeleteCompetition
-                    deleteCompetition={() => handleDeleteCompetition(competition.id)}
+                  <DeleteDialog
+                    title="Delete Competition"
+                    message="Are you sure you want to delete this competition?"
+                    onDelete={() => handleDeleteCompetition(competition.id)}
                   />
                 )}
               </div>

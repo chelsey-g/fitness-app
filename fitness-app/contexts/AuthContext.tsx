@@ -28,16 +28,14 @@ export function AuthProvider({ children, initialUser = null, initialSession = nu
 
   const refreshAuth = async () => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession()
+      const { data: { user }, error } = await supabase.auth.getUser()
       if (error) {
         setSession(null)
         setUser(null)
       } else {
-        setSession(session)
-        setUser(session?.user ?? null)
+        setUser(user)
       }
     } catch (error) {
-      setSession(null)
       setUser(null)
     } finally {
       setIsLoading(false)
@@ -56,7 +54,6 @@ export function AuthProvider({ children, initialUser = null, initialSession = nu
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session)
       setUser(session?.user ?? null)
       setIsLoading(false)
     })
@@ -89,7 +86,6 @@ export function AuthProvider({ children, initialUser = null, initialSession = nu
   const signOut = async () => {
     await supabase.auth.signOut()
     setUser(null)
-    setSession(null)
   }
 
   const value = {

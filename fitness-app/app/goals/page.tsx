@@ -12,13 +12,13 @@ import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
 import useSWR, { Fetcher } from "swr"
 
 import { Button } from "@/components/ui/button"
-import GoalsDropdown from "@/components/GoalsActions"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { createClient } from "@/utils/supabase/client"
 import { handleDate } from "@/app/functions"
 import { useState } from "react"
 import { IoMdAdd } from "react-icons/io"
+import DeleteDialog from "@/components/DeleteDialog"
 
 export default function ProfileGoals() {
   const supabase = createClient()
@@ -275,8 +275,10 @@ export default function ProfileGoals() {
                           })()}
                         </td>
                         <td className="p-2 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                          <GoalsDropdown
-                            deleteGoals={() => handleDeleteGoal(goal.id)}
+                          <DeleteDialog
+                            onDelete={() => handleDeleteGoal(goal.id)}
+                            title="Delete Goal"
+                            message="Are you sure you want to delete this goal?"
                           />
                         </td>
                       </tr>
@@ -306,8 +308,10 @@ export default function ProfileGoals() {
                         Target: {handleDate(goal.goal_date)}
                       </p>
                     </div>
-                    <GoalsDropdown
-                      deleteGoals={() => handleDeleteGoal(goal.id)}
+                    <DeleteDialog
+                      onDelete={() => handleDeleteGoal(goal.id)}
+                      title="Delete Goal"
+                      message="Are you sure you want to delete this goal?"
                     />
                   </div>
                   

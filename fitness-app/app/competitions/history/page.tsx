@@ -4,11 +4,11 @@ import useSWR, { Fetcher } from "swr"
 import { useAuth } from "@/contexts/AuthContext"
 import dayjs from "dayjs"
 
-import DropdownMenuDemo from "@/components/CompetitionsActions"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 import { getRandomColor } from "@/app/functions"
+import DeleteDialog from "@/components/DeleteDialog"
 
 interface CompetitionHistory {
   name: string
@@ -151,8 +151,10 @@ export default function CompetitionHistoryPage() {
               </span>
               <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center ml-4">
                 {user.id === competition.created_by && (
-                  <DropdownMenuDemo
-                    deleteCompetition={() => handleDeleteCompetition(competition.id)}
+                  <DeleteDialog
+                    title="Delete Competition"
+                    message="Are you sure you want to delete this competition?"
+                    onDelete={() => handleDeleteCompetition(competition.id)}
                   />
                 )}
               </div>
