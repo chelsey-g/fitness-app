@@ -258,7 +258,7 @@ export default function DailyChecklistPage({ params }: { params: { id: string } 
               <Progress value={completionPercentage} className="h-2" />
             </CardHeader>
             <CardContent className="space-y-4">
-              {challenge.rules.map((rule, index) => (
+              {challenge.rules.map((rule: string, index: number) => (
                 <div key={index} className="flex items-start gap-3 p-3 border rounded-lg">
                   <Checkbox
                     checked={completedRules.includes(index)}

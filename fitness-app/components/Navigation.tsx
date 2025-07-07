@@ -23,8 +23,8 @@ const dropdown = [
     id: "tracker",
     label: "Tracker",
     links: [
-      { href: "/tracker", label: "Weight Log" },
-      { href: "/tracker/chart", label: "Tracker" },
+      { href: "/weight-log", label: "Weight Log" },
+      { href: "/weight-chart", label: "Weight Chart" },
     ],
   },
   // {
@@ -190,7 +190,7 @@ export default function Navigation() {
                     .filter(({ href }) =>
                       [
                         "/competitions",
-                        "/tracker/chart",
+                        "/weight-chart",
                         "/goals",
                         "/calculator",
                       ].includes(href)

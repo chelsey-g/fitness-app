@@ -455,7 +455,7 @@ export default function UserDashboard() {
                     Your weight tracking activity over the last 30 days
                   </div>
                   <Link
-                    href="/tracker"
+                    href="/weight-log"
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-logo-green text-white font-semibold rounded-lg hover:bg-logo-green/80 transition-all duration-300 text-sm"
                   >
                     <IoMdAdd className="w-4 h-4" />

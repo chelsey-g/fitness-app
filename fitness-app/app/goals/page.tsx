@@ -260,7 +260,7 @@ export default function ProfileGoals() {
                                 <div className="flex items-center gap-2">
                                   <span className="text-gray-500">No weight logged</span>
                                   <a
-                                    href="/tracker"
+                                    href="/weight-log"
                                     className="inline-flex items-center justify-center w-5 h-5 text-xs bg-logo-green text-black rounded-full hover:opacity-90 transition-opacity"
                                     title="Click to log your weight"
                                   >
@@ -336,7 +336,7 @@ export default function ProfileGoals() {
                                 <div className="flex flex-col items-end gap-2">
                                   <span className="text-sm text-gray-400 font-normal">No weight logged</span>
                                   <a
-                                    href="/tracker"
+                                    href="/weight-log"
                                     className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-logo-green text-black rounded-full hover:opacity-90 transition-opacity text-xs font-medium shadow-sm"
                                   >
                                     <IoMdAdd className="w-3 h-3" />

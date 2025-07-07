@@ -220,7 +220,7 @@ export default function WeightChartPage() {
             </table>
           </div>
           <div className="flex justify-center p-6 sm:pb-8">
-            <Link href="/tracker">
+            <Link href="/weight-log">
               <button className="relative flex items-center px-6 py-3 sm:px-4 sm:py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90 transition-opacity">
                 <IoMdAdd className="mr-2 text-lg" />
                 Add Weight

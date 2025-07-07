@@ -36,7 +36,7 @@ export default function TrackerPage() {
       if (error) {
         throw error
       }
-      router.push("/tracker/chart")
+      router.push("/weight-chart")
     } catch (err) {
       console.error("Error inserting data:", err)
       setError("Failed to save weight. Please try again.")
