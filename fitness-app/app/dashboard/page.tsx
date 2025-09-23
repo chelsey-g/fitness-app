@@ -184,10 +184,13 @@ export default function UserDashboard() {
   )
 
   const calculateChallengeProgress = (challenge: Challenge) => {
-    const startDate = new Date(challenge.start_date)
+    const startDate = new Date(challenge.start_date + 'T00:00:00')
     const today = new Date()
     
-    const daysPassed = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    // Set today to start of day for consistent comparison
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    
+    const daysPassed = Math.ceil((todayStart.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
     
     return {
       currentDay: Math.max(1, Math.min(daysPassed, 75)),
@@ -271,6 +274,21 @@ export default function UserDashboard() {
   const weeklyLogs = getWeeklyProgress();
   const weeklySummary = getWeeklySummary();
 
+  // Get the most current active goal (goal with future date, sorted by date)
+  const getCurrentActiveGoal = () => {
+    if (!goals || goals.length === 0) return null;
+    
+    const currentDate = new Date();
+    const activeGoals = goals.filter(goal => new Date(goal.goal_date) >= currentDate);
+    
+    if (activeGoals.length === 0) return null;
+    
+    // Sort by goal_date ascending (earliest first) to get the most current/urgent goal
+    return activeGoals.sort((a, b) => new Date(a.goal_date).getTime() - new Date(b.goal_date).getTime())[0];
+  };
+
+  const currentActiveGoal = getCurrentActiveGoal();
+
   return (
     <>
       <div className="flex-1 space-y-6 py-8 px-4 sm:px-6 md:px-8 min-h-screen">
@@ -313,7 +331,7 @@ export default function UserDashboard() {
           <div className="rounded-lg shadow-sm border bg-white p-4 text-center">
             <GiStairsGoal className="h-8 w-8 text-logo-green mx-auto mb-2" />
             <div className="text-2xl font-bold text-gray-900">
-              {goals?.length || 0}
+              {goals ? goals.filter(goal => new Date(goal.goal_date) >= new Date()).length : 0}
             </div>
             <p className="text-xs text-gray-600">Active Goals</p>
           </div>
@@ -340,26 +358,26 @@ export default function UserDashboard() {
                   </div>
                 </div>
                 <div className="space-y-4">
-                  {goals && goals.length > 0 ? (
+                  {currentActiveGoal ? (
                     <>
                       <div className="text-center p-4 bg-mint-cream rounded-xl">
                         <div className="text-3xl font-bold text-logo-green mb-1">
                           {calculateWeightDifference(
-                            goals[0]?.goal_weight || 0,
+                            currentActiveGoal.goal_weight || 0,
                             weights?.[0]?.weight || 0
                           )} lbs
                         </div>
                         <p className="text-sm text-gray-600">to reach your goal</p>
                       </div>
                       <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-600">Target: {goals[0]?.goal_weight} lbs</span>
-                        <span className="text-gray-600">{calculateDaysLeft(goals[0]?.goal_date)} days left</span>
+                        <span className="text-gray-600">Target: {currentActiveGoal.goal_weight} lbs</span>
+                        <span className="text-gray-600">{calculateDaysLeft(currentActiveGoal.goal_date)} days left</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
                           className="bg-logo-green h-2 rounded-full transition-all duration-500"
                           style={{ 
-                            width: `${Math.min(100, Math.max(0, ((weights?.[0]?.weight || 0) / (goals[0]?.goal_weight || 1)) * 100))}%` 
+                            width: `${Math.min(100, Math.max(0, ((weights?.[0]?.weight || 0) / (currentActiveGoal.goal_weight || 1)) * 100))}%` 
                           }}
                         ></div>
                       </div>
@@ -374,7 +392,7 @@ export default function UserDashboard() {
                     href="/goals"
                     className="w-full block text-center px-4 py-3 bg-logo-green text-white text-sm font-semibold rounded-lg hover:bg-logo-green/80 transition-all duration-300"
                   >
-                    {goals && goals.length > 0 ? "Manage Goals" : "Set Your First Goal"}
+                    {currentActiveGoal ? "Manage Goals" : "Set Your First Goal"}
                   </Link>
                 </div>
               </div>

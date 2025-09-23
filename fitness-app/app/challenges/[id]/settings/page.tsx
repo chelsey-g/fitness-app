@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { FaArrowLeft, FaEdit, FaStop, FaPlay } from "react-icons/fa"
+import { FaArrowLeft, FaEdit, FaStop, FaPlay, FaTrash } from "react-icons/fa"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import useSWR from "swr"
@@ -14,6 +14,7 @@ import useSWR from "swr"
 interface Challenge {
   id: string
   user_id: string
+  name: string
   tier: "Soft" | "Medium" | "Hard"
   start_date: string
   end_date: string
@@ -34,7 +35,9 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
   const supabase = createClient()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
+  const [isEditingName, setIsEditingName] = useState(false)
   const [editedRules, setEditedRules] = useState<string[]>([])
+  const [editedName, setEditedName] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const challengeFetcher = async () => {
@@ -59,11 +62,65 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
   useEffect(() => {
     if (challenge) {
       setEditedRules([...challenge.rules])
+      setEditedName(challenge.name)
     }
   }, [challenge])
 
+  const handleSaveName = async () => {
+    if (!challenge || !user) return
+
+    if (!editedName.trim()) {
+      alert("Please enter a challenge name.")
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      const { error } = await supabase
+        .from("challenges")
+        .update({ name: editedName.trim() })
+        .eq("id", challenge.id)
+
+      if (error) throw error
+
+      mutate()
+      setIsEditingName(false)
+    } catch (error) {
+      console.error("Error updating challenge name:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteRule = (index: number) => {
+    if (editedRules.length <= 1) {
+      alert("You must have at least one rule. Add a new rule before deleting this one.")
+      return
+    }
+
+    if (!confirm("Are you sure you want to delete this rule?")) {
+      return
+    }
+
+    const newRules = editedRules.filter((_, i) => i !== index)
+    setEditedRules(newRules)
+  }
+
+  const handleAddRule = () => {
+    setEditedRules([...editedRules, ""])
+  }
+
   const handleSaveRules = async () => {
     if (!challenge || !user) return
+
+    // Filter out empty rules before saving
+    const filteredRules = editedRules.filter(rule => rule && rule.trim().length > 0)
+    
+    if (filteredRules.length === 0) {
+      alert("Please add at least one rule before saving.")
+      return
+    }
 
     setIsSubmitting(true)
 
@@ -71,8 +128,8 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
       const { error } = await supabase
         .from("challenges")
         .update({ 
-          rules: editedRules,
-          custom_rules: editedRules
+          rules: filteredRules,
+          custom_rules: filteredRules
         })
         .eq("id", challenge.id)
 
@@ -194,7 +251,7 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
             Challenge Settings
           </h1>
           <p className="text-muted-foreground mt-1">
-            {challenge.tier} Challenge - Manage your challenge preferences
+            {challenge.name} - Manage your challenge preferences
           </p>
         </div>
       </div>
@@ -203,29 +260,81 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
         {/* Challenge Info */}
         <Card>
           <CardHeader>
-            <CardTitle>Challenge Information</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Challenge Information</CardTitle>
+              {!isEditingName && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setIsEditingName(true)}
+                  className="bg-logo-green dark:bg-snd-bkg text-black dark:text-white hover:opacity-90"
+                >
+                  <FaEdit className="mr-2" />
+                  Edit Name
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Challenge Type:</span>
-                <Badge className={tierInfo.color}>{challenge.tier}</Badge>
+            {isEditingName ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-foreground">Challenge Name:</label>
+                  <input
+                    type="text"
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:border-logo-green focus:ring focus:ring-logo-green dark:focus:ring-logo-green bg-white dark:bg-white text-gray-900 dark:text-bkack  mt-2"
+                    placeholder="Enter challenge name"
+                  />
+                </div>
+                <div className="flex gap-4">
+                  <Button 
+                    onClick={handleSaveName}
+                    disabled={isSubmitting}
+                    className="bg-logo-green dark:bg-snd-bkg text-black dark:text-white hover:opacity-90"
+                  >
+                    {isSubmitting ? "Saving..." : "Save Name"}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditingName(false)
+                      setEditedName(challenge.name)
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Status:</span>
-                <Badge className={challenge.is_active ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"}>
-                  {challenge.is_active ? "Active" : "Inactive"}
-                </Badge>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Challenge Name:</span>
+                  <span className="text-sm font-medium text-foreground">{challenge.name}</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Challenge Type:</span>
+                    <Badge className={tierInfo.color}>{challenge.tier}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Status:</span>
+                    <Badge className={challenge.is_active ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"}>
+                      {challenge.is_active ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Start Date:</span>
+                    <span className="text-sm font-medium text-foreground">{new Date(challenge.start_date + 'T00:00:00').toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">End Date:</span>
+                    <span className="text-sm font-medium text-foreground">{new Date(challenge.end_date + 'T00:00:00').toLocaleDateString()}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Start Date:</span>
-                <span className="text-sm font-medium text-foreground">{new Date(challenge.start_date).toLocaleDateString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">End Date:</span>
-                <span className="text-sm font-medium text-foreground">{new Date(challenge.end_date).toLocaleDateString()}</span>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -250,12 +359,34 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
           <CardContent>
             {isEditing ? (
               <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Customize your challenge rules to fit your goals:
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Customize your challenge rules to fit your goals:
+                  </p>
+                  <Button 
+                    onClick={handleAddRule}
+                    variant="outline"
+                    size="sm"
+                    className="bg-logo-green dark:bg-snd-bkg text-black dark:text-white hover:opacity-90"
+                  >
+                    + Add Rule
+                  </Button>
+                </div>
                 {editedRules.map((rule, index) => (
                   <div key={index} className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">Rule {index + 1}:</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-foreground">Rule {index + 1}:</label>
+                      {editedRules.length > 1 && (
+                        <Button
+                          onClick={() => handleDeleteRule(index)}
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        >
+                          <FaTrash className="w-3 h-3" />
+                        </Button>
+                      )}
+                    </div>
                     <input
                       type="text"
                       value={rule}
@@ -264,7 +395,8 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
                         newRules[index] = e.target.value
                         setEditedRules(newRules)
                       }}
-                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:border-orange-500 focus:ring focus:ring-orange-200 dark:focus:ring-orange-800 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:border-logo-green focus:ring focus:ring-logo-green dark:focus:ring-logo-green bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      placeholder="Enter rule description"
                     />
                   </div>
                 ))}
@@ -272,7 +404,7 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
                   <Button 
                     onClick={handleSaveRules}
                     disabled={isSubmitting}
-                    className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
+                    className="bg-logo-green dark:bg-snd-bkg text-black dark:text-white hover:opacity-90"
                   >
                     {isSubmitting ? "Saving..." : "Save Changes"}
                   </Button>
@@ -289,12 +421,14 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
               </div>
             ) : (
               <ul className="space-y-3">
-                {challenge.rules.map((rule: string, index: number) => (
-                  <li key={index} className="flex items-start gap-3 p-3 bg-muted rounded-lg">
-                    <span className="text-sm font-medium text-muted-foreground mt-1">{index + 1}.</span>
-                    <span className="text-sm text-foreground">{rule}</span>
-                  </li>
-                ))}
+                {challenge.rules
+                  .filter((rule: string) => rule && rule.trim().length > 0)
+                  .map((rule: string, index: number) => (
+                    <li key={index} className="flex items-start gap-3 p-3 bg-muted rounded-lg">
+                      <span className="text-sm font-medium text-muted-foreground mt-1">{index + 1}.</span>
+                      <span className="text-sm text-foreground">{rule}</span>
+                    </li>
+                  ))}
               </ul>
             )}
           </CardContent>

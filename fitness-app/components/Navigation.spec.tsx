@@ -8,6 +8,11 @@ import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 import userEvent from "@testing-library/user-event"
 
+// Mock DarkModeToggle component to avoid window.matchMedia issues
+vi.mock("@/components/DarkModeToggle", () => ({
+  default: () => <div data-testid="dark-mode-toggle">Dark Mode Toggle</div>,
+}))
+
 // Mock Supabase client
 vi.mock("@/utils/supabase/client", () => ({
   createClient: vi.fn(() => ({
@@ -44,7 +49,7 @@ describe("Navigation Component", () => {
 
   it("renders correctly when user is logged in", async () => {
     // Adjust mock to simulate user being logged in
-    const mockCreateClient = createClient()
+    const mockCreateClient = createClient() as any
     mockCreateClient.auth.getSession.mockResolvedValueOnce({
       data: { session: { user: { id: "123", email: "test@example.com" } } },
     })

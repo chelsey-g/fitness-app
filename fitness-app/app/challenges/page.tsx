@@ -15,6 +15,7 @@ import useSWR from "swr"
 interface Challenge {
   id: string
   user_id: string
+  name: string
   tier: "Soft" | "Medium" | "Hard"
   start_date: string
   end_date: string
@@ -101,12 +102,15 @@ export default function ChallengesPage() {
   const activeChallenge = challenges?.find((c: Challenge) => c.is_active)
 
   const calculateProgress = (challenge: Challenge) => {
-    const startDate = new Date(challenge.start_date)
-    const endDate = new Date(challenge.end_date)
+    const startDate = new Date(challenge.start_date + 'T00:00:00')
+    const endDate = new Date(challenge.end_date + 'T00:00:00')
     const today = new Date()
     
-    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
-    const daysPassed = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+    // Set today to start of day for consistent comparison
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    
+    const totalDays = 75
+    const daysPassed = Math.ceil((todayStart.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
     
     return {
       currentDay: Math.max(1, Math.min(daysPassed, totalDays)),
@@ -115,7 +119,7 @@ export default function ChallengesPage() {
     }
   }
 
-  const handleCreateChallenge = async (tier: keyof typeof CHALLENGE_TIERS, startDate: string, customRules?: string[]) => {
+  const handleCreateChallenge = async (tier: keyof typeof CHALLENGE_TIERS, startDate: string, customRules?: string[], challengeName?: string) => {
     if (!user) return
 
     const start = new Date(startDate)
@@ -123,11 +127,13 @@ export default function ChallengesPage() {
     end.setDate(start.getDate() + 74)
 
     const rules = customRules || CHALLENGE_TIERS[tier].rules
+    const name = challengeName || `${tier} Challenge`
 
     const { data, error } = await supabase
       .from("challenges")
       .insert({
         user_id: user.id,
+        name,
         tier,
         start_date: start.toISOString().split('T')[0],
         end_date: end.toISOString().split('T')[0],
@@ -171,18 +177,18 @@ export default function ChallengesPage() {
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
         <div className="text-center sm:text-left">
-          <h1 className="text-2xl sm:text-3xl font-bold flex items-center justify-center sm:justify-start gap-3">
-            <FaFire className="text-orange-500" />
+          <h1 className="text-2xl sm:text-3xl font-bold flex items-center justify-center sm:justify-start gap-3 text-nav-bkg dark:text-white">
+            <FaFire className="text-logo-green" />
             75 Day Challenge
           </h1>
-          <p className="text-gray-600 mt-2 text-sm sm:text-base">
+          <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm sm:text-base">
             Transform your habits over 75 consecutive days
           </p>
         </div>
         <div className="flex justify-center sm:justify-end">
           <Button 
             onClick={() => setShowCreateForm(true)}
-            className="bg-orange-500 hover:bg-orange-600 w-full sm:w-auto"
+            className="bg-logo-green dark:bg-snd-bkg text-black dark:text-white hover:opacity-90 w-full sm:w-auto"
           >
             <FaPlus className="mr-2" />
             Create New Challenge
@@ -236,17 +242,19 @@ export default function ChallengesPage() {
                     <div>
                       <h4 className="font-semibold mb-2 text-gray-900">Today's Rules:</h4>
                       <ul className="space-y-1">
-                        {activeChallenge.rules.map((rule: string, index: number) => (
-                          <li key={index} className="text-sm flex items-center gap-2 text-gray-700">
-                            <FaCheckCircle className="text-green-500 text-xs" />
-                            {rule}
-                          </li>
-                        ))}
+                        {activeChallenge.rules
+                          .filter((rule: string) => rule && rule.trim().length > 0)
+                          .map((rule: string, index: number) => (
+                            <li key={index} className="text-sm flex items-center gap-2 text-gray-700">
+                              <FaCheckCircle className="text-green-500 text-xs" />
+                              {rule}
+                            </li>
+                          ))}
                       </ul>
                     </div>
                     <div className="flex flex-col gap-2">
                       <Link href={`/challenges/${activeChallenge.id}/daily`}>
-                        <Button className="w-full bg-green-600 hover:bg-green-700">
+                        <Button className="w-full bg-logo-green dark:bg-snd-bkg text-black dark:text-white hover:opacity-90">
                           <FaCheckCircle className="mr-2" />
                           Complete Today's Tasks
                         </Button>
@@ -328,7 +336,7 @@ export default function ChallengesPage() {
           >
             <CardTitle className="text-black dark:text-white flex items-center justify-between">
               <span>Challenge History</span>
-              <div className={`w-12 h-6 rounded-full transition-colors duration-200 ${showHistory ? 'bg-orange-500' : 'bg-gray-400'} relative`}>
+              <div className={`w-12 h-6 rounded-full transition-colors duration-200 ${showHistory ? 'bg-logo-green' : 'bg-gray-400'} relative`}>
                 <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform duration-200 ${showHistory ? 'translate-x-6' : 'translate-x-0.5'}`}></div>
               </div>
             </CardTitle>
@@ -345,11 +353,11 @@ export default function ChallengesPage() {
                         <span className="text-xl">{tierInfo.icon}</span>
                         <div className="flex-1">
                           <div className="font-semibold text-black dark:text-white flex flex-col sm:flex-row sm:items-center gap-2">
-                            <span>{challenge.tier} Challenge</span>
+                            <span>{challenge.name}</span>
                             <Tag color={tierInfo.badgeVariant} style={{ margin: 0, marginTop: '2px', display: 'inline-flex', alignItems: 'center', alignSelf: 'flex-start' }}>{challenge.tier}</Tag>
                           </div>
                           <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                            {new Date(challenge.start_date).toLocaleDateString()} - {new Date(challenge.end_date).toLocaleDateString()}
+                            {new Date(challenge.start_date + 'T00:00:00').toLocaleDateString()} - {new Date(challenge.end_date + 'T00:00:00').toLocaleDateString()}
                           </div>
                         </div>
                       </div>
@@ -376,11 +384,12 @@ function CreateChallengeForm({
   onSubmit, 
   onCancel 
 }: { 
-  onSubmit: (tier: keyof typeof CHALLENGE_TIERS, startDate: string, customRules?: string[]) => void
+  onSubmit: (tier: keyof typeof CHALLENGE_TIERS, startDate: string, customRules?: string[], challengeName?: string) => void
   onCancel: () => void 
 }) {
   const [selectedTier, setSelectedTier] = useState<keyof typeof CHALLENGE_TIERS>("Medium")
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0])
+  const [challengeName, setChallengeName] = useState("")
   const [customRules, setCustomRules] = useState<string[]>([])
   const [useCustomRules, setUseCustomRules] = useState(false)
   const [expandedTiers, setExpandedTiers] = useState<Set<string>>(new Set())
@@ -397,7 +406,7 @@ function CreateChallengeForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit(selectedTier, startDate, useCustomRules ? customRules : undefined)
+    onSubmit(selectedTier, startDate, useCustomRules ? customRules : undefined, challengeName)
   }
 
   return (
@@ -445,6 +454,18 @@ function CreateChallengeForm({
             )
           })}
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2">Challenge Name</label>
+        <input
+          type="text"
+          value={challengeName}
+          onChange={(e) => setChallengeName(e.target.value)}
+          placeholder={`${selectedTier} Challenge`}
+          className="w-full p-3 border border-gray-300 rounded-md focus:border-orange-500 focus:ring focus:ring-orange-200 text-black bg-white"
+        />
+        <p className="text-sm text-gray-500 mt-1">Leave empty to use default name</p>
       </div>
 
       <div>
@@ -504,7 +525,7 @@ function CreateChallengeForm({
       </div>
 
       <div className="flex gap-4">
-        <Button type="submit" className="flex-1 bg-orange-500 hover:bg-orange-600">
+        <Button type="submit" className="flex-1 bg-logo-green dark:bg-snd-bkg text-black dark:text-white hover:opacity-90">
           Start Challenge
         </Button>
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">

@@ -41,16 +41,14 @@ describe("ProgressTracker", () => {
 
     // Wait for the component to finish fetching data
     await waitFor(() => {
-      // Check if the Tracker component renders with some days being tracked
-      const tracker = screen.getByRole("tracker")
+      // Check if the Tracker component renders with the correct role
+      const tracker = screen.getByRole("region", { name: "Weight tracking calendar" })
       expect(tracker).toBeInTheDocument()
     })
 
-    // Check for the text that describes the purpose of the component
+    // Check that the tracker visualization is present
     expect(
-      screen.getByText(
-        "In the last 30 days, you tracked your weight on the following days:"
-      )
+      screen.getByLabelText("Weight tracking visualization")
     ).toBeInTheDocument()
   })
 })

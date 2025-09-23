@@ -10,6 +10,7 @@ import {
   FaUtensils,
   FaSignOutAlt,
   FaUserCog,
+  FaTint,
 } from "react-icons/fa"
 import { FaWeightScale } from "react-icons/fa6"
 import Link from "next/link"
@@ -52,6 +53,7 @@ const dropdown = [
     links: [
       { href: "/calculator", label: "BMI Calculator" },
       { href: "/recipes", label: "Recipe Search" },
+      { href: "/water-chart", label: "Water Tracker" },
     ],
   },
 ]
@@ -62,6 +64,7 @@ const icons = {
   competitions: FaTrophy,
   calculator: FaWeightScale,
   recipes: FaUtensils,
+  "water-chart": FaTint,
 }
 
 export default function Navigation() {

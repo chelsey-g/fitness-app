@@ -7,17 +7,24 @@ import { useRouter } from "next/navigation"
 
 import DropdownMenu from "@/components/DateRangePicker"
 import { DeleteWeight } from "@/components/TrackerActions"
-import { FaTrashAlt } from "react-icons/fa"
+import { FaTrashAlt, FaSortUp, FaSortDown } from "react-icons/fa"
 import { IoMdAdd } from "react-icons/io"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/client"
 import dayjs from "dayjs"
+import useSWR from "swr"
 
 interface WeightEntry {
   id: number
   date_entry: string
   weight: number
   created_by: string
+}
+
+interface Goal {
+  id: number
+  goal_weight: number
+  goal_date: string
 }
 
 export default function WeightChartPage() {
@@ -30,6 +37,51 @@ export default function WeightChartPage() {
   const [startDate, setStartDate] = useState<string | null>(null)
   const [endDate, setEndDate] = useState<string | null>(null)
   const [showAlert, setShowAlert] = useState(false)
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [showProgressInfo, setShowProgressInfo] = useState(true)
+
+  // Fetcher for goals
+  const goalsFetcher = async () => {
+    if (!user) return null
+    const { data, error } = await supabase
+      .from("goals")
+      .select("*")
+      .eq("created_by", user.id)
+      .order("goal_date", { ascending: false })
+      .limit(1)
+    
+    if (error) throw error
+    return data?.[0] || null
+  }
+
+  // Fetcher for monthly data
+  const monthlyDataFetcher = async () => {
+    if (!user) return null
+    
+    const startOfMonth = dayjs().startOf('month').format('YYYY-MM-DD')
+    const endOfMonth = dayjs().endOf('month').format('YYYY-MM-DD')
+    
+    const { data, error } = await supabase
+      .from("weight_tracker")
+      .select("*")
+      .eq("created_by", user.id)
+      .gte("date_entry", startOfMonth)
+      .lte("date_entry", endOfMonth)
+      .order("date_entry", { ascending: true })
+    
+    if (error) throw error
+    return data || []
+  }
+
+  const { data: currentGoal } = useSWR(
+    user ? 'current-goal' : null,
+    goalsFetcher
+  )
+
+  const { data: monthlyData } = useSWR(
+    user ? 'monthly-weight-data' : null,
+    monthlyDataFetcher
+  )
 
   useEffect(() => {
     if (!user) {
@@ -83,7 +135,6 @@ export default function WeightChartPage() {
           .eq("created_by", user.id)
           .gte("date_entry", startDate)
           .lte("date_entry", endDate)
-          .order("date_entry", { ascending: false })
 
         if (error) {
           throw error
@@ -110,6 +161,63 @@ export default function WeightChartPage() {
 
   const handleFormattedDate = (date: string) => {
     return dayjs(date).format("MMMM DD, YYYY")
+  }
+
+  const getMonthlyStats = () => {
+    if (!monthlyData || monthlyData.length === 0) {
+      return {
+        daysTracked: 0,
+        weightChange: 0,
+        firstWeight: null,
+        latestWeight: null
+      }
+    }
+
+    const daysTracked = monthlyData.length
+    const firstWeight = monthlyData[0].weight
+    const latestWeight = monthlyData[monthlyData.length - 1].weight
+    const weightChange = latestWeight - firstWeight
+
+    return {
+      daysTracked,
+      weightChange,
+      firstWeight,
+      latestWeight
+    }
+  }
+
+  const getGoalInfo = () => {
+    if (!currentGoal || !monthlyData || monthlyData.length === 0) {
+      return null
+    }
+
+    const latestWeight = monthlyData[monthlyData.length - 1].weight
+    const weightToGoal = latestWeight - currentGoal.goal_weight
+    const goalDate = dayjs(currentGoal.goal_date).format('MMMM DD, YYYY')
+
+    return {
+      weightToGoal,
+      goalDate,
+      goalWeight: currentGoal.goal_weight
+    }
+  }
+
+  const handleSort = () => {
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+  }
+
+  const getSortedData = () => {
+    if (!weightData) return null
+    
+    const sorted = [...weightData].sort((a, b) => {
+      const dateA = new Date(a.date_entry).getTime()
+      const dateB = new Date(b.date_entry).getTime()
+      const comparison = dateA - dateB
+      
+      return sortOrder === 'asc' ? comparison : -comparison
+    })
+    
+    return sorted
   }
 
   const handleDeleteWeight = async (id: number) => {
@@ -170,6 +278,77 @@ export default function WeightChartPage() {
             </p>
           </div>
 
+          {/* Monthly Progress Summary */}
+          <div className="px-6 pb-4">
+            <div className="bg-orange-50 rounded-lg p-4 mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                <h3 className="text-lg font-semibold text-gray-800">This Month's Progress</h3>
+                <div className="flex items-center gap-2 flex-shrink-0 self-end sm:self-auto">
+                  <span className="text-sm text-gray-600 whitespace-nowrap">Show Progress</span>
+                  <div 
+                    className={`w-12 h-6 rounded-full transition-colors duration-200 cursor-pointer relative ${
+                      showProgressInfo ? 'bg-logo-green' : 'bg-gray-400'
+                    }`}
+                    onClick={() => setShowProgressInfo(!showProgressInfo)}
+                  >
+                    <div 
+                      className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform duration-200 ${
+                        showProgressInfo ? 'translate-x-6' : 'translate-x-0.5'
+                      }`}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+              {showProgressInfo && (() => {
+                const monthlyStats = getMonthlyStats()
+                const goalInfo = getGoalInfo()
+                
+                return (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600">📅</span>
+                      <span className="text-gray-700">
+                        You've tracked <span className="font-semibold text-logo-green">{monthlyStats.daysTracked}</span> days this month
+                      </span>
+                    </div>
+                    
+                    {monthlyStats.daysTracked > 0 && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-600">⚖️</span>
+                        <span className="text-gray-700">
+                          Since the start of the month, you're 
+                          <span className={`font-semibold ${monthlyStats.weightChange < 0 ? 'text-green-600' : monthlyStats.weightChange > 0 ? 'text-red-600' : 'text-gray-600'}`}>
+                            {monthlyStats.weightChange < 0 ? ' down ' : monthlyStats.weightChange > 0 ? ' up ' : ' the same '}
+                            {Math.abs(monthlyStats.weightChange).toFixed(1)} lbs
+                          </span>
+                        </span>
+                      </div>
+                    )}
+                    
+                    {goalInfo && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-600">🎯</span>
+                        <span className="text-gray-700">
+                          You're only 
+                          <span className={`font-semibold ${goalInfo.weightToGoal > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                            {Math.abs(goalInfo.weightToGoal).toFixed(1)} lbs
+                          </span>
+                          {goalInfo.weightToGoal > 0 ? ' away from' : ' under'} your goal ending on {goalInfo.goalDate}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {monthlyStats.daysTracked === 0 && (
+                      <div className="text-gray-500 text-sm">
+                        Start tracking your weight to see your monthly progress!
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
+            </div>
+          </div>
+
           <div className="flex justify-center mb-4">
             <DropdownMenu
               initialStartDate={startDate || undefined}
@@ -184,14 +363,24 @@ export default function WeightChartPage() {
             <table className="min-w-full table-auto mb-6">
               <thead>
                 <tr className="bg-white text-gray-600 uppercase text-sm leading-normal">
-                  <th className="py-3 px-6 text-left">Date</th>
+                  <th className="py-3 px-6 text-left">
+                    <button
+                      onClick={handleSort}
+                      className="flex items-center justify-start gap-2 hover:text-logo-green transition-colors"
+                    >
+                      <span className="leading-none">Date</span>
+                      <span className="flex items-center justify-center leading-none">
+                        {sortOrder === 'asc' ? <FaSortUp className="text-xs" /> : <FaSortDown className="text-xs" />}
+                      </span>
+                    </button>
+                  </th>
                   <th className="py-3 px-6 text-left">Weight</th>
                   <th className="py-3 px-6 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="text-gray-600 text-sm font-light">
-                {weightData && weightData.length > 0 ? (
-                  weightData.map((data) => (
+                {getSortedData() && getSortedData()!.length > 0 ? (
+                  getSortedData()!.map((data) => (
                     <tr key={data.id} className="hover:bg-gray-100 group">
                       <td className="py-3 px-6 text-left">
                         {handleFormattedDate(data.date_entry)}

@@ -64,12 +64,12 @@ export default function InviteFriend() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto rounded-lg shadow-sm border p-8">
+    <div className="max-w-2xl mx-auto rounded-lg shadow-sm border p-8 bg-white dark:bg-white">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-semibold mb-2">
+        <h2 className="text-2xl font-semibold mb-2 text-logo-green dark:text-logo-green">
           Invite a friend & start competing today
         </h2>
-        <p className="text-gray-600">
+        <p className="text-black dark:text-black">
           Enter your friend's email address and we'll send them a link to sign
           up.
         </p>

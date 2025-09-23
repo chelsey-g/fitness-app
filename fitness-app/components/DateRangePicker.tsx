@@ -41,7 +41,7 @@ export default function MonthDropdown({
     <div className="relative w-60">
       <div className="mx-auto max-w-md space-y-3">
         <DateRangePicker
-          className="mx-auto max-w-md"
+          className="mx-auto max-w-md [&>div]:!bg-logo-green [&>div]:!bg-opacity-20 [&>div]:!border-logo-green [&>div]:!border-opacity-30"
           onValueChange={handleChange}
           value={dateRange}
           placeholder="Filter Date"

@@ -15,6 +15,7 @@ import useSWR from "swr"
 interface Challenge {
   id: string
   user_id: string
+  name: string
   tier: "Soft" | "Medium" | "Hard"
   start_date: string
   end_date: string
@@ -82,12 +83,15 @@ export default function ChallengeDetailPage({ params }: { params: { id: string }
   )
 
   const calculateProgress = (challenge: Challenge) => {
-    const startDate = new Date(challenge.start_date)
-    const endDate = new Date(challenge.end_date)
+    const startDate = new Date(challenge.start_date + 'T00:00:00')
+    const endDate = new Date(challenge.end_date + 'T00:00:00')
     const today = new Date()
     
-    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
-    const daysPassed = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    // Set today to start of day for consistent comparison
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    
+    const totalDays = 75
+    const daysPassed = Math.ceil((todayStart.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
     
     return {
       currentDay: Math.max(1, Math.min(daysPassed, totalDays)),
@@ -113,7 +117,7 @@ export default function ChallengeDetailPage({ params }: { params: { id: string }
         date: dateString,
         isComplete: dayProgress?.is_complete || false,
         completedRules: dayProgress?.completed_rules?.length || 0,
-        totalRules: challenge.rules.length,
+        totalRules: challenge.rules.filter((rule: string) => rule && rule.trim().length > 0).length,
         hasNotes: !!dayProgress?.notes,
         hasPhoto: !!dayProgress?.progress_photo_url,
         isPast: currentDate < new Date(),
@@ -176,16 +180,16 @@ export default function ChallengeDetailPage({ params }: { params: { id: string }
         <div className="text-center">
           <h1 className="text-2xl font-bold flex items-center justify-center gap-2">
             <span className="text-xl">{tierInfo.icon}</span>
-            {challenge.tier} Challenge
+            {challenge.name}
           </h1>
           <p className="text-gray-600 mt-1 text-sm">
-            {new Date(challenge.start_date).toLocaleDateString()} - {new Date(challenge.end_date).toLocaleDateString()}
+            {new Date(challenge.start_date + 'T00:00:00').toLocaleDateString()} - {new Date(challenge.end_date + 'T00:00:00').toLocaleDateString()}
           </p>
         </div>
         {challenge.is_active && (
           <div className="flex justify-center">
             <Link href={`/challenges/${challenge.id}/daily`}>
-              <Button className="bg-green-600 hover:bg-green-700 w-full max-w-xs">
+              <Button className="bg-logo-green dark:bg-snd-bkg text-black dark:text-white hover:opacity-90 w-full max-w-xs">
                 <FaCheckCircle className="mr-2" />
                 Today's Tasks
               </Button>
@@ -205,16 +209,16 @@ export default function ChallengeDetailPage({ params }: { params: { id: string }
         <div className="flex-1">
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <span className="text-2xl">{tierInfo.icon}</span>
-            {challenge.tier} Challenge
+            {challenge.name}
           </h1>
           <p className="text-gray-600 mt-1">
-            {new Date(challenge.start_date).toLocaleDateString()} - {new Date(challenge.end_date).toLocaleDateString()}
+            {new Date(challenge.start_date + 'T00:00:00').toLocaleDateString()} - {new Date(challenge.end_date + 'T00:00:00').toLocaleDateString()}
           </p>
         </div>
         <div className="flex gap-2">
           {challenge.is_active && (
             <Link href={`/challenges/${challenge.id}/daily`}>
-              <Button className="bg-green-600 hover:bg-green-700">
+              <Button className="bg-logo-green dark:bg-snd-bkg text-black dark:text-white hover:opacity-90">
                 <FaCheckCircle className="mr-2" />
                 Today's Tasks
               </Button>
@@ -280,35 +284,37 @@ export default function ChallengeDetailPage({ params }: { params: { id: string }
           <div className="space-y-4">
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-orange-600">Overall Progress</h3>
-                <div className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-lg font-bold">
+                <h3 className="text-xl font-bold text-logo-green">Overall Progress</h3>
+                <div className="bg-logo-green bg-opacity-20 text-logo-green px-3 py-1 rounded-full text-lg font-bold">
                   {Math.round(progress.percentage)}%
                 </div>
               </div>
-              <Progress value={progress.percentage} className="h-4" />
+              <Progress value={progress.percentage} className="h-4 bg-logo-green" />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h4 className="font-semibold mb-3">Challenge Rules:</h4>
                 <ul className="space-y-2">
-                  {challenge.rules.map((rule: string, index: number) => {
-                    // Get today's progress to check if this rule is completed
-                    const today = new Date().toISOString().split('T')[0]
-                    const todayProgress = progressHistory?.find((p: DailyProgress) => p.date === today)
-                    const isRuleCompleted = todayProgress?.completed_rules?.includes(index) || false
-                    
-                    return (
-                      <li key={index} className="text-sm flex items-center gap-2">
-                        {isRuleCompleted ? (
-                          <FaCheckCircle className="text-green-500 text-xs" />
-                        ) : (
-                          <div className="w-3 h-3 rounded-full border-2 border-gray-400 text-xs"></div>
-                        )}
-                        {rule}
-                      </li>
-                    )
-                  })}
+                  {challenge.rules
+                    .filter((rule: string) => rule && rule.trim().length > 0)
+                    .map((rule: string, index: number) => {
+                      // Get today's progress to check if this rule is completed
+                      const today = new Date().toISOString().split('T')[0]
+                      const todayProgress = progressHistory?.find((p: DailyProgress) => p.date === today)
+                      const isRuleCompleted = todayProgress?.completed_rules?.includes(index) || false
+                      
+                      return (
+                        <li key={index} className="text-sm flex items-center gap-2">
+                          {isRuleCompleted ? (
+                            <FaCheckCircle className="text-green-500 text-xs" />
+                          ) : (
+                            <div className="w-3 h-3 rounded-full border-2 border-gray-400 text-xs"></div>
+                          )}
+                          {rule}
+                        </li>
+                      )
+                    })}
                 </ul>
               </div>
               
@@ -327,11 +333,11 @@ export default function ChallengeDetailPage({ params }: { params: { id: string }
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Start Date:</span>
-                    <span className="text-sm font-medium">{new Date(challenge.start_date).toLocaleDateString()}</span>
+                    <span className="text-sm font-medium">{new Date(challenge.start_date + 'T00:00:00').toLocaleDateString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">End Date:</span>
-                    <span className="text-sm font-medium">{new Date(challenge.end_date).toLocaleDateString()}</span>
+                    <span className="text-sm font-medium">{new Date(challenge.end_date + 'T00:00:00').toLocaleDateString()}</span>
                   </div>
                 </div>
               </div>
@@ -349,25 +355,27 @@ export default function ChallengeDetailPage({ params }: { params: { id: string }
         <CardContent>
           <div className="grid grid-cols-5 sm:grid-cols-10 gap-x-0.5 gap-y-1 mb-6 justify-items-center">
             {calendarDays.map((day) => (
-              <div
+              <Link
                 key={day.day}
+                href={`/challenges/${params.id}/daily?date=${day.date}`}
                 className={`
-                  w-8 h-8 sm:w-10 sm:h-10 rounded border text-center text-xs font-medium flex items-center justify-center
-                  ${day.isToday ? 'ring-2 ring-orange-500' : ''}
-                  ${day.isComplete ? 'bg-green-100 border-green-300 text-green-800' : 
-                    day.completedRules > 0 ? 'bg-yellow-100 border-yellow-300 text-yellow-800' :
-                    day.isPast ? 'bg-red-50 border-red-200 text-red-600' : 
-                    'bg-gray-50 border-gray-200 text-gray-500'}
+                  w-8 h-8 sm:w-10 sm:h-10 rounded border text-center text-xs font-medium flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-md
+                  ${day.isToday ? 'ring-2 ring-logo-green' : ''}
+                  ${day.isComplete ? 'bg-logo-green bg-opacity-20 border-2 border-logo-green text-logo-green hover:bg-logo-green hover:bg-opacity-30' : 
+                    day.completedRules > 0 ? 'bg-yellow-100 border-yellow-300 text-yellow-800 hover:bg-yellow-200' :
+                    day.isPast ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' : 
+                    'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'}
                 `}
+                title={`Click to edit Day ${day.day} (${new Date(day.date + 'T00:00:00').toLocaleDateString()})`}
               >
                 <div className="font-semibold">{day.day}</div>
-              </div>
+              </Link>
             ))}
           </div>
           
           <div className="flex flex-wrap gap-4 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
+              <div className="w-4 h-4 bg-logo-green bg-opacity-20 border-2 border-logo-green rounded"></div>
               <span>Perfect Day</span>
             </div>
             <div className="flex items-center gap-2">
@@ -383,7 +391,7 @@ export default function ChallengeDetailPage({ params }: { params: { id: string }
               <span>Future Day</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 border-2 border-orange-500 rounded"></div>
+              <div className="w-4 h-4 border-2 border-logo-green rounded"></div>
               <span>Today</span>
             </div>
           </div>
