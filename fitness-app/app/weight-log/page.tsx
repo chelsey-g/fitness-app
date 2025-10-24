@@ -1,10 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
-import useSWR from "swr"
 import { useAuth } from "@/contexts/AuthContext"
+import { weightService } from "@/app/services/WeightService"
 
 export default function TrackerPage() {
   const [date, setDate] = useState(new Date().toISOString().substr(0, 10))
@@ -12,7 +11,6 @@ export default function TrackerPage() {
   const [error, setError] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const supabase = createClient()
   const router = useRouter()
   const { user } = useAuth()
 
@@ -25,17 +23,8 @@ export default function TrackerPage() {
       if (!user?.id) {
         throw new Error("User not authenticated")
       }
-      const { data, error } = await supabase.from("weight_tracker").insert([
-        {
-          date_entry: date,
-          weight: Number(weight),
-          created_by: user.id,
-        },
-      ])
+      await weightService.addWeightEntry(user.id, date, Number(weight))
 
-      if (error) {
-        throw error
-      }
       router.push("/weight-chart")
     } catch (err) {
       console.error("Error inserting data:", err)

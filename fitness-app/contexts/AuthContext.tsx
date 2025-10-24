@@ -2,7 +2,11 @@
 
 import { createClient } from "@/utils/supabase/client"
 import { Session, User } from "@supabase/supabase-js"
+import { AuthService } from "@/app/services/AuthService"
 import { createContext, useContext, useEffect, useState } from "react"
+
+const supabase = createClient();
+const authService = new AuthService(supabase);
 
 interface AuthContextType {
   user: User | null
@@ -24,11 +28,10 @@ export function AuthProvider({ children, initialUser = null, initialSession = nu
   const [user, setUser] = useState<User | null>(initialUser)
   const [session, setSession] = useState<Session | null>(initialSession)
   const [isLoading, setIsLoading] = useState(!initialUser && !initialSession)
-  const supabase = createClient()
 
   const refreshAuth = async () => {
     try {
-      const { data: { user }, error } = await supabase.auth.getUser()
+      const { data: { user }, error } = await authService.getUser()
       if (error) {
         setSession(null)
         setUser(null)
@@ -84,7 +87,7 @@ export function AuthProvider({ children, initialUser = null, initialSession = nu
   }, [])
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    await authService.signOut()
     setUser(null)
   }
 

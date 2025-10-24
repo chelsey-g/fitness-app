@@ -5,6 +5,12 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import PasswordInput from "@/components/PasswordInput"
 import { IoCreateOutline } from "react-icons/io5"
+import { AuthService } from "@/app/services/AuthService"
+import { createClient } from "@/utils/supabase/server"
+import { redirect } from "next/navigation"
+
+const supabase = createClient();
+const authService = new AuthService(supabase);
 
 type SignupSearchParams = Message & {
   email?: string
@@ -15,7 +21,10 @@ export default async function Signup(props: {
 }) {
   const searchParams = await props.searchParams
   const email = searchParams?.email || ""
-
+  const user = await authService.getUser()
+  if (user) {
+    redirect("/dashboard")
+  }
   if ("message" in searchParams) {
     return (
       <div className="w-full flex-1 flex items-center h-screen sm:max-w-md justify-center gap-2 p-4">

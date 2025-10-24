@@ -5,24 +5,14 @@ import { useEffect, useState } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { FaTrashAlt, FaTint, FaChartLine } from "react-icons/fa"
+    import { FaTrashAlt, FaTint } from "react-icons/fa"
 import { BsCupStraw, BsCupHot } from "react-icons/bs"
-import { IoMdAdd } from "react-icons/io"
 import Link from "next/link"
-import { createClient } from "@/utils/supabase/client"
 import dayjs from "dayjs"
-
-interface WaterEntry {
-  id: number
-  date_entry: string
-  amount_ml: number
-  created_by: string
-  created_at: string
-}
+import { waterService } from "@/app/services/WaterService"
+import { WaterEntry } from "@/app/services/WaterService"
 
 export default function WaterChartPage() {
-  const supabase = createClient()
   const router = useRouter()
   const { user } = useAuth()
 
@@ -37,24 +27,16 @@ export default function WaterChartPage() {
 
     const fetchWaterData = async () => {
       try {
-        const { data, error } = await supabase
-          .from("water_intake")
-          .select("*")
-          .eq("created_by", user.id)
-          .order("date_entry", { ascending: false })
-
-        if (error) {
-          throw error
-        }
+        const data = await waterService.getWaterData(user.id)
         setShowAlert(false)
-        setWaterData(data ? (data as WaterEntry[]) : null)
+        setWaterData(data)
       } catch (error) {
         console.error("Error fetching water data:", error)
       }
     }
 
     fetchWaterData()
-  }, [supabase, user, router])
+  }, [user, router])
 
   useEffect(() => {
     let timer: NodeJS.Timeout
@@ -74,15 +56,7 @@ export default function WaterChartPage() {
     if (!user) return
 
     try {
-      const { error } = await supabase
-        .from("water_intake")
-        .delete()
-        .eq("id", id)
-        .eq("created_by", user.id)
-
-      if (error) {
-        throw error
-      }
+      await waterService.removeCup(id)
 
       const updatedData = waterData?.filter((entry) => entry.id !== id)
       setWaterData(updatedData ?? null)
@@ -96,22 +70,14 @@ export default function WaterChartPage() {
     if (!waterData) return 0
     return waterData
       .filter(entry => entry.date_entry === date)
-      .reduce((total, entry) => total + entry.amount_ml, 0)
+      .reduce((total, entry) => total + entry.amount_oz, 0)
   }
 
   const getUniqueDates = () => {
     if (!waterData) return []
     return Array.from(new Set(waterData.map(entry => entry.date_entry))).sort()
   }
-
-  const mlToOunces = (ml: number) => {
-    return Math.round(ml * 0.033814)
-  }
-
-  const ouncesToMl = (ounces: number) => {
-    return Math.round(ounces / 0.033814)
-  }
-
+    
   if (!user) {
     return null
   }
@@ -231,7 +197,7 @@ export default function WaterChartPage() {
                   (() => {
                     const today = dayjs().format('YYYY-MM-DD')
                     const todayData = waterData.filter(entry => entry.date_entry === today)
-                    const todayTotal = todayData.reduce((total, entry) => total + entry.amount_ml, 0)
+                    const todayTotal = todayData.reduce((total, entry) => total + entry.amount_oz, 0)
                     const cupsCompleted = Math.floor(todayTotal / 250)
                     const totalCups = 15
                     const percentage = Math.min(100, (cupsCompleted / totalCups) * 100)
@@ -257,7 +223,7 @@ export default function WaterChartPage() {
                           </div>
                         </div>
                         <div className="text-sm text-gray-500">
-                          {mlToOunces(todayTotal)} oz ({todayTotal}ml) total
+                          {todayTotal} oz total
                         </div>
                         {cupsCompleted === totalCups && (
                           <div className="text-logo-green font-semibold">

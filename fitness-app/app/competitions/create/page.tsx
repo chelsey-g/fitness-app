@@ -1,15 +1,22 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import AddPlayers from "@/components/AddPlayers"
-import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 import BackButton from "@/components/BackButton"
 import { getOrdinalSuffix } from "@/app/functions"
+import { AuthService } from "@/app/services/AuthService"
+import { createClient } from "@/utils/supabase/client"
+
+
+const supabase = createClient();
+const authService = new AuthService(supabase);
+
+
+
 
 export default function CreateCompetitionPage() {
-  const supabase = createClient()
   const router = useRouter()
 
   const [competitionData, setCompetitionData] = useState({
@@ -27,6 +34,8 @@ export default function CreateCompetitionPage() {
   const [addPlayers, setAddPlayers] = useState(false)
   const [selectedPlayerIds, setSelectedPlayerIds] = useState([])
 
+
+
   const handleSelectPlayers = (selectedPlayers: any) => {
     setSelectedPlayerIds(selectedPlayers)
   }
@@ -38,18 +47,15 @@ export default function CreateCompetitionPage() {
   const handleSubmit = async (e: any) => {
     e.preventDefault()
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    if (!session?.user) {
-      console.error("User is not authenticated")
-      router.push("/login")
-      return
+    const user = await authService.getUser()
+
+    if (!user) {
+      redirect("/sign-in")
     }
 
     if (!competitionData.name) {
       alert("Please enter a competition name")
-      return
+      return false
     }
 
     if (!competitionData.date_started || !competitionData.date_ending) {
@@ -57,50 +63,20 @@ export default function CreateCompetitionPage() {
       return
     }
 
-    const { data: competitionInfo, error: insertError } = await supabase
-      .from("competitions")
-      .insert([
-        {
-          name: competitionData.name,
-          date_started: competitionData.date_started,
-          date_ending: competitionData.date_ending,
-          rules: competitionData.rules,
-          created_by: session.user.id,
-          has_prizes: competitionData.has_prizes,
-          prizes: competitionData.has_prizes ? competitionData.prizes : null,
-        },
-      ])
-      .select()
+    const competitionInfo = await competitionService.createCompetition({
+      ...competitionData,
+      created_by: user?.id,
+      prizes: competitionData.has_prizes ? competitionData.prizes : null,
+    })
 
-    if (insertError) {
-      console.error("Error inserting competition:", insertError)
-      return
+    console.log('COMPETITION INFO', competitionInfo)
+
+    if (competitionInfo && competitionInfo.length > 0) {
+      router.push(`/competitions/${competitionInfo[0].id}`)
+    } else {
+      console.error('Failed to create competition')
+      alert('Failed to create competition. Please try again.')
     }
-
-    const competitionId = competitionInfo?.[0]?.id
-
-    if (!competitionId) {
-      console.error("Competition ID not found after insertion")
-      return
-    }
-
-    if (selectedPlayerIds.length > 0) {
-      console.log("Adding selected players:", selectedPlayerIds)
-      const { error: playerInsertError } = await supabase
-        .from("competitions_players")
-        .insert(
-          selectedPlayerIds.map((playerId) => ({
-            player_id: playerId,
-            competition_id: competitionId,
-          }))
-        )
-
-      if (playerInsertError) {
-        console.error("Error inserting competition players:", playerInsertError)
-      }
-    }
-
-    router.push(`/competitions/${competitionId}`)
   }
 
   const handleAddPlayers = (e: any) => {

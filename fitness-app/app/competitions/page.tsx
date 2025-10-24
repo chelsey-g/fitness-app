@@ -7,9 +7,9 @@ import dayjs from "dayjs"
 import DeleteDialog from "@/components/DeleteDialog"
 import { IoIosAdd } from "react-icons/io"
 import Link from "next/link"
-import { createClient } from "@/utils/supabase/client"
 import { getRandomColor } from "@/app/functions"
 import { useRouter } from "next/navigation"
+import { competitionService } from "@/app/services/CompetitionService"
 
 interface Competition {
   name: string
@@ -20,7 +20,6 @@ interface Competition {
 }
 
 export default function CompetitionsPage() {
-  const supabase = createClient()
   const router = useRouter()
   const { user } = useAuth()
 
@@ -30,16 +29,8 @@ export default function CompetitionsPage() {
     }
 
     const today = dayjs().startOf('day')
-    const { data, error } = await supabase
-      .from("competitions")
-      .select(`name, id, date_started, date_ending, created_by`)
-      .order("date_ending", { ascending: false })
-
-    if (error) {
-      throw new Error(error.message)
-    }
-
-    return data.filter((comp) => dayjs(comp.date_ending).isAfter(today))
+    const data = await competitionService.getCompetitions()
+    return data?.filter((comp: Competition) => dayjs(comp.date_ending).isAfter(today))
   }
 
   const {
@@ -49,10 +40,10 @@ export default function CompetitionsPage() {
     mutate
   } = useSWR<Competition[]>(user ? "/competitions" : null, fetcher)
 
-  if (!user) {
-    router.push('/login')
-    return null
-  }
+  // if (!user) {
+  //   router.push('/login')
+  //   return null
+  // }
 
   if (error) return (
     <div className="text-center py-10">
@@ -78,23 +69,9 @@ export default function CompetitionsPage() {
   }
 
   const handleDeleteCompetition = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from("competitions")
-        .delete()
-        .eq("id", id)
-        .eq("created_by", user.id)
 
-      if (error) {
-        throw error
-      }
-
-      // Refresh the competitions list
+      await competitionService.deleteCompetition(id, user?.id ?? "")
       mutate()
-    } catch (error) {
-      console.error("Error deleting competition:", error)
-      alert("Failed to delete competition. Please try again.")
-    }
   }
 
   const handleShowExpiredCompetitions = () => {

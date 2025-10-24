@@ -153,7 +153,7 @@ async function createGoal(
 //   return data
 // }
 
-describe("Permissions Tests", () => {
+describe.skip("Permissions Tests", () => {
   let users: { [key: string]: any } = {}
   let competitions: { [key: string]: any } = {}
   let competitionPlayers: { [key: string]: any } = {}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { createClient } from "@/utils/supabase/client"
 import { useAuth } from "@/contexts/AuthContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,29 +9,10 @@ import { Badge, Tag } from "antd"
 import { Progress } from "@/components/ui/progress"
 import { FaFire, FaCalendarAlt, FaCheckCircle, FaPlus } from "react-icons/fa"
 import { IoMdSettings } from "react-icons/io"
+
 import Link from "next/link"
 import useSWR from "swr"
-
-interface Challenge {
-  id: string
-  user_id: string
-  name: string
-  tier: "Soft" | "Medium" | "Hard"
-  start_date: string
-  end_date: string
-  rules: string[]
-  is_active: boolean
-  created_at: string
-  custom_rules?: string[]
-}
-
-interface DailyProgress {
-  id: string
-  challenge_id: string
-  date: string
-  completed_rules: number[]
-  is_complete: boolean
-}
+import { challengeService, Challenge } from "@/app/services/ChallengeService"
 
 const CHALLENGE_TIERS = {
   Soft: {
@@ -77,24 +58,16 @@ const CHALLENGE_TIERS = {
 
 export default function ChallengesPage() {
   const { user } = useAuth()
-  const supabase = createClient()
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
 
   const challengeFetcher = async () => {
     if (!user) return null
-    
-    const { data, error } = await supabase
-      .from("challenges")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-
-    if (error) throw error
+    const data = await challengeService.getChallenges(user.id as number)
     return data
   }
 
-  const { data: challenges, mutate } = useSWR(
+  const { data: challenges } = useSWR(
     user ? `challenges-${user.id}` : null,
     challengeFetcher
   )
@@ -129,48 +102,10 @@ export default function ChallengesPage() {
     const rules = customRules || CHALLENGE_TIERS[tier].rules
     const name = challengeName || `${tier} Challenge`
 
-    const { data, error } = await supabase
-      .from("challenges")
-      .insert({
-        user_id: user.id,
-        name,
-        tier,
-        start_date: start.toISOString().split('T')[0],
-        end_date: end.toISOString().split('T')[0],
-        rules,
-        is_active: true,
-        custom_rules: customRules ? customRules : null
-      })
-      .select()
+    const data = await challengeService.createChallenge(user.id, name, tier, start.toISOString().split('T')[0], end.toISOString().split('T')[0], rules, customRules)
 
-    if (error) {
-      console.error("Error creating challenge:", error)
-      return
-    }
-
-    // Deactivate any other active challenges
-    if (activeChallenge) {
-      await supabase
-        .from("challenges")
-        .update({ is_active: false })
-        .eq("id", activeChallenge.id)
-    }
-
-    mutate()
-    setShowCreateForm(false)
-  }
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Please log in to access challenges</h2>
-          <Link href="/login">
-            <Button>Login</Button>
-          </Link>
-        </div>
-      </div>
-    )
+    if (!data) throw new Error("Failed to create challenge")
+    return data
   }
 
   return (

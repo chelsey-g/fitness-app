@@ -4,35 +4,21 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useEffect, useState } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useRouter } from "next/navigation"
-
+import { weightService } from "@/app/services/WeightService"
+import { goalService } from "@/app/services/GoalService"
 import DropdownMenu from "@/components/DateRangePicker"
 import { DeleteWeight } from "@/components/TrackerActions"
 import { FaTrashAlt, FaSortUp, FaSortDown } from "react-icons/fa"
 import { IoMdAdd } from "react-icons/io"
 import Link from "next/link"
-import { createClient } from "@/utils/supabase/client"
 import dayjs from "dayjs"
 import useSWR from "swr"
 
-interface WeightEntry {
-  id: number
-  date_entry: string
-  weight: number
-  created_by: string
-}
-
-interface Goal {
-  id: number
-  goal_weight: number
-  goal_date: string
-}
 
 export default function WeightChartPage() {
-  const supabase = createClient()
   const router = useRouter()
   const { user } = useAuth()
 
-  const [weightData, setWeightData] = useState<WeightEntry[] | null>(null)
   const [loadedDates, setLoadedDates] = useState<string | null>(null)
   const [startDate, setStartDate] = useState<string | null>(null)
   const [endDate, setEndDate] = useState<string | null>(null)
@@ -40,37 +26,20 @@ export default function WeightChartPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [showProgressInfo, setShowProgressInfo] = useState(true)
 
-  // Fetcher for goals
   const goalsFetcher = async () => {
     if (!user) return null
-    const { data, error } = await supabase
-      .from("goals")
-      .select("*")
-      .eq("created_by", user.id)
-      .order("goal_date", { ascending: false })
-      .limit(1)
-    
-    if (error) throw error
+    const data = await goalService.getGoals(user.id)
     return data?.[0] || null
   }
 
-  // Fetcher for monthly data
   const monthlyDataFetcher = async () => {
     if (!user) return null
     
     const startOfMonth = dayjs().startOf('month').format('YYYY-MM-DD')
     const endOfMonth = dayjs().endOf('month').format('YYYY-MM-DD')
     
-    const { data, error } = await supabase
-      .from("weight_tracker")
-      .select("*")
-      .eq("created_by", user.id)
-      .gte("date_entry", startOfMonth)
-      .lte("date_entry", endOfMonth)
-      .order("date_entry", { ascending: true })
-    
-    if (error) throw error
-    return data || []
+    const data = await weightService.getMonthlyWeightEntries(user.id, startOfMonth, endOfMonth)
+    return data
   }
 
   const { data: currentGoal } = useSWR(
@@ -91,19 +60,8 @@ export default function WeightChartPage() {
 
     const fetchLoadedDates = async () => {
       try {
-        const { data, error } = await supabase
-          .from("weight_tracker")
-          .select("date_entry")
-          .eq("created_by", user.id)
-          .order("date_entry", { ascending: false })
-          .limit(1)
-
-        if (error) {
-          throw error
-        }
-
-        if (data.length > 0) {
-          const latestDate = data[0].date_entry
+        const latestDate = await weightService.getLoadedDates(user.id)
+        if (latestDate) {
           setLoadedDates(latestDate)
           if (!startDate && !endDate) {
             const start = dayjs(latestDate)
@@ -114,7 +72,7 @@ export default function WeightChartPage() {
             setEndDate(end)
           }
         } else {
-          console.log("No data found")
+          throw new Error("No data found")
         }
       } catch (error) {
         console.error("Error fetching loaded dates:", error)
@@ -122,32 +80,21 @@ export default function WeightChartPage() {
     }
 
     fetchLoadedDates()
-  }, [supabase, user, router, startDate, endDate])
+  }, [user, router, startDate, endDate])
 
   useEffect(() => {
     const fetchWeightData = async () => {
       if (!startDate || !endDate || !user) return
 
       try {
-        const { data, error } = await supabase
-          .from("weight_tracker")
-          .select("*")
-          .eq("created_by", user.id)
-          .gte("date_entry", startDate)
-          .lte("date_entry", endDate)
-
-        if (error) {
-          throw error
-        }
-        setShowAlert(false)
-        setWeightData(data ? (data as WeightEntry[]) : null)
+        const data = await weightService.getWeightEntries(user.id, 100)
       } catch (error) {
         console.error("Error fetching weight data:", error)
+      } finally {
       }
     }
-
     fetchWeightData()
-  }, [startDate, endDate, supabase, user])
+  }, [startDate, endDate, user, router])
 
   useEffect(() => {
     let timer: NodeJS.Timeout
@@ -207,9 +154,9 @@ export default function WeightChartPage() {
   }
 
   const getSortedData = () => {
-    if (!weightData) return null
+      if (!monthlyData) return null
     
-    const sorted = [...weightData].sort((a, b) => {
+    const sorted = [...monthlyData].sort((a, b) => {
       const dateA = new Date(a.date_entry).getTime()
       const dateB = new Date(b.date_entry).getTime()
       const comparison = dateA - dateB
@@ -221,22 +168,10 @@ export default function WeightChartPage() {
   }
 
   const handleDeleteWeight = async (id: number) => {
-    if (!user) return
-
     try {
-      const { error } = await supabase
-        .from("weight_tracker")
-        .delete()
-        .eq("id", id)
-        .eq("created_by", user.id)
-
-      if (error) {
-        throw error
-      }
-
-      const updatedData = weightData?.filter((entry) => entry.id !== id)
-      setWeightData(updatedData ?? null)
-      setShowAlert(true)
+      if (!user) throw new Error("User not authenticated")
+      await weightService.deleteWeightEntry(id)
+        setShowAlert(true)
     } catch (error) {
       console.error("Error deleting weight entry:", error)
     }

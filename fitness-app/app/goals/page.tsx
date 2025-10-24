@@ -14,25 +14,30 @@ import useSWR, { Fetcher } from "swr"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { createClient } from "@/utils/supabase/client"
 import { handleDate } from "@/app/functions"
 import { useState } from "react"
 import { IoMdAdd } from "react-icons/io"
 import DeleteDialog from "@/components/DeleteDialog"
+import { goalService } from "@/app/services/GoalService"
+import { weightService } from "@/app/services/WeightService"
+import { AuthService } from "@/app/services/AuthService"
+import { createClient } from "@/utils/supabase/client"
+
+const supabase = createClient();
+const authService = new AuthService(supabase);
 
 export default function ProfileGoals() {
-  const supabase = createClient()
   const [goalWeight, setGoalWeight] = useState("")
   const [goalDate, setGoalDate] = useState("")
   const [isOpen, setIsOpen] = useState(false)
   const [GoalSubmitAlert, setGoalSubmitAlert] = useState(false)
   const [deleteAlert, setDeleteAlert] = useState(false)
 
-  type goal = {
-    id: number
-    goal_weight: number
-    goal_date: string
-  }
+ interface goal {
+  id: number
+  goal_weight: number
+  goal_date: string
+ }
 
   type weight = {
     id: number
@@ -40,21 +45,14 @@ export default function ProfileGoals() {
     created_at: string
   }
 
-  const { data: user } = useSWR("/users", () =>
-    supabase.auth.getUser().then((res) => res.data.user)
-  )
+
+  const { data: user } = useSWR("/users", () => 
+     authService.getUser());
 
   let identityId: string | null = user?.identities?.[0]?.id || null
 
   const goalsFetcher: Fetcher<goal[]> = async () => {
-    const { data, error } = await supabase
-      .from("profile_goals")
-      .select("*")
-      .eq("profile_id", identityId)
-
-    if (error) {
-      throw new Error(error.message)
-    }
+    const data = await goalService.getGoals(identityId as string)
 
     return data || []
   }
@@ -66,22 +64,12 @@ export default function ProfileGoals() {
   )
 
   const weightsFetcher: Fetcher<weight[]> = async () => {
-    const { data, error } = await supabase
-      .from("weight_tracker")
-      .select("*")
-      .eq("created_by", identityId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-
-    if (error) {
-      throw new Error(error.message)
-    }
-
-    return data || []
+    const data = await weightService.getWeightEntries(identityId as string)
+    return data
   }
 
-  const { data: weights } = useSWR<weight[]>(
-    identityId ? "/weights/" + identityId : null,
+  const { data: weights = [] } = useSWR<weight[]>(
+    identityId ? `/weights/${identityId}` : null,
     weightsFetcher,
     { revalidateOnFocus: false }
   )
@@ -93,20 +81,8 @@ export default function ProfileGoals() {
   const handleGoalSubmit = async (e: any) => {
     e.preventDefault()
 
-    const { data: goal, error } = await supabase
-      .from("profile_goals")
-      .insert([
-        {
-          goal_weight: goalWeight,
-          goal_date: goalDate,
-          profile_id: identityId,
-        },
-      ])
-      .select()
-
-    if (error) {
-      console.error(error)
-    } else {
+    try {
+      await goalService.addGoal(identityId as string, Number(goalWeight), goalDate)
       setGoalWeight("")
       setGoalDate("")
       setIsOpen(false)
@@ -115,6 +91,8 @@ export default function ProfileGoals() {
         setGoalSubmitAlert(false)
       }, 3000)
       mutateUserGoals()
+    } catch (error) {
+      console.error(error)
     }
   }
 
@@ -124,16 +102,12 @@ export default function ProfileGoals() {
   )
 
   const handleDeleteGoal = async (id: number) => {
-    const { error } = await supabase.from("profile_goals").delete().eq("id", id)
-    if (error) {
-      console.error(error)
-    } else {
-      setDeleteAlert(true)
-      setTimeout(() => {
-        setDeleteAlert(false)
-      }, 3000)
-      mutateUserGoals()
-    }
+    await goalService.deleteGoal(identityId as string, id)
+    mutateUserGoals()
+    setDeleteAlert(true)
+    setTimeout(() => {
+      setDeleteAlert(false)
+    }, 3000)
   }
 
   return (
@@ -253,7 +227,7 @@ export default function ProfileGoals() {
                           {(() => {
                             const weightDiff = calculateWeightDifference(
                               goal.goal_weight,
-                              weights?.[0]?.weight
+                              weights?.[0]?.weight || 0
                             );
                             if (weightDiff === "No logged weight available") {
                               return (

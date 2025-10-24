@@ -1,14 +1,18 @@
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { profileService } from "@/app/services/ProfileService"
+import { AuthService } from "@/app/services/AuthService"
 import { createClient } from "@/utils/supabase/client"
+
+const supabase = createClient();
+const authService = new AuthService(supabase);
 
 export default function InviteFriend() {
   const [email, setEmail] = useState("")
   const [isSending, setIsSending] = useState(false)
   const [message, setMessage] = useState("")
 
-  const supabase = createClient()
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -16,27 +20,19 @@ export default function InviteFriend() {
     setMessage("")
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      const user = await authService.getUser()
 
       if (!user) {
         setMessage("You must be logged in to invite friends")
         return
       }
 
-      // Get the current user's profile to include their name in the invite
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("first_name")
-        .eq("id", user.id)
-        .single()
-
+   
+      const profile = await profileService.getFirstName(user.id)
       const signupUrl = `${
         window.location.origin
       }/signup?email=${encodeURIComponent(email)}`
 
-      // Send the invite email using Resend
       const response = await fetch("/api/send-invitation", {
         method: "POST",
         headers: {

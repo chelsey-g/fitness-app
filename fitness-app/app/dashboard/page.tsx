@@ -4,115 +4,59 @@ import { calculateDaysLeft, calculateWeightDifference } from "@/app/functions"
 import useSWR from "swr"
 import { GiStairsGoal } from "react-icons/gi"
 import { FaBarsProgress } from "react-icons/fa6"
-import { IoMdAdd, IoMdTrendingUp, IoMdTrendingDown } from "react-icons/io"
-import { FaFire, FaCalendarCheck, FaWeight, FaTrophy, FaCalendarAlt } from "react-icons/fa"
+import { IoMdTrendingDown, IoMdTrendingUp, IoMdAdd } from "react-icons/io"
+import { FaFire, FaCalendarAlt, FaWeight, FaCalendarCheck, FaTrophy } from "react-icons/fa"
 import Link from "next/link"
 import ProgressTracker from "@/components/ProgressTracker"
-import { createClient } from "@/utils/supabase/client"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
 import InviteFriend from "@/components/InviteFriend"
+import { goalService } from "@/app/services/GoalService"
+import { profileService } from "@/app/services/ProfileService"
+import { AuthService } from "@/app/services/AuthService"
+import { weightService } from "@/app/services/WeightService"
+import { challengeService, Challenge } from "@/app/services/ChallengeService"
+import { createClient } from "@/utils/supabase/client"
 
-// type Competition = {
-//   id: string
-//   competition_id: string
-//   competitions: {
-//     name: string
-//     date_ending: string
-//   }
+const supabase = createClient();
+const authService = new AuthService(supabase);
+
+// type Profile = {
+//   id: number
+//   first_name: string
 // }
 
-type Profile = {
-  id: number
-  first_name: string
-}
+// type Goals = {
+//   id: number
+//   goal_date: string
+//   goal_weight: number
+// }
 
-type Goals = {
-  id: number
-  goal_date: string
-  goal_weight: number
-}
+// type Weight = {
+//   created_by: number
+//   weight: number
+//   created_at: string
+// }
 
-type Weight = {
-  created_by: number
-  weight: number
-  created_at: string
-}
-
-type Challenge = {
-  id: string
-  user_id: string
-  tier: "Soft" | "Medium" | "Hard"
-  start_date: string
-  end_date: string
-  rules: string[]
-  is_active: boolean
-  created_at: string
-}
 
 export default function UserDashboard() {
-  const supabase = createClient()
-  const {
-    data: user,
-    error,
-    isLoading,
-  } = useSWR(
-    "/user",
-    async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) {
-        window.location.href = "/login"
-        return null
-      }
-      return user
-    },
-    {
-      revalidateOnFocus: false,
-    }
-  )
+  const { data: user, isLoading: userLoading } = useSWR("/users", () => 
+    authService.getUser());
 
-  let identityId = user?.identities?.[0]?.id || null
+  let identityId = user?.id || null
 
   // const competitionFetcher = async (url: string) => {
-  //   const { data, error } = await supabase
-  //     .from("competitions_players")
-  //     .select(
-  //       `
-  //     *,
-  //     competitions (
-  //       name,
-  //       date_started,
-  //       date_ending,
-  //       created_by
-  //     )
-  //   `
-  //     )
-  //     .eq("player_id", identityId)
-  //
-  //   if (error) {
-  //     console.error("Error fetching competitions:", error.message)
-  //     throw error
-  //   }
+  //   const { data, error } = await competitionService.getCompetitions()
   //   return data
   // }
-  //
+  
   // const { data: competitions } = useSWR<Competition[]>(
   //   identityId ? "/competitions/" + identityId : null,
   //   competitionFetcher,
   //   { revalidateOnFocus: false }
   // )
 
-  const profilesFetcher = async (url: string) => {
-    const { data, error: profilesError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", identityId)
-
-    if (profilesError) {
-      throw error
-    }
-
+  const profilesFetcher = async () => {
+    const data = await profileService.getProfile(identityId as string)
     return data
   }
 
@@ -121,67 +65,42 @@ export default function UserDashboard() {
     profilesFetcher,
     { revalidateOnFocus: false }
   )
-
-  const goalsFetcher = async (url: string) => {
-    const { data, error: goalsError } = await supabase
-      .from("profile_goals")
-      .select("*")
-      .eq("profile_id", identityId)
-
-    if (goalsError) {
-      throw error
-    }
+  
+  const goalsFetcher = async () => {
+    const data = await goalService.getGoals(identityId as string)
 
     return data
   }
 
-  const { data: goals } = useSWR<Goals[]>(
+  const { data: goals } = useSWR<Goal[]>(
     identityId ? "/profile_goals/" + identityId : null,
     goalsFetcher,
     { revalidateOnFocus: false }
   )
 
-  const weightFetcher = async (url: string) => {
-    const { data, error: weightError } = await supabase
-      .from("weight_tracker")
-      .select("*")
-      .eq("created_by", identityId)
-      .order("created_at", { ascending: false })
-      .limit(10)
-
-    if (weightError) {
-      throw error
-    }
-
+  const weightFetcher = async () => {
+    const data = await weightService.getWeightEntries(identityId as string)
     return data
   }
 
-  const { data: weights } = useSWR<Weight[]>(
+  const { data: weights } = useSWR<WeightEntry[]>(
     identityId ? "/weights/" + identityId : null,
     weightFetcher,
     { revalidateOnFocus: false }
   )
 
-  const challengeFetcher = async (url: string) => {
-    const { data, error: challengeError } = await supabase
-      .from("challenges")
-      .select("*")
-      .eq("user_id", identityId)
-      .eq("is_active", true)
-      .single()
-
-    if (challengeError && challengeError.code !== 'PGRST116') {
-      throw challengeError
-    }
-
+  const challengeFetcher = async () => {
+    const data = await challengeService.getChallenges(identityId as unknown as number)
     return data
   }
 
-  const { data: activeChallenge } = useSWR<Challenge>(
+  const { data: challenges } = useSWR<Challenge[]>(
     identityId ? "/challenge/" + identityId : null,
     challengeFetcher,
     { revalidateOnFocus: false }
   )
+
+  const activeChallenge = challenges?.find(challenge => challenge.is_active)
 
   const calculateChallengeProgress = (challenge: Challenge) => {
     const startDate = new Date(challenge.start_date + 'T00:00:00')
@@ -240,7 +159,6 @@ export default function UserDashboard() {
       weeklyChange = newest - oldest
     }
     
-    // Calculate goal progress this week
     let goalProgress = 0
     if (goals && goals.length > 0 && weights.length > 0) {
       const currentWeight = weights[0]?.weight || 0
@@ -259,7 +177,22 @@ export default function UserDashboard() {
     }
   }
 
-  if (!user || !profiles) {
+  if (userLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 border-4 border-logo-green border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user?.id) {
+    return null
+  }
+
+  if (!profiles) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
@@ -274,7 +207,6 @@ export default function UserDashboard() {
   const weeklyLogs = getWeeklyProgress();
   const weeklySummary = getWeeklySummary();
 
-  // Get the most current active goal (goal with future date, sorted by date)
   const getCurrentActiveGoal = () => {
     if (!goals || goals.length === 0) return null;
     
@@ -283,7 +215,6 @@ export default function UserDashboard() {
     
     if (activeGoals.length === 0) return null;
     
-    // Sort by goal_date ascending (earliest first) to get the most current/urgent goal
     return activeGoals.sort((a, b) => new Date(a.goal_date).getTime() - new Date(b.goal_date).getTime())[0];
   };
 
@@ -292,56 +223,103 @@ export default function UserDashboard() {
   return (
     <>
       <div className="flex-1 space-y-6 py-8 px-4 sm:px-6 md:px-8 min-h-screen">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl sm:text-4xl font-extrabold mb-2 tracking-tight">
-            Welcome back, {profiles[0].first_name}!
-          </h2>
-          <p className="text-gray-600">Here's your fitness journey at a glance</p>
+        <div className="text-center mb-8 relative">
+          {/* Main content container */}
+          <div className="relative bg-black rounded-3xl p-12 shadow-2xl">
+            {/* Main greeting */}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-8 tracking-tight">
+              <span className="bg-gradient-to-r from-white via-logo-green to-white bg-clip-text text-transparent">
+                Welcome back, {profiles[0].first_name}!
+              </span>
+            </h1>
+            
+            {/* Stats preview */}
+            <div className="grid grid-cols-3 gap-6 max-w-md mx-auto">
+              <div className="text-center bg-white border border-gray-200 rounded-lg p-4">
+                <div className="text-2xl font-bold text-black mb-1">
+                  {weights?.[0]?.weight || "—"}
+                </div>
+                <div className="text-xs text-gray-500 font-medium">Current Weight</div>
+              </div>
+              <div className="text-center bg-white border border-gray-200 rounded-lg p-4">
+                <div className="text-2xl font-bold text-black mb-1">
+                  {goals ? goals.filter(goal => new Date(goal.goal_date) >= new Date()).length : 0}
+                </div>
+                <div className="text-xs text-gray-500 font-medium">Active Goals</div>
+              </div>
+              <div className="text-center bg-white border border-gray-200 rounded-lg p-4">
+                <div className="text-2xl font-bold text-black mb-1">
+                  {activeChallenge ? calculateChallengeProgress(activeChallenge).currentDay : 0}
+                </div>
+                <div className="text-xs text-gray-500 font-medium">Challenge Day</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="rounded-lg shadow-sm border bg-white p-4 text-center">
-            <FaWeight className="h-8 w-8 text-logo-green mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">
-              {weights?.[0]?.weight || "—"}
-            </div>
-            <p className="text-xs text-gray-600">Current Weight</p>
-            {weightTrend && (
-              <div className="flex items-center justify-center mt-1">
-                {weightTrend.isDecreasing ? (
-                  <IoMdTrendingDown className="h-4 w-4 text-green-500 mr-1" />
-                ) : weightTrend.isIncreasing ? (
-                  <IoMdTrendingUp className="h-4 w-4 text-red-500 mr-1" />
-                ) : null}
-                <span className={`text-xs ${weightTrend.isDecreasing ? 'text-green-500' : 'text-red-500'}`}> 
-                  {weightTrend.difference.toFixed(1)} lbs
-                </span>
+          <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-white to-gray-50 p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-logo-green/30">
+            <div className="absolute inset-0 bg-gradient-to-br from-logo-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-logo-green to-green-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <FaWeight className="h-6 w-6 text-white" />
               </div>
-            )}
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {weights?.[0]?.weight || "—"}
+              </div>
+              <p className="text-sm font-medium text-gray-600 mb-2">Current Weight</p>
+              {weightTrend && (
+                <div className="flex items-center justify-center">
+                  {weightTrend.isDecreasing ? (
+                    <IoMdTrendingDown className="h-4 w-4 text-green-500 mr-1" />
+                  ) : weightTrend.isIncreasing ? (
+                    <IoMdTrendingUp className="h-4 w-4 text-red-500 mr-1" />
+                  ) : null}
+                  <span className={`text-xs font-medium ${weightTrend.isDecreasing ? 'text-green-500' : 'text-red-500'}`}> 
+                    {weightTrend.difference.toFixed(1)} lbs
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="rounded-lg shadow-sm border bg-white p-4 text-center">
-            <FaCalendarCheck className="h-8 w-8 text-logo-green mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">
-              {weeklyLogs || 0}
+          <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-white to-gray-50 p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-logo-green/30">
+            <div className="absolute inset-0 bg-gradient-to-br from-logo-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-logo-green to-green-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <FaCalendarCheck className="h-6 w-6 text-white" />
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {weeklyLogs || 0}
+              </div>
+              <p className="text-sm font-medium text-gray-600">Logs This Week</p>
             </div>
-            <p className="text-xs text-gray-600">Logs This Week</p>
           </div>
 
-          <div className="rounded-lg shadow-sm border bg-white p-4 text-center">
-            <GiStairsGoal className="h-8 w-8 text-logo-green mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">
-              {goals ? goals.filter(goal => new Date(goal.goal_date) >= new Date()).length : 0}
+          <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-white to-gray-50 p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-logo-green/30">
+            <div className="absolute inset-0 bg-gradient-to-br from-logo-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-logo-green to-green-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <GiStairsGoal className="h-6 w-6 text-white" />
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {goals ? goals.filter(goal => new Date(goal.goal_date) >= new Date()).length : 0}
+              </div>
+              <p className="text-sm font-medium text-gray-600">Active Goals</p>
             </div>
-            <p className="text-xs text-gray-600">Active Goals</p>
           </div>
 
-          <div className="rounded-lg shadow-sm border bg-white p-4 text-center">
-            <FaTrophy className="h-8 w-8 text-logo-green mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">
-              {activeChallenge ? calculateChallengeProgress(activeChallenge).currentDay : 0}
+          <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-white to-gray-50 p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-logo-green/30">
+            <div className="absolute inset-0 bg-gradient-to-br from-logo-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-logo-green to-green-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <FaTrophy className="h-6 w-6 text-white" />
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {activeChallenge ? calculateChallengeProgress(activeChallenge).currentDay : 0}
+              </div>
+              <p className="text-sm font-medium text-gray-600">Challenge Days</p>
             </div>
-            <p className="text-xs text-gray-600">Challenge Days</p>
           </div>
         </div>
 
@@ -548,3 +526,4 @@ export default function UserDashboard() {
     </>
   )
 }
+

@@ -1,18 +1,13 @@
-import { createClient } from "@/utils/supabase/server"
+
 import { InfoIcon } from "lucide-react"
 import { redirect } from "next/navigation"
-import { cookies } from "next/headers"
+import { authService } from "@/app/services/AuthService"
 
 export default async function ProtectedPage() {
-  const cookieStore = cookies()
-  const supabase = await createClient(cookieStore)
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await authService.getUser()
 
   if (!user) {
-    return redirect("/sign-in")
+    return redirect("/login")
   }
 
   return (

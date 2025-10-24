@@ -4,8 +4,11 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { IoIosLock } from "react-icons/io"
+import {AuthService} from "@/app/services/AuthService"
 import { createClient } from "@/utils/supabase/client"
-import { useAuth } from "@/contexts/AuthContext"
+
+const supabase = createClient();
+const authService = new AuthService(supabase);
 
 export default function Login() {
   const [email, setEmail] = useState("")
@@ -13,35 +16,19 @@ export default function Login() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const { refreshAuth } = useAuth()
-  const supabase = createClient()
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (error) {
-        setError(error.message)
-        return
-      }
-
-      if (data.session) {
-        // Refresh auth state to update the navigation
-        await refreshAuth()
-        // Navigate to dashboard
-        router.push("/dashboard")
-      }
-    } catch (err) {
-      setError("An unexpected error occurred")
+    try { 
+      await authService.signIn(email, password)
+      router.push("/dashboard") 
+    } catch (error: any) {
+      setError(error.message)
     } finally {
-      setIsLoading(false)
+      setIsLoading(false) 
     }
   }
 

@@ -11,11 +11,13 @@ import useSWR, { Fetcher } from "swr"
 
 import ImageWithFallback from "@/components/ImageWithFallback"
 import Link from "next/link"
-import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
 import { FaRegUserCircle } from "react-icons/fa"
-import { useAuth } from "@/contexts/AuthContext"
+import { AuthService } from "@/app/services/AuthService"
+import { createClient } from "@/utils/supabase/client"
+
+const supabase = createClient();
+const authService = new AuthService(supabase);
 
 interface Profile {
   first_name: string
@@ -24,11 +26,9 @@ interface Profile {
 
 export default function ProfileDropDown() {
   const router = useRouter()
-  const supabase = createClient()
-  const auth = useAuth()
-
+  
   const { data: user } = useSWR("/user", () =>
-    supabase.auth.getUser().then((res) => res.data.user)
+    authService.getUser().then((res: any) => res.data.user)
   )
 
   const fetcher: Fetcher<Profile[], string> = async (url: string) => {
@@ -53,7 +53,7 @@ export default function ProfileDropDown() {
   const fallbackSrc = <FaRegUserCircle className="w-5 h-5" />
 
   async function handleSignOutUser() {
-    await auth.signOut()
+    await authService.signOut()
     router.push("/")
   }
 

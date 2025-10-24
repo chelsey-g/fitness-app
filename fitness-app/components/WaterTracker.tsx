@@ -2,33 +2,23 @@
 
 import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/AuthContext"
-import { createClient } from "@/utils/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { FaTint, FaArrowLeft, FaCheckCircle } from "react-icons/fa"
+import { FaTint, FaArrowLeft} from "react-icons/fa"
 import { BsCupStraw } from "react-icons/bs"
 import Link from "next/link"
 import confetti from "canvas-confetti"
 import dayjs from "dayjs"
-
-interface WaterEntry {
-  id: number
-  date_entry: string
-  amount_ml: number
-  created_by: string
-  created_at: string
-}
+import { waterService, WaterEntry } from "@/app/services/WaterService"
 
 export default function WaterTracker() {
-  const supabase = createClient()
   const { user } = useAuth()
   const [completedCups, setCompletedCups] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
-  const [showConfetti, setShowConfetti] = useState(false)
   const [todayEntries, setTodayEntries] = useState<WaterEntry[]>([])
 
   const totalCups = 15
-  const mlPerCup = 250 // 250ml per cup (about 8.5 oz)
+  const ozPerCup = 8
   const today = dayjs().format('YYYY-MM-DD')
 
   useEffect(() => {
@@ -41,89 +31,45 @@ export default function WaterTracker() {
     if (!user) return
 
     try {
-      const { data, error } = await supabase
-        .from("water_intake")
-        .select("*")
-        .eq("created_by", user.id)
-        .eq("date_entry", today)
-        .order("created_at", { ascending: true })
-
-      if (error) {
-        throw error
-      }
-
-      setTodayEntries(data || [])
-      setCompletedCups(data?.length || 0)
+      const data = await waterService.getTodayEntries(user.id, today)
+      setTodayEntries(data)
+      setCompletedCups(data.length)
     } catch (error) {
       console.error("Error fetching today's entries:", error)
     }
   }
 
   const handleCupClick = async (cupIndex: number) => {
-    console.log('Cup clicked:', cupIndex, 'User:', user, 'Loading:', isLoading)
-    
-    if (!user || isLoading) {
-      console.log('Early return - no user or loading')
-      return
-    }
+    if (!user || isLoading) return
 
     // If cup is already completed, remove it
     if (cupIndex < completedCups) {
-      console.log('Removing cup')
       await removeCup(cupIndex)
     } else {
       // If cup is not completed, add it
-      console.log('Adding cup')
       await addCup()
     }
   }
 
   const addCup = async () => {
-    if (completedCups >= totalCups) return
+    if (completedCups >= totalCups || !user) return
 
     setIsLoading(true)
     try {
-      // Try to save to database
-      if (user) {
-        const { error } = await supabase
-          .from("water_intake")
-          .insert({
-            created_by: user.id,
-            date_entry: today,
-            amount_ml: mlPerCup
-          })
-
-        if (error) {
-          console.error("Database error:", error)
-          // Continue with local state even if DB fails
-        }
-      }
-
+      await waterService.addCup(user.id, today, ozPerCup)
+      
       const newCompletedCups = completedCups + 1
       setCompletedCups(newCompletedCups)
       
       // Show confetti if goal is completed
       if (newCompletedCups === totalCups) {
         triggerConfetti()
-        setShowConfetti(true)
-        setTimeout(() => setShowConfetti(false), 3000)
       }
 
-      // Refresh from database if available
-      if (user) {
-        fetchTodayEntries()
-      }
+      // Refresh from database
+      await fetchTodayEntries()
     } catch (error) {
       console.error("Error adding water cup:", error)
-      // Still update local state even if there's an error
-      const newCompletedCups = completedCups + 1
-      setCompletedCups(newCompletedCups)
-      
-      if (newCompletedCups === totalCups) {
-        triggerConfetti()
-        setShowConfetti(true)
-        setTimeout(() => setShowConfetti(false), 3000)
-      }
     } finally {
       setIsLoading(false)
     }
@@ -140,25 +86,14 @@ export default function WaterTracker() {
     setIsLoading(true)
 
     try {
-      if (user && entryToRemove) {
-        const { error } = await supabase
-          .from("water_intake")
-          .delete()
-          .eq("id", entryToRemove.id)
-
-        if (error) {
-          console.error("Database error:", error)
-        }
+      if (entryToRemove) {
+        await waterService.removeCup(entryToRemove.id)
       }
 
       setCompletedCups(Math.max(0, completedCups - 1))
-      
-      if (user) {
-        fetchTodayEntries()
-      }
+      await fetchTodayEntries()
     } catch (error) {
       console.error("Error removing water cup:", error)
-      // Still update local state even if there's an error
       setCompletedCups(Math.max(0, completedCups - 1))
     } finally {
       setIsLoading(false)
@@ -174,16 +109,8 @@ export default function WaterTracker() {
     })
   }
 
-  const getTotalMl = () => {
-    return completedCups * mlPerCup
-  }
-
   const getTotalOunces = () => {
-    return Math.round(getTotalMl() * 0.033814)
-  }
-
-  const mlPerCupOunces = () => {
-    return Math.round(mlPerCup * 0.033814)
+    return completedCups * ozPerCup
   }
 
   const getProgressPercentage = () => {
@@ -195,16 +122,7 @@ export default function WaterTracker() {
 
     setIsLoading(true)
     try {
-      const { error } = await supabase
-        .from("water_intake")
-        .delete()
-        .eq("created_by", user.id)
-        .eq("date_entry", today)
-
-      if (error) {
-        throw error
-      }
-
+      await waterService.resetDay(user.id, today)
       setCompletedCups(0)
       setTodayEntries([])
     } catch (error) {
@@ -315,7 +233,7 @@ export default function WaterTracker() {
                   {getTotalOunces()} oz
                 </div>
                 <div className="text-sm text-gray-600">
-                  {getTotalMl()}ml
+                  Total consumed today
                 </div>
               </div>
 
@@ -339,15 +257,15 @@ export default function WaterTracker() {
             <CardContent className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Goal:</span>
-                <span>{totalCups * mlPerCupOunces()} oz</span>
+                <span>{totalCups * ozPerCup} oz</span>
               </div>
               <div className="flex justify-between">
                 <span>Per Cup:</span>
-                <span>{mlPerCupOunces()} oz (~{mlPerCup}ml)</span>
+                <span>{ozPerCup} oz</span>
               </div>
               <div className="flex justify-between">
                 <span>Remaining:</span>
-                <span>{(totalCups - completedCups) * mlPerCupOunces()} oz</span>
+                <span>{(totalCups - completedCups) * ozPerCup} oz</span>
               </div>
             </CardContent>
           </Card>

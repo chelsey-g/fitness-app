@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
   dsn: "https://2ebebd61ead2cdd4d2a6f816ec80438c@o4504181161656320.ingest.us.sentry.io/4507351787634688",
-  tunnel: "/api/sentry",
+  // tunnel: "/api/sentry", // Temporarily disabled to test direct connection
 
   // Adjust this value in production, or use tracesSampler for greater control
   tracesSampleRate: 1,
@@ -14,18 +14,17 @@ Sentry.init({
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
 
-  replaysOnErrorSampleRate: 1.0,
+  // Temporarily disable replay to isolate the issue
+  replaysOnErrorSampleRate: 0,
+  replaysSessionSampleRate: 0,
 
-  // This sets the sample rate to be 10%. You may want this to be 100% while
-  // in development and sample at a lower rate in production
-  replaysSessionSampleRate: 1.0,
+  // Remove replay integration temporarily
+  integrations: [],
 
-  // You can remove this option if you're not planning to use the Sentry Session Replay feature:
-  integrations: [
-    Sentry.replayIntegration({
-      // Additional Replay configuration goes in here, for example:
-      maskAllText: true,
-      blockAllMedia: true,
-    }),
-  ],
+  // Add beforeSend to handle potential issues
+  beforeSend(event, hint) {
+    // Log the event for debugging
+    console.log("Sentry event:", event);
+    return event;
+  },
 });

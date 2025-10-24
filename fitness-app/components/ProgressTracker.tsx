@@ -3,8 +3,9 @@
 import { useEffect, useState, useMemo } from "react"
 
 import { Tracker } from "@tremor/react"
-import { createClient } from "@/utils/supabase/client"
 import dayjs from "dayjs"
+import {weightService} from "@/app/services/WeightService"
+import { useAuth } from "@/contexts/AuthContext"
 
 interface WeightEntry {
   weight: number
@@ -17,7 +18,7 @@ interface TrackerPoint {
 }
 
 export default function ProgressTracker() {
-  const supabase = createClient()
+  const { user } = useAuth()
   const [weightDate, setWeightDate] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -26,14 +27,7 @@ export default function ProgressTracker() {
     const fetchWeight = async () => {
       try {
         setIsLoading(true)
-        const user = await supabase.auth.getUser()
-        const { data, error } = await supabase
-          .from("weight_tracker")
-          .select("weight, date_entry")
-          .eq("created_by", user.data.user?.id)
-
-        if (error) throw error
-
+        const data = await weightService.getWeightTrackerData(user?.id as string)
         const dates = data.map((entry: WeightEntry) =>
           dayjs(entry.date_entry).format("MM-DD-YYYY")
         )
