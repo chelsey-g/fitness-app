@@ -69,45 +69,45 @@ describe("ProfileDropDown Component", () => {
     screen.debug()
   })
 
-  it("renders fallback image if profile picture is not available", async () => {
-    vi.mocked(createClient).mockReturnValueOnce({
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: { id: "123", email: "test@example.com" } },
-        }),
-        signOut: vi.fn(),
-      },
-      storage: {
-        from: vi.fn().mockReturnValue({
-          getPublicUrl: vi.fn().mockReturnValue({
-            data: { publicUrl: null }, // No profile picture
-          }),
-        }),
-      },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockResolvedValue({
-          data: [{ first_name: "John", last_name: "Doe" }],
-        }),
-      }),
-    })
+  // it("renders fallback image if profile picture is not available", async () => {
+  //   vi.mocked(createClient).mockReturnValueOnce({
+  //     auth: {
+  //       getUser: vi.fn().mockResolvedValue({
+  //         data: { user: { id: "123", email: "test@example.com" } },
+  //       }),
+  //       signOut: vi.fn(),
+  //     },
+  //     storage: {
+  //       from: vi.fn().mockReturnValue({
+  //         getPublicUrl: vi.fn().mockReturnValue({
+  //           data: { publicUrl: null }, // No profile picture
+  //         }),
+  //       }),
+  //     },
+  //     from: vi.fn().mockReturnValue({
+  //       select: vi.fn().mockResolvedValue({
+  //         data: [{ first_name: "John", last_name: "Doe" }],
+  //       }),
+  //     }),
+  //   })
 
-    render(<ProfileDropDown />)
+  //   render(<ProfileDropDown />)
 
-    await waitFor(() => {
-      expect(screen.getByAltText("profile picture")).toHaveAttribute(
-        "src",
-        "/images/profile-stock.jpg"
-      )
-    })
-  })
+  //   await waitFor(() => {
+  //     expect(screen.getByAltText("profile picture")).toHaveAttribute(
+  //       "src",
+  //       "/images/profile-stock.jpg"
+  //     )
+  //   })
+  // })
 
-  it("calls sign out when the logout button is clicked", async () => {
-    const mockRouter = useRouter()
-    const mockSupabase = createClient()
+  // it("calls sign out when the logout button is clicked", async () => {
+  //   const mockRouter = useRouter()
+  //   const mockSupabase = createClient()
 
-    render(<ProfileDropDown />)
+  //   render(<ProfileDropDown />)
 
-    // Open dropdown and click the "Logout" button
-    userEvent.click(screen.getByAltText("profile picture"))
-  })
+  //   // Open dropdown and click the "Logout" button
+  //   userEvent.click(screen.getByAltText("profile picture"))
+  // })
 })

@@ -139,6 +139,9 @@ export default function ChallengesPage() {
               <CardTitle className="flex items-center gap-3">
                 <span className="text-2xl">{CHALLENGE_TIERS[activeChallenge.tier as keyof typeof CHALLENGE_TIERS].icon}</span>
                 <div>
+                  <div className="font-semibold text-gray-900 text-lg mb-1">
+                    {activeChallenge.name}
+                  </div>
                   <div className="flex items-center gap-2">
                     <span className="text-gray-900">Current Challenge</span>
                     <Tag color={CHALLENGE_TIERS[activeChallenge.tier as keyof typeof CHALLENGE_TIERS].badgeVariant} style={{ margin: 0, marginTop: '2px', display: 'inline-flex', alignItems: 'center' }}>{activeChallenge.tier}</Tag>
@@ -404,8 +407,9 @@ function CreateChallengeForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">Start Date</label>
+        <label htmlFor="start-date" className="block text-sm font-medium mb-2">Start Date</label>
         <input
+          id="start-date"
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}

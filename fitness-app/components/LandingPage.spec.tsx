@@ -18,15 +18,16 @@ describe("LandingPage", () => {
     render(<LandingPage isBackendConnected={true} />)
 
     // Check if the main heading is rendered
-    expect(screen.getByText("Fitness At Your Fingertips")).toBeInTheDocument()
+    expect(screen.getByText(/Kickstart your habits with/i)).toBeInTheDocument()
+    expect(screen.getByText("HabitKick")).toBeInTheDocument()
   })
 
-  it("renders the 'Get Started' button", () => {
+  it("renders the 'Start Your Journey' link", () => {
     render(<LandingPage isBackendConnected={true} />)
 
-    // Check if the 'Get Started' button is rendered
-    const button = screen.getByRole("button", { name: /get started/i })
-    expect(button).toBeInTheDocument()
+    // Check if the 'Start Your Journey' link is rendered
+    const link = screen.getByRole("link", { name: /start your journey/i })
+    expect(link).toBeInTheDocument()
   })
 
   //   it("navigates to the login page when 'Get Started' button is clicked", () => {
@@ -41,41 +42,51 @@ describe("LandingPage", () => {
   //     expect(push).toHaveBeenCalledWith("/login")
   //   })
 
-  it("renders Explore Our Tools section with icons", () => {
+  it("renders features sections", () => {
     render(<LandingPage isBackendConnected={true} />)
 
-    // Check if the section heading is rendered
-    expect(screen.getByText("Explore Our Tools")).toBeInTheDocument()
-
-    // Check if icons are rendered
-    expect(screen.getByText("BMI & Calorie Calculators")).toBeInTheDocument()
-    expect(screen.getByText("Start a Goal")).toBeInTheDocument()
-    expect(screen.getByText("Create a Competition")).toBeInTheDocument()
-    expect(screen.getByText("Personalized Workouts")).toBeInTheDocument()
+    // Check if feature sections are rendered
+    expect(screen.getByText(/Set goals that/i)).toBeInTheDocument()
+    expect(screen.getByText(/Track your progress with/i)).toBeInTheDocument()
+    // Check for the 75 day challenge heading - text is split across elements with span
+    const heading = screen.getByText(/Transform your life in/i)
+    expect(heading).toBeInTheDocument()
+    expect(screen.getByText("75 days")).toBeInTheDocument()
+    
+    // Check if feature links are rendered
+    expect(screen.getByRole("link", { name: /try goal tracking/i })).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /start tracking weight/i })).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /start 75 day challenge/i })).toBeInTheDocument()
   })
 
   it("renders the testimonials", () => {
     render(<LandingPage isBackendConnected={true} />)
 
-    // Check if testimonials are rendered
+    // Check if testimonials section heading is rendered
+    expect(screen.getByText(/Loved by/i)).toBeInTheDocument()
+    
+    // Check if testimonial content is rendered
     expect(
-      screen.getByText(/"This app has completely revolutionized/i)
+      screen.getByText(/HabitKick transformed my workout routine/i)
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/"I've never been more inspired to stay active/i)
+      screen.getByText(/Perfect for tracking client progress/i)
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/"The friendly competition keeps me motivated/i)
+      screen.getByText(/Finally, a fitness app that actually helps/i)
     ).toBeInTheDocument()
   })
 
-  it("renders the 'Join Now' section", () => {
+  it("renders the CTA section", () => {
     render(<LandingPage isBackendConnected={true} />)
 
-    // Check if the 'Join Now' section is rendered
-    expect(screen.getByText("Ready to Start Your Journey?")).toBeInTheDocument()
+    // Check if the CTA section is rendered
+    expect(screen.getByText(/Ready to transform your fitness journey/i)).toBeInTheDocument()
 
-    const joinButton = screen.getByRole("button", { name: /join now/i })
-    expect(joinButton).toBeInTheDocument()
+    const getStartedLink = screen.getByRole("link", { name: /get started free/i })
+    expect(getStartedLink).toBeInTheDocument()
+    
+    const signInLink = screen.getByRole("link", { name: /sign in/i })
+    expect(signInLink).toBeInTheDocument()
   })
 })

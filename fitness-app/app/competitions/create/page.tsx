@@ -8,6 +8,7 @@ import BackButton from "@/components/BackButton"
 import { getOrdinalSuffix } from "@/app/functions"
 import { AuthService } from "@/app/services/AuthService"
 import { createClient } from "@/utils/supabase/client"
+import { competitionService } from "@/app/services/CompetitionService"
 
 
 const supabase = createClient();
@@ -50,7 +51,7 @@ export default function CreateCompetitionPage() {
     const user = await authService.getUser()
 
     if (!user) {
-      redirect("/sign-in")
+      router.push("/sign-in")
     }
 
     if (!competitionData.name) {
@@ -66,7 +67,7 @@ export default function CreateCompetitionPage() {
     const competitionInfo = await competitionService.createCompetition({
       ...competitionData,
       created_by: user?.id,
-      prizes: competitionData.has_prizes ? competitionData.prizes : null,
+      prizes: competitionData.has_prizes ? competitionData.prizes : [] as any,
     })
 
     console.log('COMPETITION INFO', competitionInfo)
@@ -89,7 +90,7 @@ export default function CreateCompetitionPage() {
         <div className="max-w-5xl mx-auto mt-6 bg-white dark:text-black rounded-lg relative">
           <BackButton />
           <div className="border-b-2 border-snd-bkg pb-4 m-6 pt-6">
-            <h2 className="text-4xl font-extrabold mb-2 tracking-tight">
+            <h2 className="text-4xl font-extrabold mb-2 tracking-tight" data-testid="create-competition-title">
               Create Competition
             </h2>
             <p className="text-lg text-gray-700">
@@ -116,7 +117,7 @@ export default function CreateCompetitionPage() {
             <div className="flex flex-col">
               <label className="text-gray-600 mb-1">Select Players</label>
               <div className="flex items-center">
-                <label className="flex items-center mr-4">
+                <label className="flex items-center mr-4" data-testid="players-radio-yes">
                   <input
                     type="radio"
                     name="selectPlayers"
@@ -127,7 +128,7 @@ export default function CreateCompetitionPage() {
                   />
                   Yes
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center" data-testid="players-radio-no">
                   <input
                     type="radio"
                     name="selectPlayers"
@@ -191,7 +192,7 @@ export default function CreateCompetitionPage() {
                   {competitionData.prizes.map((prize, index) => (
                     <div key={index} className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col">
-                        <label className="text-gray-600 mb-1">
+                        <label className="text-gray-600 mb-1" data-testid={`prize-${getOrdinalSuffix(prize.place)}-place`}>
                           {getOrdinalSuffix(prize.place)} Place
                         </label>
                         <input
@@ -206,6 +207,7 @@ export default function CreateCompetitionPage() {
                             })
                           }}
                           placeholder="Ex. $100, a trophy, etc."
+                          aria-label={`Prize ${getOrdinalSuffix(prize.place)} Place`}
                           className="p-3 border border-gray-300 rounded-md focus:border-logo-green focus:ring focus:ring-logo-green"
                         />
                       </div>
@@ -260,6 +262,7 @@ export default function CreateCompetitionPage() {
             </div>
             <div className="flex justify-center">
               <button
+                data-testid="create-competition-button"
                 type="submit"
                 className="px-4 py-2 rounded-md bg-logo-green dark:bg-snd-bkg text-black dark:text-white font-medium hover:opacity-90"
               >

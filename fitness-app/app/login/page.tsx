@@ -56,13 +56,14 @@ export default function Login() {
             </div>
           )}
 
-          <label className="text-md" htmlFor="email">
+          <label className="text-md" htmlFor="email" data-testid="email-label">
             Email
           </label>
           <input
             className="rounded-md px-4 py-2 bg-inherit border mb-6"
             name="email"
             type="email"
+            data-testid="email-input"
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -75,6 +76,7 @@ export default function Login() {
             className="rounded-md px-4 py-2 bg-inherit border mb-3"
             type="password"
             name="password"
+            data-testid="password-input"
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

@@ -36,7 +36,7 @@ interface goal {
         .eq("profile_id", userId)
       if (error) throw mapSupabaseError(error);
     }
-
+    
     // async updateGoal(userId: string, goalId: number, goalWeight: number, goalDate: string): Promise<void> {
     //   const { error } = await this.base
     //     .update({

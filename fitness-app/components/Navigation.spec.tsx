@@ -7,6 +7,8 @@ import Navigation from "@/components/Navigation"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 import userEvent from "@testing-library/user-event"
+import { useAuth } from "@/contexts/AuthContext"
+import { User } from "@supabase/supabase-js"
 
 // Mock DarkModeToggle component to avoid window.matchMedia issues
 vi.mock("@/components/DarkModeToggle", () => ({
@@ -26,6 +28,12 @@ vi.mock("@/utils/supabase/client", () => ({
   })),
 }))
 
+vi.mock("@/contexts/AuthContext", () => ({
+  useAuth: vi.fn(() => ({
+    user: { id: "123", email: "test@example.com" },
+  })),
+}))
+
 // Mock useRouter
 vi.mock("next/navigation", () => ({
   useRouter: vi.fn(() => ({
@@ -35,40 +43,36 @@ vi.mock("next/navigation", () => ({
 
 describe("Navigation Component", () => {
   it("renders correctly when user is not logged in", async () => {
-    render(<Navigation />)
-
-    // Check that at least one Login element is rendered
-    const loginElements = screen.getAllByText("Login")
-    expect(loginElements.length).toBeGreaterThan(0)
-
-    // Check that the Contact link is rendered
-
-    const contactElement = screen.getAllByText("Contact")
-    expect(contactElement.length).toBeGreaterThan(0)
-  })
-
-  it("renders correctly when user is logged in", async () => {
-    // Adjust mock to simulate user being logged in
-    const mockCreateClient = createClient() as any
-    mockCreateClient.auth.getSession.mockResolvedValueOnce({
-      data: { session: { user: { id: "123", email: "test@example.com" } } },
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      isLoading: false,
+      session: null,
+      signOut: vi.fn(),
+      refreshAuth: vi.fn(),
     })
 
     render(<Navigation />)
 
-    screen.debug()
+    expect(screen.getByText("Get Started")).toBeInTheDocument()
+    expect(screen.getByText("Login")).toBeInTheDocument()
   })
 
-  it("toggles the mobile menu", () => {
+  it("renders correctly when user is logged in", async () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "123", email: "test@example.com", app_metadata: { provider: "email" }, user_metadata: { first_name: "John", last_name: "Doe" }, aud: "authenticated", created_at: new Date().toISOString() },
+      isLoading: false,
+      session: null,
+      signOut: vi.fn(),
+      refreshAuth: vi.fn(),
+    })
+
     render(<Navigation />)
 
-    // Find the menu toggle button
-    const toggleButton = screen.getByTestId("menu-toggle")
+    expect(screen.getByText("Tracker")).toBeInTheDocument()
+    expect(screen.getByText("Challenges")).toBeInTheDocument()
+    expect(screen.getByText("Tools")).toBeInTheDocument()
+    expect(screen.getByText("Goals")).toBeInTheDocument()
 
-    // Click to open the menu
-    userEvent.click(toggleButton)
-
-    // Click to close the menu
-    userEvent.click(toggleButton)
   })
+  
 })

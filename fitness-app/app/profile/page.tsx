@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label"
 import UploadPicture from "@/components/UploadPicture"
 import UsernamePassword from "@/components/UsernamePassword"
 import { createClient } from "@/utils/supabase/client"
+import { profileService } from "@/app/services/ProfileService"
 import useSWR from "swr"
 import { useState } from "react"
 
@@ -59,18 +60,16 @@ export default function ProfileDashboard() {
 
   const handleProfileUpdate = async (e: any) => {
     e.preventDefault()
-    const { error } = await supabase
-      .from("profiles")
-      .update({
+    if (!userInfo?.id) return
+
+    try {
+      await profileService.updateProfile(userInfo.id, {
         first_name: firstName,
         last_name: lastName,
       })
-      .eq("id", userInfo?.id)
-
-    if (error) {
-      console.error("Error updating profile:", error.message)
-    } else {
       setIsOpen(false)
+    } catch (error: any) {
+      console.error("Error updating profile:", error.message)
     }
   }
 

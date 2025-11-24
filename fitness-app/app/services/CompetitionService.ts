@@ -30,6 +30,31 @@ export class CompetitionService {
     return data
   }
 
+  async getCompetitionById(id: string) {
+    const { data, error } = await this.base.select(`
+      *,
+      competitions_players(
+        *,
+        profiles(
+          id,
+          first_name,
+          last_name,
+          weight_tracker(weight, date_entry)
+        )
+      )
+    `).eq("id", id).single()
+    if (error) throw mapSupabaseError(error)
+    return data
+  }
+
+  async getCompetitionHistory() {
+    const { data, error } = await this.base
+      .select(`name, id, date_started, date_ending, created_by`)
+      .order("date_ending", { ascending: false })
+    if (error) throw mapSupabaseError(error)
+    return data
+  }
+
   async createCompetition(competitionData: CompetitionData & { created_by?: string }) {
     const { data, error } = await this.base.insert(competitionData).select()
     if (error) throw mapSupabaseError(error)

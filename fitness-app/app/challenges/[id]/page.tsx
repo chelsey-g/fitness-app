@@ -178,7 +178,7 @@ export default function ChallengeDetailPage({ params }: { params: { id: string }
           </Link>
         </div>
         <div className="text-center">
-          <h1 className="text-2xl font-bold flex items-center justify-center gap-2">
+          <h1 className="text-2xl font-bold flex items-center justify-center gap-2" data-testid="challenge-name">
             <span className="text-xl">{tierInfo.icon}</span>
             {challenge.name}
           </h1>

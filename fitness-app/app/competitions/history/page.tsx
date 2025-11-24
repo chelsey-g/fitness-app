@@ -9,6 +9,7 @@ import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
 import { getRandomColor } from "@/app/functions"
 import DeleteDialog from "@/components/DeleteDialog"
+import { competitionService } from "@/app/services/CompetitionService"
 
 interface CompetitionHistory {
   name: string
@@ -25,17 +26,8 @@ export default function CompetitionHistoryPage() {
 
   const fetcher: Fetcher<CompetitionHistory[], string> = async () => {
     const today = dayjs().startOf('day')
-    const { data, error } = await supabase
-      .from("competitions")
-      .select(`name, id, date_started, date_ending, created_by`)
-      .order("date_ending", { ascending: false })
-
-    if (error) {
-      throw new Error(error.message)
-    }
-
-    // Filter for expired competitions only
-    return data.filter((comp) => dayjs(comp.date_ending).isBefore(today))
+    const data = await competitionService.getCompetitionHistory()
+    return data?.filter((comp: CompetitionHistory) => dayjs(comp.date_ending).isBefore(today))
   }
 
   const {

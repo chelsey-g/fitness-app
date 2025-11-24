@@ -87,7 +87,7 @@ export default function CompetitionsPage() {
               Active Competitions
             </h1>
             {(competitions?.length ?? 0) > 0 && (
-              <p className="text-base sm:text-lg text-gray-700">
+              <p className="text-base sm:text-lg text-gray-700" data-testid="competition-count">
                 You currently have{" "}
                 <span className="text-snd-bkg font-semibold">
                   {competitions?.length}

@@ -25,6 +25,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { GiTrophyCup } from "react-icons/gi"
 import { useRouter } from "next/navigation"
 import LeaveCompetition from "@/components/LeaveCompetition"
+import { competitionService } from "@/app/services/CompetitionService"
 
 interface Player {
   rank: number
@@ -199,7 +200,7 @@ export default function CompetitionPage({ params }: { params: { id: string } }) 
     },
     {
       accessorKey: "percentageChange",
-      header: () => <div className="text-right">Progress</div>,
+      header: () => <div className="text-right" data-testid="progress-header">Progress</div>,
       cell: ({ row }) => {
         const value = row.getValue("percentageChange") as string
         const isPositive = !value.includes("-") && value !== "-"
@@ -276,15 +277,9 @@ export default function CompetitionPage({ params }: { params: { id: string } }) 
       return
     }
     try {
-      const { error } = await supabase
-        .from("competitions_players")
-        .delete()
-        .match({
-          competition_id: params.id,
-          player_id: user.id,
-        })
-      if (error) {
-        throw error
+      const success = await competitionService.deleteCompetition(params.id, user.id)
+      if (!success) {
+        throw new Error("Failed to leave competition")
       }
       router.push("/competitions")
     } catch (error) {
@@ -319,7 +314,7 @@ export default function CompetitionPage({ params }: { params: { id: string } }) 
       {competitionData?.map((competition) => (
         <div key={competition.id} className="pb-6 mb-6">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-4xl font-extrabold tracking-tight">
+            <h1 className="text-4xl font-extrabold tracking-tight" data-testid="competition-name">
               {competition.name}
             </h1>
             <div className="flex gap-4">

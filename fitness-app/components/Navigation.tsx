@@ -158,8 +158,8 @@ export default function Navigation() {
                 Goals
               </Link>
               <div className="flex items-center space-x-4">
-                <Profile />
-                <DarkModeToggle />
+                <Profile  data-testid="profile-dropdown" />
+                <DarkModeToggle data-testid="dark-mode-toggle" />
               </div>
             </>
           ) : (
@@ -173,6 +173,7 @@ export default function Navigation() {
               <Link
                 href="/login"
                 className="px-4 py-2 border border-dashed rounded-md hover:opacity-90"
+                data-testid="login-link"
               >
                 Login
               </Link>
@@ -220,12 +221,15 @@ export default function Navigation() {
                   onClick={() => setIsMenuOpen(false)}
                   className="flex items-center space-x-3 px-4 py-3 text-lg rounded-lg hover:bg-gray-900 hover:scale-105 transition-all duration-300 ease-in-out text-white hover:text-logo-green hover:shadow-lg transform active:scale-95"
                 >
-                  <FaUserCog className="text-logo-green text-xl transition-transform duration-300 hover:rotate-12" />
+                  <FaUserCog className="text-logo-green text-xl transition-transform duration-300 hover:rotate-12"
+                    data-testid="profile-link"
+                  />
                   <span className="font-medium">Profile</span>
                 </Link>
               </div>
               <button
                 onClick={handleSignOut}
+                data-testid="logout-button"
                 className="flex items-center justify-center space-x-3 w-full px-4 py-3 bg-red-600 text-white text-lg font-medium rounded-lg hover:bg-red-700 hover:scale-105 transition-all duration-300 ease-in-out shadow-md hover:shadow-xl transform active:scale-95"
               >
                 <FaSignOutAlt className="transition-transform duration-300 hover:rotate-12" />
@@ -236,6 +240,7 @@ export default function Navigation() {
             <div className="space-y-4">
               <Link
                 href="/signup"
+                data-testid="get-started-link"
                 onClick={() => setIsMenuOpen(false)}
                 className="block w-full px-6 py-3 bg-logo-green text-black text-lg font-medium text-center rounded-lg hover:opacity-90 hover:scale-105 transition-all duration-300 ease-in-out shadow-md hover:shadow-xl transform active:scale-95"
               >
@@ -243,6 +248,7 @@ export default function Navigation() {
               </Link>
               <Link
                 href="/login"
+                data-testid="login-link"
                 onClick={() => setIsMenuOpen(false)}
                 className="block w-full px-6 py-3 border-2 border-logo-green text-logo-green text-lg font-medium text-center rounded-lg hover:bg-logo-green hover:text-black hover:scale-105 transition-all duration-300 ease-in-out hover:shadow-lg transform active:scale-95"
               >

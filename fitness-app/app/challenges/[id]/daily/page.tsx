@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/utils/supabase/client"
 import { useAuth } from "@/contexts/AuthContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,28 +12,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import useSWR from "swr"
 import confetti from "canvas-confetti"
-
-interface Challenge {
-  id: string
-  user_id: string
-  tier: "Soft" | "Medium" | "Hard"
-  start_date: string
-  end_date: string
-  rules: string[]
-  is_active: boolean
-  created_at: string
-  custom_rules?: string[]
-}
-
-interface DailyProgress {
-  id: string
-  challenge_id: string
-  date: string
-  completed_rules: number[]
-  is_complete: boolean
-  notes?: string
-  progress_photo_url?: string
-}
+import { challengeService, Challenge, DailyProgress } from "@/app/services/ChallengeService"
 
 const CHALLENGE_TIERS = {
   Soft: { name: "Soft", icon: "🌱", color: "bg-green-100 text-green-800" },
@@ -50,7 +28,6 @@ export default function DailyChecklistPage({
   searchParams: { date?: string }
 }) {
   const { user } = useAuth()
-  const supabase = createClient()
   const router = useRouter()
   const [completedRules, setCompletedRules] = useState<number[]>([])
   const [notes, setNotes] = useState("")
@@ -67,30 +44,12 @@ export default function DailyChecklistPage({
 
   const challengeFetcher = async () => {
     if (!user) return null
-    
-    const { data, error } = await supabase
-      .from("challenges")
-      .select("*")
-      .eq("id", params.id)
-      .eq("user_id", user.id)
-      .single()
-
-    if (error) throw error
-    return data
+    return await challengeService.getChallengeById(params.id, user.id)
   }
 
   const progressFetcher = async () => {
     if (!user) return null
-    
-    const { data, error } = await supabase
-      .from("daily_progress")
-      .select("*")
-      .eq("challenge_id", params.id)
-      .eq("date", selectedDate)
-      .single()
-
-    if (error && error.code !== 'PGRST116') throw error
-    return data
+    return await challengeService.getDailyProgress(params.id, selectedDate)
   }
 
   const { data: challenge } = useSWR(
@@ -106,16 +65,7 @@ export default function DailyChecklistPage({
   // Get today's progress for alerts
   const todayProgressFetcher = async () => {
     if (!user) return null
-    
-    const { data, error } = await supabase
-      .from("daily_progress")
-      .select("*")
-      .eq("challenge_id", params.id)
-      .eq("date", today)
-      .single()
-
-    if (error && error.code !== 'PGRST116') throw error
-    return data
+    return await challengeService.getDailyProgress(params.id, today)
   }
 
   const { data: todayProgress } = useSWR(
@@ -130,16 +80,7 @@ export default function DailyChecklistPage({
 
   const yesterdayProgressFetcher = async () => {
     if (!user) return null
-    
-    const { data, error } = await supabase
-      .from("daily_progress")
-      .select("*")
-      .eq("challenge_id", params.id)
-      .eq("date", yesterdayDate)
-      .single()
-
-    if (error && error.code !== 'PGRST116') throw error
-    return data
+    return await challengeService.getDailyProgress(params.id, yesterdayDate)
   }
 
   const { data: yesterdayProgress } = useSWR(
@@ -267,20 +208,26 @@ export default function DailyChecklistPage({
         user_id: user.id
       }
 
-      if (selectedDateProgress) {
-        // Update existing progress
-        const { error } = await supabase
-          .from("daily_progress")
-          .update(progressData)
-          .eq("id", selectedDateProgress.id)
-      } else {
-        // Create new progress entry
-        const { error } = await supabase
-          .from("daily_progress")
-          .insert(progressData)
-      }
+      await challengeService.saveDailyProgress(
+        progressData,
+        selectedDateProgress?.id
+      )
 
-      mutateProgress()
+      // Mutate progress to refresh cache (fire and forget)
+      // Wrap in try-catch to handle both sync and async errors
+      try {
+        const mutatePromise = mutateProgress()
+        if (mutatePromise && typeof mutatePromise.catch === 'function') {
+          mutatePromise.catch((error) => {
+            // Ignore mutate errors - cache update is optional
+            console.warn("Failed to mutate progress cache:", error)
+          })
+        }
+      } catch (error) {
+        // Handle synchronous errors (e.g., in test environments)
+        console.warn("Failed to mutate progress cache:", error)
+      }
+      
       router.push(`/challenges/${params.id}`)
     } catch (error) {
       console.error("Error saving progress:", error)
@@ -334,7 +281,7 @@ export default function DailyChecklistPage({
             Day {progress.currentDay} Checklist
           </h1>
           <div className="flex items-center gap-2 mt-1">
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-gray-600 dark:text-gray-300" data-testid="challenge-name">
               {challenge.name} - {new Date(selectedDate + 'T00:00:00').toLocaleDateString()}
             </p>
             {selectedDate !== today && (

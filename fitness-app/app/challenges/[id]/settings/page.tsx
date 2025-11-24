@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/utils/supabase/client"
 import { useAuth } from "@/contexts/AuthContext"
+import { challengeService } from "@/app/services/ChallengeService"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -32,7 +32,6 @@ const CHALLENGE_TIERS = {
 
 export default function ChallengeSettingsPage({ params }: { params: { id: string } }) {
   const { user } = useAuth()
-  const supabase = createClient()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [isEditingName, setIsEditingName] = useState(false)
@@ -42,16 +41,7 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
 
   const challengeFetcher = async () => {
     if (!user) return null
-    
-    const { data, error } = await supabase
-      .from("challenges")
-      .select("*")
-      .eq("id", params.id)
-      .eq("user_id", user.id)
-      .single()
-
-    if (error) throw error
-    return data
+    return await challengeService.getChallengeById(params.id, user.id)
   }
 
   const { data: challenge, mutate } = useSWR(
@@ -77,13 +67,7 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
     setIsSubmitting(true)
 
     try {
-      const { error } = await supabase
-        .from("challenges")
-        .update({ name: editedName.trim() })
-        .eq("id", challenge.id)
-
-      if (error) throw error
-
+      await challengeService.updateChallengeName(challenge.id as string, editedName.trim())
       mutate()
       setIsEditingName(false)
     } catch (error) {
@@ -125,16 +109,7 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
     setIsSubmitting(true)
 
     try {
-      const { error } = await supabase
-        .from("challenges")
-        .update({ 
-          rules: filteredRules,
-          custom_rules: filteredRules
-        })
-        .eq("id", challenge.id)
-
-      if (error) throw error
-
+      await challengeService.updateChallengeRules(challenge.id as string, filteredRules, filteredRules)
       mutate()
       setIsEditing(false)
     } catch (error) {
@@ -154,13 +129,7 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
     setIsSubmitting(true)
 
     try {
-      const { error } = await supabase
-        .from("challenges")
-        .update({ is_active: false })
-        .eq("id", challenge.id)
-
-      if (error) throw error
-
+      await challengeService.deactivateChallenge(challenge.id as string)
       router.push("/challenges")
     } catch (error) {
       console.error("Error deactivating challenge:", error)
@@ -183,22 +152,11 @@ export default function ChallengeSettingsPage({ params }: { params: { id: string
       const endDate = new Date(today)
       endDate.setDate(today.getDate() + 74)
 
-      const { error } = await supabase
-        .from("challenges")
-        .update({ 
-          start_date: today.toISOString().split('T')[0],
-          end_date: endDate.toISOString().split('T')[0],
-          is_active: true
-        })
-        .eq("id", challenge.id)
+      const startDateStr = today.toISOString().split('T')[0]
+      const endDateStr = endDate.toISOString().split('T')[0]
 
-      if (error) throw error
-
-      // Clear existing progress
-      await supabase
-        .from("daily_progress")
-        .delete()
-        .eq("challenge_id", challenge.id)
+      await challengeService.restartChallenge(challenge.id as string, startDateStr, endDateStr)
+      await challengeService.clearDailyProgress(challenge.id as string)
 
       router.push(`/challenges/${challenge.id}`)
     } catch (error) {

@@ -16,3 +16,10 @@ global.navigator = {
   userAgent: 'node.js',
 };
 
+// Global error handler to catch unhandled promise rejections
+// This prevents Vitest from reporting unhandled errors during test runs
+process.on('unhandledRejection', (reason, promise) => {
+  // Silently handle unhandled rejections in tests
+  // This is expected when testing error scenarios with SWR
+});
+

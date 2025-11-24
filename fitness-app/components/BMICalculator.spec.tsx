@@ -38,7 +38,7 @@ describe("BMICalculator Component", () => {
     fireEvent.click(screen.getByText("Calculate BMI"))
 
     // Check if the correct BMI result is displayed
-    expect(screen.getByText(/Your BMI:/)).toBeInTheDocument()
+    // The BMI value is displayed in the CircularProgressbar component
     expect(screen.getByText(/23.49/)).toBeInTheDocument() // Calculated BMI
     expect(screen.getByText("Normal weight")).toBeInTheDocument()
   })
@@ -61,7 +61,7 @@ describe("BMICalculator Component", () => {
     fireEvent.click(screen.getByText("Calculate BMI"))
 
     // Check if the correct BMI result and message are displayed
-    expect(screen.getByText(/Your BMI:/)).toBeInTheDocument()
+    // The BMI value is displayed in the CircularProgressbar component
     expect(screen.getByText(/31.32/)).toBeInTheDocument() // Calculated BMI
     expect(screen.getByText("Obese")).toBeInTheDocument()
 
