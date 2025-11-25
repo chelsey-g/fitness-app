@@ -28,3 +28,13 @@ jobs:
       - name: Run unit tests
         run: npm test -- --run
         working-directory: fitness-app
+        env: 
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_SERVICE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_SERVICE_KEY }}
+          NEXT_PUBLIC_RECIPE_API_KEY: ${{ secrets.NEXT_PUBLIC_RECIPE_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          TZ: UTC 
+        
+        
