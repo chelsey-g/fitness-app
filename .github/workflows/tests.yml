@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: fitness-app/fitness-app/app
+        working-directory: ./app
 
       - name: Run unit tests
         run: npm test -- --run
