@@ -10,7 +10,7 @@ export default function AddPlayers({
 }) {
   const supabase = createClient()
 
-  const [profiles, setProfiles] = useState<profiles[]>([])
+  const [profile, setProfiles] = useState<profiles[]>([])
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<any>([])
 
   type profiles = {
