@@ -1,9 +1,12 @@
 
 import { InfoIcon } from "lucide-react"
 import { redirect } from "next/navigation"
-import { authService } from "@/app/services/AuthService"
+import { AuthService } from "@/app/services/AuthService"
+import { createClient } from "@/utils/supabase/server"
 
 export default async function ProtectedPage() {
+  const supabase = await createClient()
+  const authService = new AuthService(supabase)
   const user = await authService.getUser()
 
   if (!user) {

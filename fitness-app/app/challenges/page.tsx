@@ -63,7 +63,7 @@ export default function ChallengesPage() {
 
   const challengeFetcher = async () => {
     if (!user) return null
-    const data = await challengeService.getChallenges(user.id as number)
+    const data = await challengeService.getChallenges(user.id)
     return data
   }
 

@@ -38,9 +38,12 @@ export class AuthService {
   //   return data
   // }
 
-  async resetPassword(email: string) {
+  async resetPassword(email: string, origin?: string) {
+    const redirectTo = origin 
+      ? `${origin}/auth/callback?redirect_to=/protected/reset-password`
+      : undefined
     const { error } = await this.client.auth.resetPasswordForEmail(email, {
-      redirectTo: `${origin}/auth/callback?redirect_to=/protected/reset-password`,
+      redirectTo,
     })
     if (error) throw mapSupabaseError(error)
     return
