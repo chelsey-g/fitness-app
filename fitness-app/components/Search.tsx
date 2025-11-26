@@ -38,7 +38,7 @@ export default function SearchBar({
     const options = {
       method: "GET",
       headers: {
-        "X-RapidAPI-Key": "89714174d5mshc26bac9205ea4bfp12ab1ejsnf3c87cc1e15a",
+        "X-RapidAPI-Key": `${process.env.NEXT_PUBLIC_EXERCISE_API_KEY}`,
         "X-RapidAPI-Host": "exercises-by-api-ninjas.p.rapidapi.com",
       },
     }
@@ -46,7 +46,7 @@ export default function SearchBar({
     fetch(url, options)
       .then((response) => response.json())
       .then((data) => {
-        setResults(data || [])
+        setResults(Array.isArray(data) ? data : [])
         console.log(data, "hi")
       })
       .catch((error) => {
