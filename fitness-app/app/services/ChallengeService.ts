@@ -29,7 +29,7 @@ export class ChallengeService {
   private base = createClient().from("challenges")
   private progressBase = createClient().from("daily_progress")
 
-  async getChallenges(userId: number) {
+  async getChallenges(userId: string) {
     const { data, error } = await this.base.select("*").eq("user_id", userId)
     if (error) throw mapSupabaseError(error)
     return data

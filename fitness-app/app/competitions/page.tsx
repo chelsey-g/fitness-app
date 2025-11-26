@@ -127,7 +127,7 @@ export default function CompetitionsPage() {
                     >
                       {competition.name}
                     </Link>
-                    {user.id === competition.created_by && (
+                    {user && user.id === competition.created_by && (
                       <span className="text-xs text-logo-green font-medium">
                         Admin
                       </span>
@@ -139,7 +139,7 @@ export default function CompetitionsPage() {
                 </span>
               </div>
               <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center ml-4">
-                {user.id === competition.created_by && (
+                {user && user.id === competition.created_by && (
                   <DeleteDialog
                     title="Delete Competition"
                     message="Are you sure you want to delete this competition?"

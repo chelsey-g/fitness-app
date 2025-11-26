@@ -13,23 +13,24 @@ import InviteFriend from "@/components/InviteFriend"
 import { goalService } from "@/app/services/GoalService"
 import { profileService } from "@/app/services/ProfileService"
 import { AuthService } from "@/app/services/AuthService"
-import { weightService } from "@/app/services/WeightService"
+import { weightService, WeightEntry } from "@/app/services/WeightService"
 import { challengeService, Challenge } from "@/app/services/ChallengeService"
 import { createClient } from "@/utils/supabase/client"
 
 const supabase = createClient();
 const authService = new AuthService(supabase);
 
-// type Profile = {
-//   id: number
-//   first_name: string
-// }
+type Profile = {
+  id: string
+  first_name: string
+  last_name?: string
+}
 
-// type Goals = {
-//   id: number
-//   goal_date: string
-//   goal_weight: number
-// }
+type Goal = {
+  id: number
+  goal_date: string
+  goal_weight: number
+}
 
 // type Weight = {
 //   created_by: number
@@ -90,7 +91,7 @@ export default function UserDashboard() {
   )
 
   const challengeFetcher = async () => {
-    const data = await challengeService.getChallenges(identityId as unknown as number)
+    const data = await challengeService.getChallenges(identityId as string)
     return data
   }
 

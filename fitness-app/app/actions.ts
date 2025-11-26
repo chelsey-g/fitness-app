@@ -58,12 +58,12 @@ export const forgotPasswordAction = async (formData: FormData) => {
     return encodedRedirect("error", "/forgot-password", "Email is required")
   }
 
-  const data = await authService.resetPassword(email)
-  if (!data) {
+  try {
+    await authService.resetPassword(email, origin || undefined)
+    return encodedRedirect("success", "/forgot-password", "Check your email for a link to reset your password.")
+  } catch (error) {
     return encodedRedirect("error", "/forgot-password", "Failed to send password reset email")
   }
-
-  return encodedRedirect("success", "/forgot-password", "Check your email for a link to reset your password.")
 }
 
 export const resetPasswordAction = async (formData: FormData) => {

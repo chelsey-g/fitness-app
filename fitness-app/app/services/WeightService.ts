@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/client"
 import { mapSupabaseError } from '@/utils/errors'
 
 
-type WeightEntry = {
+export type WeightEntry = {
   id: number
   date_entry: string
   weight: number
