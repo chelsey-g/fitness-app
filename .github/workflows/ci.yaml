@@ -24,11 +24,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
-        working-directory: fitness-app
+        # working-directory: fitness-app
         run: npm ci
 
       - name: Run Vitest tests
-        working-directory: fitness-app
+        # working-directory: fitness-app
         env: 
           NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
