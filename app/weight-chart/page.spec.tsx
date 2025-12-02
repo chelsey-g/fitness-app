@@ -163,10 +163,13 @@ describe("WeightChartPage Component", () => {
     },
   ]
 
+  // Use a future date to ensure the goal is current
+  const futureDate = new Date()
+  futureDate.setFullYear(futureDate.getFullYear() + 1)
   const mockGoal = {
     id: 1,
     goal_weight: 175.0,
-    goal_date: "2024-06-01",
+    goal_date: futureDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
   }
 
   beforeEach(() => {
@@ -536,6 +539,58 @@ describe("WeightChartPage Component", () => {
 
   it("does not display goal info when no goal exists", async () => {
     vi.mocked(goalService.getGoals).mockResolvedValue([])
+
+    renderWithSWR(<WeightChartPage />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/You're only/i)).not.toBeInTheDocument()
+    })
+  })
+
+  it("does not display goal info when goal date has passed", async () => {
+    // Mock a goal with a past date
+    const pastGoal = {
+      id: 1,
+      goal_weight: 175.0,
+      goal_date: "2020-01-01", // Past date
+    }
+    vi.mocked(goalService.getGoals).mockResolvedValue([pastGoal])
+
+    renderWithSWR(<WeightChartPage />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/You're only/i)).not.toBeInTheDocument()
+    })
+  })
+
+  it("does not display goal info when goal weight is invalid", async () => {
+    const testFutureDate = new Date()
+    testFutureDate.setFullYear(testFutureDate.getFullYear() + 1)
+    const invalidGoal = {
+      id: 1,
+      goal_weight: NaN,
+      goal_date: testFutureDate.toISOString().split('T')[0],
+    }
+    vi.mocked(goalService.getGoals).mockResolvedValue([invalidGoal])
+
+    renderWithSWR(<WeightChartPage />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/You're only/i)).not.toBeInTheDocument()
+    })
+  })
+
+  it("does not display goal info when monthly weight data is invalid", async () => {
+    const invalidMonthlyData = [
+      {
+        id: 1,
+        date_entry: "2024-01-01",
+        weight: NaN, // Invalid weight
+        created_by: "test-user-id",
+        created_at: "2024-01-01T10:00:00Z",
+      },
+    ]
+    vi.mocked(weightService.getMonthlyWeightEntries).mockResolvedValue(invalidMonthlyData)
 
     renderWithSWR(<WeightChartPage />)
 
