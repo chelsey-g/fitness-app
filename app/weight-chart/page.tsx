@@ -121,26 +121,51 @@ export default function WeightChartPage() {
     }
 
     const daysTracked = monthlyData.length
-    const firstWeight = monthlyData[0].weight
-    const latestWeight = monthlyData[monthlyData.length - 1].weight
-    const weightChange = latestWeight - firstWeight
+    const firstWeight = monthlyData[0]?.weight
+    const latestWeight = monthlyData[monthlyData.length - 1]?.weight
+    
+    // Validate that weights are valid numbers
+    const firstWeightNum = typeof firstWeight === 'number' && !isNaN(firstWeight) ? firstWeight : null
+    const latestWeightNum = typeof latestWeight === 'number' && !isNaN(latestWeight) ? latestWeight : null
+    
+    const weightChange = (firstWeightNum !== null && latestWeightNum !== null) 
+      ? latestWeightNum - firstWeightNum 
+      : 0
 
     return {
       daysTracked,
       weightChange,
-      firstWeight,
-      latestWeight
+      firstWeight: firstWeightNum,
+      latestWeight: latestWeightNum
     }
   }
 
   const getGoalInfo = () => {
-    if (!currentGoal || !monthlyData || monthlyData.length === 0) {
+    if (!currentGoal || !currentGoal.goal_weight || !currentGoal.goal_date || !monthlyData || monthlyData.length === 0) {
       return null
     }
 
-    const latestWeight = monthlyData[monthlyData.length - 1].weight
+    // Check if goal date is current (today or in the future)
+    const goalDateObj = dayjs(currentGoal.goal_date)
+    const today = dayjs().startOf('day')
+    if (goalDateObj.isBefore(today)) {
+      return null // Goal has passed, don't show it
+    }
+
+    const latestWeight = monthlyData[monthlyData.length - 1]?.weight
+    
+    // Validate that weight is a valid number
+    if (typeof latestWeight !== 'number' || isNaN(latestWeight)) {
+      return null
+    }
+    
+    // Validate that goal_weight is a valid number
+    if (typeof currentGoal.goal_weight !== 'number' || isNaN(currentGoal.goal_weight)) {
+      return null
+    }
+    
     const weightToGoal = latestWeight - currentGoal.goal_weight
-    const goalDate = dayjs(currentGoal.goal_date).format('MMMM DD, YYYY')
+    const goalDate = goalDateObj.format('MMMM DD, YYYY')
 
     return {
       weightToGoal,
@@ -264,7 +289,7 @@ export default function WeightChartPage() {
                       <div className="flex items-center gap-2">
                         <span className="text-gray-600">🎯</span>
                         <span className="text-gray-700">
-                          You're only 
+                          You're only{' '}
                           <span className={`font-semibold ${goalInfo.weightToGoal > 0 ? 'text-orange-600' : 'text-green-600'}`}>
                             {Math.abs(goalInfo.weightToGoal).toFixed(1)} lbs
                           </span>
